@@ -1,0 +1,17 @@
+[
+{
+  "modid": "architect",
+  "name": "Architect",
+  "description": "Make building repetitive things easier.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Sangar"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "requiredMods": [ "Forge@[${fversion},)" ],
+  "dependencies": []
+}
+]
