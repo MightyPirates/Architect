@@ -1,0 +1,13 @@
+itemGroup.architect=Architect
+
+item.architect.sketch.name=Sketch
+item.architect.blueprint.name=Blueprint
+item.architect.provider.name=Provider
+
+tile.architect.provider.name=Provider
+
+architect.tooltip.sketch.bounds=§8Bounds: (%s, %s, %s) to (%s, %s, %s)
+architect.tooltip.sketch.convert=§7Sneak-use for a prolonged amount of time to convert this sketch into a blueprint.
+architect.tooltip.sketch.empty=§7Click on blocks to add them to the sketch.
+architect.tooltip.blueprint=§7Sneak-use for a prolonged amount of time to convert this blueprint into a sketch.
+architect.tooltip.provider=§7Keep in inventory to provide items to nearby pending blueprint constructions.
