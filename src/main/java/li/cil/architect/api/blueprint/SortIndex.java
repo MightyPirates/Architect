@@ -1,7 +1,9 @@
 package li.cil.architect.api.blueprint;
 
+import net.minecraft.nbt.NBTBase;
+
 /**
- * Values for {@link Converter#getSortIndex()} used by built-in converters.
+ * Values for {@link Converter#getSortIndex(NBTBase)} used by built-in converters.
  * <p>
  * Use these for custom converters as is, or use them as a guideline.
  */

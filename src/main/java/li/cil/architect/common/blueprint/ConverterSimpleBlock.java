@@ -27,29 +27,6 @@ public final class ConverterSimpleBlock extends AbstractConverter {
     }
 
     @Override
-    public int getSortIndex(final NBTBase data) {
-        return 0;
-    }
-
-    @Override
-    public Iterable<ItemStack> getMissingMaterials(final IItemHandler materials, final NBTBase data) {
-        final NBTTagCompound nbt = (NBTTagCompound) data;
-        final ResourceLocation name = new ResourceLocation(nbt.getString(TAG_NAME));
-
-        final Block block = ForgeRegistries.BLOCKS.getValue(name);
-        if (block == null) {
-            return Collections.emptyList();
-        }
-
-        final Item item = Item.getItemFromBlock(block);
-        if (item == Items.AIR) {
-            return Collections.emptyList();
-        }
-
-        return Collections.singleton(new ItemStack(item));
-    }
-
-    @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
@@ -71,19 +48,68 @@ public final class ConverterSimpleBlock extends AbstractConverter {
     }
 
     @Override
-    public boolean deserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
+    public Iterable<ItemStack> getMissingMaterials(final IItemHandler materials, final NBTBase data) {
+        final ItemStack wantStack = getItem(data);
+        for (int slot = 0; slot < materials.getSlots(); slot++) {
+            final ItemStack haveStack = materials.getStackInSlot(slot);
+            if (haveStack.isItemEqual(wantStack)) {
+                return Collections.emptyList();
+            }
+        }
+        return Collections.singleton(wantStack);
+    }
+
+    @Override
+    public boolean preDeserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
+        final ItemStack wantStack = getItem(data);
+        if (wantStack.isEmpty()) {
+            return true;
+        }
+
+        for (int slot = 0; slot < materials.getSlots(); slot++) {
+            final ItemStack haveStack = materials.getStackInSlot(slot);
+            if (haveStack.isItemEqual(wantStack)) {
+                final ItemStack extractedStack = materials.extractItem(slot, 1, false);
+                assert extractedStack.isItemEqual(wantStack);
+                if (!extractedStack.isEmpty()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
         final NBTTagCompound nbt = (NBTTagCompound) data;
         final ResourceLocation name = new ResourceLocation(nbt.getString(TAG_NAME));
         final int metadata = nbt.getByte(TAG_METADATA) & 0xFF;
 
         final Block block = ForgeRegistries.BLOCKS.getValue(name);
         if (block == null) {
-            return true; // Can never succeed, don't try again (block type does not exist in this Minecraft instance).
+            return; // Block type does not exist in this Minecraft instance.
         }
 
         final IBlockState state = block.getStateFromMeta(metadata).withRotation(rotation);
 
         world.setBlockState(pos, state);
-        return true;
+    }
+
+    private static ItemStack getItem(final NBTBase data) {
+        final NBTTagCompound nbt = (NBTTagCompound) data;
+        final ResourceLocation name = new ResourceLocation(nbt.getString(TAG_NAME));
+
+        final Block block = ForgeRegistries.BLOCKS.getValue(name);
+        if (block == null) {
+            return ItemStack.EMPTY;
+        }
+
+        final Item item = Item.getItemFromBlock(block);
+        if (item == Items.AIR) {
+            return ItemStack.EMPTY;
+        }
+
+        return new ItemStack(item);
     }
 }

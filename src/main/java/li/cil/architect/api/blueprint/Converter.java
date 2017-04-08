@@ -38,24 +38,10 @@ public interface Converter {
      * solid blocks (e.g. levers, water).
      *
      * @param data the serialized representation of the block in question.
-     * @return the sort index of this converter.
+     * @return the sort index of the specified data.
      * @see SortIndex
      */
     int getSortIndex(final NBTBase data);
-
-    /**
-     * Get a list of materials missing from the specified {@link IItemHandler}
-     * that are required to deserialize the block described by the specified
-     * {@link NBTBase}.
-     * <p>
-     * This will typically return a singleton list or an empty list, but for more
-     * complex converters, e.g. ones handling multi-part blocks this returns an
-     * iterable.
-     *
-     * @param materials access to materials available for deserialization.
-     * @return a list of materials missing.
-     */
-    Iterable<ItemStack> getMissingMaterials(final IItemHandler materials, final NBTBase data);
 
     /**
      * Checks if this converter can be used to serialize the block at the
@@ -82,26 +68,55 @@ public interface Converter {
     NBTBase serialize(final World world, final BlockPos pos);
 
     /**
+     * Get a list of materials missing from the specified {@link IItemHandler}
+     * that are required to deserialize the block described by the specified
+     * {@link NBTBase}.
+     * <p>
+     * The passed {@link NBTBase} passed along is guaranteed to be a value that
+     * was previously produced by this converter's {@link #serialize} method.
+     * <p>
+     * This will typically return a singleton list or an empty list, but for more
+     * complex converters, e.g. ones handling multi-part blocks this returns an
+     * iterable.
+     * <p>
+     * This is not used for logic, purely for user feedback, e.g. in tooltips.
+     *
+     * @param materials access to materials available for deserialization.
+     * @return a list of materials missing.
+     */
+    Iterable<ItemStack> getMissingMaterials(final IItemHandler materials, final NBTBase data);
+
+    /**
+     * Called when a job for deserialization should be created.
+     * <p>
+     * The passed {@link NBTBase} passed along is guaranteed to be a value that
+     * was previously produced by this converter's {@link #serialize} method.
+     * <p>
+     * This serves as a filter for which blocks in a blueprint actually can be
+     * deserialized, in particular with respect to available materials which
+     * are consumed from the specified {@link IItemHandler}.
+     *
+     * @param materials access to building materials available for deserialization.
+     * @param world     the world into which to deserialize the block.
+     * @param pos       the position at which to deserialize the block.
+     * @param rotation  the rotation to deserialize with.
+     * @param data      the serialized representation of the block to deserialize.
+     * @return <code>true</code> if the data can be deserialized;
+     * <code>false</code> otherwise.
+     */
+    boolean preDeserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
+
+    /**
      * Deserialize the specified serialized block data into the world at the
      * specified world position.
      * <p>
      * The passed {@link NBTBase} passed along is guaranteed to be a value that
      * was previously produced by this converter's {@link #serialize} method.
-     * <p>
-     * The converter will take care of consuming the items from the specified
-     * {@link IItemHandler}.
-     * <p>
-     * This is called independently of {@link #getMissingMaterials}, that is to
-     * say, this may be called even though the list of missing materials is
-     * non-empty.
      *
-     * @param materials access to building materials available for deserialization.
-     * @param world     the world to deserialize the block into.
-     * @param pos       the position to deserialize the block at.
-     * @param rotation  the rotation to deserialize with.
-     * @param data      the serialized representation of the block to deserialize.
-     * @return <code>true</code> if the deserialization was successful;
-     * <code>false</code> otherwise.
+     * @param world    the world to deserialize the block into.
+     * @param pos      the position to deserialize the block at.
+     * @param rotation the rotation to deserialize with.
+     * @param data     the serialized representation of the block to deserialize.
      */
-    boolean deserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
+    void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
 }

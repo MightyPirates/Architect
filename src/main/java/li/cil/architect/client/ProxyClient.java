@@ -2,11 +2,9 @@ package li.cil.architect.client;
 
 import li.cil.architect.client.gui.GuiHandlerClient;
 import li.cil.architect.client.renderer.BlueprintRenderer;
-import li.cil.architect.client.renderer.JobRenderer;
 import li.cil.architect.client.renderer.SketchRenderer;
 import li.cil.architect.common.Architect;
 import li.cil.architect.common.ProxyCommon;
-import li.cil.architect.common.blueprint.JobManagerClient;
 import li.cil.architect.common.event.MouseEventHandlerBlueprint;
 import li.cil.architect.common.event.MouseEventHandlerSketch;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -29,11 +27,9 @@ public final class ProxyClient extends ProxyCommon {
         super.onPreInit(event);
 
         MinecraftForge.EVENT_BUS.register(BlueprintRenderer.INSTANCE);
-        MinecraftForge.EVENT_BUS.register(JobRenderer.INSTANCE);
         MinecraftForge.EVENT_BUS.register(SketchRenderer.INSTANCE);
         MinecraftForge.EVENT_BUS.register(MouseEventHandlerBlueprint.INSTANCE);
         MinecraftForge.EVENT_BUS.register(MouseEventHandlerSketch.INSTANCE);
-        MinecraftForge.EVENT_BUS.register(JobManagerClient.INSTANCE);
     }
 
     @Override

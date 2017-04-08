@@ -2,21 +2,18 @@ package li.cil.architect.common.blueprint;
 
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TLongObjectMap;
+import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import li.cil.architect.api.API;
 import li.cil.architect.api.BlueprintAPI;
 import li.cil.architect.common.Architect;
 import li.cil.architect.common.Settings;
-import li.cil.architect.common.inventory.CompoundItemHandler;
-import li.cil.architect.common.network.Network;
-import li.cil.architect.common.network.message.MessageJobDataResponse;
-import li.cil.architect.util.BlockPosUtils;
 import li.cil.architect.util.ChunkUtils;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -28,29 +25,60 @@ import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.BitSet;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.stream.Stream;
 
+/**
+ * Tracks pending block deserialization / placement.
+ */
 public enum JobManager {
     INSTANCE;
+    // --------------------------------------------------------------------- //
 
-    public void addJob(final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
-        final JobManagerImpl manager = getInstance(world);
-        final ChunkPos chunkPos = new ChunkPos(pos);
-        manager.addJob(chunkPos, pos, rotation, nbt);
+    /**
+     * Utility interface for {@link #addJobBatch(EntityPlayer, Stream)}.
+     */
+    public interface JobConsumer {
+        void accept(final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt);
     }
 
-    public void sendJobDataToClient(final ChunkPos chunkPos, final EntityPlayerMP player) {
-        final World world = player.getEntityWorld();
-        final JobManagerImpl manager = getInstance(world);
-        manager.sendJobDataToClient(chunkPos, player);
+    /**
+     * Utility interface for {@link #addJobBatch(EntityPlayer, Stream)}.
+     */
+    public interface JobSupplier {
+        void get(final JobConsumer consumer);
+    }
+
+    // --------------------------------------------------------------------- //
+
+    /**
+     * Add a batch of jobs which will be sorted by their respective sort orders
+     * amongst each other.
+     * <p>
+     * This is a little bit roundabout, as we want to abstract all internal
+     * bookkeeping logic needed for the sorting of added jobs. Essentially this
+     * is a "for each job you can give me, please tell this object what that
+     * job is", with "this object" being the instance with internal bookkeeping.
+     *
+     * @param player   the player creating the jobs.
+     * @param provider the stream to query for jobs.
+     */
+    public void addJobBatch(final EntityPlayer player, final Stream<JobSupplier> provider) {
+        final JobBatch batch = new JobBatch(player);
+        provider.forEach(jobProvider -> jobProvider.get(batch));
+
+        final JobManagerImpl manager = getInstance(player.getEntityWorld());
+        batch.finish(manager);
     }
 
     // --------------------------------------------------------------------- //
@@ -59,11 +87,7 @@ public enum JobManager {
     public void onWorldTick(final TickEvent.WorldTickEvent event) {
         final JobManagerImpl manager = getInstance(event.world);
         manager.updateJobs(event.world);
-        if (event.world.getTotalWorldTime() % 1000 == 0) {
-            manager.updateProviders(event.world);
-        }
     }
-
 
     @SubscribeEvent
     public void onWorldUnload(final WorldEvent.Unload event) {
@@ -91,8 +115,19 @@ public enum JobManager {
 
     // --------------------------------------------------------------------- //
 
+    /**
+     * The list of all currently active managers, one manager per world.
+     */
     private final TIntObjectMap<JobManagerImpl> MANAGERS = new TIntObjectHashMap<>();
 
+    /**
+     * Get the manager instance responsible for the specified world.
+     * <p>
+     * Creates a new manager for the specified world if there isn't one yet.
+     *
+     * @param world the world to get the manager for.
+     * @return the manager for that world.
+     */
     private JobManagerImpl getInstance(final World world) {
         final int dimension = world.provider.getDimension();
         JobManagerImpl manager = MANAGERS.get(dimension);
@@ -107,6 +142,8 @@ public enum JobManager {
         return manager;
     }
 
+    // --------------------------------------------------------------------- //
+
     private static final class JobManagerImpl extends WorldSavedData {
         // --------------------------------------------------------------------- //
         // Computed data.
@@ -117,11 +154,8 @@ public enum JobManager {
         private static final String TAG_BLOCK_DATA = "blockData";
         private static final String TAG_JOBS = API.MOD_ID + ":jobs";
 
-        // List of jobs that (in the last provider update) were in range of at
-        // least one provider.
-        private ArrayList<JobWithProviders> jobsWithProviders = new ArrayList<>();
-
-        private int nextJobIndex;
+        // Fields because closures because trove...
+        private int totalOps, chunkOps;
 
         // --------------------------------------------------------------------- //
         // Persisted data.
@@ -143,64 +177,48 @@ public enum JobManager {
             super(ID);
         }
 
-        void addJob(final ChunkPos chunkPos, final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
-            final Job job = new Job();
-            job.dataReference = addReference(nbt);
-            job.setPos(pos);
-            job.setRotation(rotation);
+        void addJob(final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
+            final Job job = new Job(addReference(nbt), pos, rotation);
 
-            final JobChunkStorage storage = getChunkStorage(chunkPos);
-            storage.addJob(job);
-        }
-
-        private void removeJob(final ChunkPos chunkPos, final Job job) {
-            removeReference(job.dataReference);
-
-            final JobChunkStorage storage = getChunkStorage(chunkPos);
-            storage.removeJob(job);
-        }
-
-        void sendJobDataToClient(final ChunkPos chunkPos, final EntityPlayerMP player) {
-            final JobChunkStorage storage = getChunkStorage(chunkPos);
-            final byte[] data = storage.getDataForClient(player);
-            if (data != null) {
-                Network.INSTANCE.getWrapper().sendTo(new MessageJobDataResponse(chunkPos, data), player);
-            }
+            final JobChunkStorage storage = getChunkStorage(new ChunkPos(pos));
+            storage.pushJob(job);
         }
 
         void updateJobs(final World world) {
-            for (int i = 0, count = Math.min(jobsWithProviders.size(), Settings.maxWorldOperationsPerTick); i < count; i++) {
-                if (nextJobIndex >= jobsWithProviders.size()) {
-                    nextJobIndex = 0;
-                }
-                final JobWithProviders job = jobsWithProviders.get(nextJobIndex++);
+            totalOps = 0;
+            chunkData.forEachEntry((key, storage) -> {
+                chunkOps = 0;
 
-                final IItemHandler materials = job.getMaterials();
-                final BlockPos pos = job.getPos();
-                final Rotation rotation = job.getRotation();
-                final NBTTagCompound blockData = job.getData(this);
-                if (BlueprintAPI.deserialize(materials, world, pos, rotation, blockData)) {
-                    removeJob(job.chunkPos, job.job);
-                }
-            }
-        }
+                final ChunkPos chunkPos = ChunkUtils.longToChunkPos(key);
+                while (!storage.isEmpty()) {
+                    final Job job = storage.popJob();
+                    final NBTTagCompound data = removeReference(job.dataReference);
+                    if (data != null) {
+                        BlueprintAPI.deserialize(world, job.getPos(chunkPos), job.getRotation(), data);
+                    }
 
-        void updateProviders(final World world) {
-            jobsWithProviders.removeIf(job -> {
-                final BlockPos pos = job.getPos();
-                return !ProviderManager.INSTANCE.hasProviders(world, BlockPosUtils.toVec3d(pos));
+                    // Check limits. Total first, to make sure it's always
+                    // incremented, even in our last chunk iteration.
+                    if (++totalOps >= Settings.maxWorldOperationsPerTick) {
+                        break;
+                    }
+                    if (++chunkOps >= Settings.maxChunkOperationsPerTick) {
+                        break;
+                    }
+                }
+
+                // Stop once we hit the cap of total operations.
+                return totalOps < Settings.maxWorldOperationsPerTick;
             });
-
-
         }
 
         void loadChunk(final ChunkPos chunk, final NBTTagCompound data) {
-            JobChunkStorage storage = getChunkStorage(chunk);
+            final JobChunkStorage storage = getChunkStorage(chunk);
             storage.deserializeNBT(data.getTagList(TAG_JOBS, Constants.NBT.TAG_COMPOUND));
         }
 
         void saveChunk(final ChunkPos chunk, final NBTTagCompound data) {
-            JobChunkStorage storage = getChunkStorage(chunk);
+            final JobChunkStorage storage = getChunkStorage(chunk);
             data.setTag(TAG_JOBS, storage.serializeNBT());
         }
 
@@ -213,12 +231,12 @@ public enum JobManager {
 
         private JobChunkStorage getChunkStorage(final ChunkPos chunkPos) {
             final long chunkId = ChunkUtils.chunkPosToLong(chunkPos);
-            JobChunkStorage chunkStorage = chunkData.get(chunkId);
-            if (chunkStorage == null) {
-                chunkStorage = new JobChunkStorage();
-                chunkData.put(chunkId, chunkStorage);
+            JobChunkStorage storage = chunkData.get(chunkId);
+            if (storage == null) {
+                storage = new JobChunkStorage();
+                chunkData.put(chunkId, storage);
             }
-            return chunkStorage;
+            return storage;
         }
 
         private long addReference(final NBTTagCompound nbt) {
@@ -233,25 +251,18 @@ public enum JobManager {
             return entry.id;
         }
 
-        private void removeReference(final long id) {
-            JobBlockData entry = idToData.get(id);
+        @Nullable
+        private NBTTagCompound removeReference(final long id) {
+            final JobBlockData entry = idToData.get(id);
             if (entry == null) {
                 Architect.getLog().error("Failed retrieving block data for id, meaning the data was disposed even though there were still references to it. This should be impossible in normal operation. If you're 110% sure your server didn't corrupt some of its save data, e.g. due to a crash, please report this!");
-                return;
+                return null;
             }
             entry.referenceCount--;
             markDirty();
             if (entry.referenceCount <= 0) {
                 idToData.remove(entry.id);
                 nbtToData.remove(entry.data);
-            }
-        }
-
-        private NBTTagCompound getBlockData(final long id) {
-            JobBlockData entry = idToData.get(id);
-            if (entry == null) {
-                Architect.getLog().error("Failed retrieving block data for id, meaning the data was disposed even though there were still references to it. This should be impossible in normal operation. If you're 110% sure your server didn't corrupt some of its save data, e.g. due to a crash, please report this!");
-                return new NBTTagCompound();
             }
             return entry.data;
         }
@@ -288,21 +299,27 @@ public enum JobManager {
         }
     }
 
+    /**
+     * A reference counting wrapper for an {@link NBTTagCompound}.
+     * <p>
+     * We keep references to equal tags to avoid data duplication in memory,
+     * with the intent of keeping memory usage low(er than it'd otherwise be).
+     */
     private static final class JobBlockData {
         private static final String TAG_ID = "id";
         private static final String TAG_DATA = "data";
         private static final String TAG_REFERENCES = "refs";
 
-        long id;
-        NBTTagCompound data;
-        int referenceCount;
+        long id; // The reference ID of this entry, used in jobs.
+        NBTTagCompound data; // The actual data stored in this entry.
+        int referenceCount; // The remaining live references to this entry.
+
+        JobBlockData() {
+        }
 
         JobBlockData(final long id, final NBTTagCompound data) {
             this.id = id;
             this.data = data.copy();
-        }
-
-        JobBlockData() {
         }
 
         NBTTagCompound serializeNBT() {
@@ -320,38 +337,26 @@ public enum JobManager {
         }
     }
 
+    /**
+     * A list of jobs for a single chunk.
+     * <p>
+     * Jobs are organized per chunk to allow storing them in the chunk's data
+     * section in case the chunk gets unloaded before all jobs in it have been
+     * processed.
+     */
     private static final class JobChunkStorage {
-        private final BitSet jobsForClients = new BitSet(16 * 16 * 256);
-        private byte[] serializedJobsForClients;
-        private final HashSet<NetHandlerPlayServer> sentToClients = new HashSet<>();
+        private final LinkedList<Job> jobs = new LinkedList<>();
 
-        private final List<Job> jobs = new ArrayList<>();
-
-        void addJob(final Job job) {
-            jobs.add(job);
-            jobsForClients.set(job.compressedPos);
-            sentToClients.clear();
-            serializedJobsForClients = null;
+        boolean isEmpty() {
+            return jobs.isEmpty();
         }
 
-        void removeJob(final Job job) {
-            jobs.remove(job);
-            jobsForClients.clear(job.compressedPos);
-            sentToClients.clear();
-            serializedJobsForClients = null;
+        void pushJob(final Job job) {
+            jobs.addLast(job);
         }
 
-        @Nullable
-        byte[] getDataForClient(final EntityPlayerMP player) {
-            if (sentToClients.contains(player.connection)) {
-                return null;
-            }
-            sentToClients.add(player.connection);
-
-            if (serializedJobsForClients == null) {
-                serializedJobsForClients = jobsForClients.toByteArray();
-            }
-            return serializedJobsForClients;
+        Job popJob() {
+            return jobs.removeFirst();
         }
 
         NBTTagList serializeNBT() {
@@ -367,11 +372,18 @@ public enum JobManager {
             for (int tagIndex = 0; tagIndex < nbt.tagCount(); tagIndex++) {
                 final Job job = new Job();
                 job.deserializeNBT(nbt.getCompoundTagAt(tagIndex));
-                jobs.add(job);
+                jobs.addLast(job);
             }
         }
     }
 
+    /**
+     * Represents a single, pending job.
+     * <p>
+     * A job is a pending deserialization / block placement operation. Jobs are
+     * already "paid" for, as the materials are consumed from the placing
+     * player's inventory the moment jobs are created.
+     */
     private static final class Job {
         private static final String TAG_REFERENCE = "ref";
         private static final String TAG_POSITION = "pos";
@@ -380,6 +392,15 @@ public enum JobManager {
         long dataReference;
         private short compressedPos; // 0xZYYX
         private byte rotation;
+
+        Job() {
+        }
+
+        Job(final long reference, final BlockPos pos, final Rotation rotation) {
+            dataReference = reference;
+            setPos(pos);
+            setRotation(rotation);
+        }
 
         BlockPos getPos(final ChunkPos chunkPos) {
             return ChunkUtils.shortToPos(chunkPos, compressedPos);
@@ -412,40 +433,78 @@ public enum JobManager {
         }
     }
 
-    private static final class JobWithProviders {
-        final ChunkPos chunkPos;
-        final Job job;
-        final List<Provider> providers;
-        private IItemHandler cachedCompoundHandler;
+    /**
+     * Utility class for adding jobs in batches, which are then internally
+     * sorted by the sort index provided by the converter used to deserialize
+     * the data.
+     */
+    private static class JobBatch implements JobConsumer {
+        // The player creating the jobs and from whose inventory take materials.
+        private final EntityPlayer player;
 
-        private JobWithProviders(final ChunkPos chunkPos, final Job job, final List<Provider> providers) {
-            this.chunkPos = chunkPos;
-            this.job = job;
-            this.providers = providers;
+        // Re-use NBTs to allow GC to collect duplicates while adding large batches.
+        private final TObjectIntMap<NBTTagCompound> nbtToId = new TObjectIntHashMap<>();
+        private final TIntObjectMap<NBTTagCompound> idToNbt = new TIntObjectHashMap<>();
+        private int nextId = 1;
+
+        // Lists of added jobs, categorized by their sort index.
+        private final TIntObjectMap<List<BatchedJob>> jobs = new TIntObjectHashMap<>();
+
+        JobBatch(final EntityPlayer player) {
+            this.player = player;
         }
 
-        BlockPos getPos() {
-            return job.getPos(chunkPos);
-        }
-
-        Rotation getRotation() {
-            return job.getRotation();
-        }
-
-        NBTTagCompound getData(final JobManagerImpl manager) {
-            return manager.getBlockData(job.dataReference);
-        }
-
-        IItemHandler getMaterials() {
-            if (cachedCompoundHandler == null) {
-                final int providerCount = providers.size();
-                final IItemHandler[] providedHandlers = new IItemHandler[providerCount];
-                for (int j = 0; j < providerCount; j++) {
-                    providedHandlers[j] = providers.get(j).getMaterials();
-                }
-                cachedCompoundHandler = new CompoundItemHandler(providedHandlers);
+        @Override
+        public void accept(final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
+            if (!BlueprintAPI.preDeserialize(new InvWrapper(player.inventory), player.getEntityWorld(), pos, rotation, nbt)) {
+                return;
             }
-            return cachedCompoundHandler;
+
+            final int sortIndex = BlueprintAPI.getSortIndex(nbt);
+            if (!jobs.containsKey(sortIndex)) {
+                jobs.put(sortIndex, new ArrayList<>());
+            }
+
+            final int id;
+            if (nbtToId.containsKey(nbt)) {
+                id = nbtToId.get(nbt);
+            } else {
+                id = nextId++;
+                nbtToId.put(nbt, id);
+                idToNbt.put(id, nbt);
+            }
+            jobs.get(sortIndex).add(new BatchedJob(pos, rotation, id));
+        }
+
+        void finish(final JobManagerImpl manager) {
+            // Shuffle jobs per sort index, to get a less... boring order when
+            // actually deserializing the blocks.
+            final Random rng = player.world.rand;
+            jobs.forEachValue(list -> {
+                Collections.shuffle(list, rng);
+                return true;
+            });
+
+            // Sort by sort index (the key of the job map).
+            final int[] keys = jobs.keys();
+            Arrays.sort(keys);
+            for (final int key : keys) {
+                for (final BatchedJob job : jobs.get(key)) {
+                    manager.addJob(job.pos, job.rotation, idToNbt.get(job.id));
+                }
+            }
+        }
+
+        private static final class BatchedJob {
+            final BlockPos pos;
+            final Rotation rotation;
+            final int id;
+
+            BatchedJob(final BlockPos pos, final Rotation rotation, final int id) {
+                this.pos = pos;
+                this.rotation = rotation;
+                this.id = id;
+            }
         }
     }
 }

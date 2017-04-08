@@ -4,6 +4,7 @@ import li.cil.architect.api.blueprint.Converter;
 import li.cil.architect.api.detail.BlueprintAPI;
 import li.cil.architect.common.Architect;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -36,6 +37,15 @@ public final class BlueprintAPIImpl implements BlueprintAPI {
     }
 
     @Override
+    public int getSortIndex(final NBTTagCompound data) {
+        final Converter converter = findConverter(data);
+        if (converter == null) {
+            return 0;
+        }
+        return converter.getSortIndex(data);
+    }
+
+    @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         return findConverter(world, pos) != null;
     }
@@ -56,38 +66,62 @@ public final class BlueprintAPIImpl implements BlueprintAPI {
     }
 
     @Override
-    public boolean canDeserialize(final World world, final BlockPos pos, final NBTTagCompound nbt) {
-        final IBlockState state = world.getBlockState(pos);
-        if (!state.getBlock().isReplaceable(world, pos)) {
-            return false;
+    public Iterable<ItemStack> getMissingMaterials(final IItemHandler materials, final World world, final BlockPos pos, final NBTTagCompound data) {
+        if (!isValidPosition(world, pos)) {
+            return Collections.emptyList();
         }
 
-        final UUID uuid = new UUID(nbt.getLong(TAG_CONVERTER_MSB), nbt.getLong(TAG_CONVERTER_LSB));
-        final Converter converter = uuidToConverter.get(uuid);
+        final Converter converter = findConverter(data);
         if (converter == null) {
-            return false;
+            return Collections.emptyList();
         }
-        return true;
+
+        return converter.getMissingMaterials(materials, data.getTag(TAG_DATA));
     }
 
     @Override
-    public boolean deserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
-        final IBlockState state = world.getBlockState(pos);
-        if (!state.getBlock().isReplaceable(world, pos)) {
+    public boolean preDeserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
+        if (!isValidPosition(world, pos)) {
             return false;
         }
 
-        final UUID uuid = new UUID(nbt.getLong(TAG_CONVERTER_MSB), nbt.getLong(TAG_CONVERTER_LSB));
-        final Converter converter = uuidToConverter.get(uuid);
+        final Converter converter = findConverter(data);
         if (converter == null) {
             Architect.getLog().warn("Trying to deserialize block that was serialized with a converter that is not present in the current installation. Ignoring.");
-            return true; // Can never succeed, don't try again.
+            return false;
         }
-        return converter.deserialize(materials, world, pos, rotation, nbt.getTag(TAG_DATA));
+
+        return converter.preDeserialize(materials, world, pos, rotation, data.getTag(TAG_DATA));
+    }
+
+    @Override
+    public void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
+        if (!isValidPosition(world, pos)) {
+            return;
+        }
+
+        final Converter converter = findConverter(data);
+        if (converter == null) {
+            Architect.getLog().warn("Trying to deserialize block that was serialized with a converter that is not present in the current installation. Ignoring.");
+            return;
+        }
+
+        converter.deserialize(world, pos, rotation, data.getTag(TAG_DATA));
+    }
+
+    private boolean isValidPosition(final World world, final BlockPos pos) {
+        final IBlockState state = world.getBlockState(pos);
+        return state.getBlock().isReplaceable(world, pos);
     }
 
     @Nullable
-    private synchronized Converter findConverter(final World world, final BlockPos pos) {
+    private Converter findConverter(final NBTTagCompound data) {
+        final UUID uuid = new UUID(data.getLong(TAG_CONVERTER_MSB), data.getLong(TAG_CONVERTER_LSB));
+        return uuidToConverter.get(uuid);
+    }
+
+    @Nullable
+    private Converter findConverter(final World world, final BlockPos pos) {
         for (int i = 0; i < converters.size(); i++) {
             final Converter converter = converters.get(i);
             if (converter.canSerialize(world, pos)) {

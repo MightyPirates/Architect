@@ -1,7 +1,6 @@
 package li.cil.architect.common.item;
 
 import li.cil.architect.common.Constants;
-import li.cil.architect.common.blueprint.JobManagerClient;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.data.BlueprintData;
 import li.cil.architect.util.PlayerUtils;
@@ -69,8 +68,6 @@ public final class ItemBlueprint extends AbstractPatternItem {
             player.setActiveHand(hand);
         } else if (!world.isRemote) {
             handleInput(player, hand, PlayerUtils.getLookAtPos(player));
-        } else {
-            JobManagerClient.INSTANCE.setJobsDirty();
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
     }
@@ -79,8 +76,6 @@ public final class ItemBlueprint extends AbstractPatternItem {
     public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
         if (!world.isRemote) {
             handleInput(player, hand, pos);
-        } else {
-            JobManagerClient.INSTANCE.setJobsDirty();
         }
         return EnumActionResult.SUCCESS;
     }
@@ -103,9 +98,8 @@ public final class ItemBlueprint extends AbstractPatternItem {
     // --------------------------------------------------------------------- //
 
     private void handleInput(final EntityPlayer player, final EnumHand hand, final BlockPos pos) {
-        final World world = player.getEntityWorld();
         final ItemStack stack = player.getHeldItem(hand);
         final BlueprintData data = getData(stack);
-        data.createJobs(world, pos);
+        data.createJobs(player, pos);
     }
 }

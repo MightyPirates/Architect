@@ -1,6 +1,8 @@
 package li.cil.architect.api.prefab.blueprint;
 
 import li.cil.architect.api.blueprint.Converter;
+import li.cil.architect.api.blueprint.SortIndex;
+import net.minecraft.nbt.NBTBase;
 
 import java.util.UUID;
 
@@ -25,5 +27,10 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public UUID getUUID() {
         return uuid;
+    }
+
+    @Override
+    public int getSortIndex(final NBTBase data) {
+        return SortIndex.SOLID_BLOCK;
     }
 }

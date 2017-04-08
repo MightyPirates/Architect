@@ -7,6 +7,7 @@ import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import li.cil.architect.common.blueprint.JobManager;
 import li.cil.architect.util.AxisAlignedBBUtils;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.Rotation;
@@ -14,7 +15,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
@@ -116,7 +116,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
             return Stream.empty(); // Corrupted data.
         }
         final BlockPos origin = snapToGrid(pos, size).add(shift);
-        return StreamSupport.stream(new BlockSpliterator(this, origin), false);
+        return StreamSupport.stream(new BlockPosSpliterator(this, origin), false);
     }
 
     /**
@@ -124,24 +124,16 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
      * <p>
      * The positions are defined the same way as in {@link #getBlocks(BlockPos)}.
      *
-     * @param world the world to create the jobs in.
-     * @param pos   the position of the cell defining the origin position.
+     * @param player the player placing the blueprint.
+     * @param pos    the position of the cell defining the origin position.
      */
-    public void createJobs(final World world, final BlockPos pos) {
+    public void createJobs(final EntityPlayer player, final BlockPos pos) {
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
         if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
             return; // Corrupted data.
         }
         final BlockPos origin = snapToGrid(pos, size).add(shift);
-        final TIntIntIterator iterator = blocks.iterator();
-        while (iterator.hasNext()) {
-            iterator.advance();
-            final BlockPos relPos = fromIndex(iterator.key());
-            // TODO Rotate by rotation around center of bounds.
-            final BlockPos worldPos = relPos.add(origin);
-            final NBTTagCompound nbt = blockData.get(iterator.value());
-            JobManager.INSTANCE.addJob(world, worldPos, rotation, nbt);
-        }
+        JobManager.INSTANCE.addJobBatch(player, StreamSupport.stream(new JobAddSpliterator(this, origin), false));
     }
 
     // --------------------------------------------------------------------- //
@@ -232,11 +224,15 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
     // --------------------------------------------------------------------- //
 
-    private static final class BlockSpliterator extends Spliterators.AbstractSpliterator<BlockPos> {
+    public static final class JobData {
+
+    }
+
+    private static final class BlockPosSpliterator extends Spliterators.AbstractSpliterator<BlockPos> {
         private final BlockPos origin;
         private final TIntIntIterator iterator;
 
-        BlockSpliterator(final BlueprintData data, final BlockPos origin) {
+        BlockPosSpliterator(final BlueprintData data, final BlockPos origin) {
             super(data.blocks.size(), SIZED);
             this.origin = origin;
             this.iterator = data.blocks.iterator();
@@ -248,10 +244,43 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
                 iterator.advance();
                 final BlockPos relPos = fromIndex(iterator.key());
                 // TODO Rotate by rotation around center of bounds.
-                action.accept(relPos.add(origin));
+                final BlockPos worldPos = relPos.add(origin);
+                action.accept(worldPos);
                 return true;
             }
             return false;
+        }
+    }
+
+    private static final class JobAddSpliterator extends Spliterators.AbstractSpliterator<JobManager.JobSupplier> implements JobManager.JobSupplier {
+        private final List<NBTTagCompound> blockData;
+        private final BlockPos origin;
+        private final TIntIntIterator iterator;
+
+        JobAddSpliterator(final BlueprintData data, final BlockPos origin) {
+            super(data.blocks.size(), SIZED);
+            this.blockData = data.blockData;
+            this.origin = origin;
+            this.iterator = data.blocks.iterator();
+        }
+
+        @Override
+        public boolean tryAdvance(final Consumer<? super JobManager.JobSupplier> action) {
+            if (iterator.hasNext()) {
+                iterator.advance();
+                action.accept(this);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void get(final JobManager.JobConsumer consumer) {
+            final BlockPos relPos = fromIndex(iterator.key());
+            // TODO Rotate by rotation around center of bounds.
+            final BlockPos worldPos = relPos.add(origin);
+            final NBTTagCompound nbt = blockData.get(iterator.value());
+            consumer.accept(worldPos, Rotation.NONE, nbt);
         }
     }
 }

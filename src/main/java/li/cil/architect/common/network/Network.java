@@ -1,12 +1,8 @@
 package li.cil.architect.common.network;
 
 import li.cil.architect.api.API;
-import li.cil.architect.client.network.handler.MessageHandlerJobDataResponse;
 import li.cil.architect.common.network.handler.MessageHandlerBlueprintShift;
-import li.cil.architect.common.network.handler.MessageHandlerJobDataRequest;
 import li.cil.architect.common.network.message.MessageBlueprintShift;
-import li.cil.architect.common.network.message.MessageJobDataRequest;
-import li.cil.architect.common.network.message.MessageJobDataResponse;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -36,8 +32,6 @@ public final class Network {
 
     private enum Messages {
         BlueprintShift,
-        JobDataRequest,
-        JobDataResponse,
     }
 
     // --------------------------------------------------------------------- //
@@ -46,8 +40,6 @@ public final class Network {
         wrapper = NetworkRegistry.INSTANCE.newSimpleChannel(API.MOD_ID);
 
         wrapper.registerMessage(MessageHandlerBlueprintShift.class, MessageBlueprintShift.class, Messages.BlueprintShift.ordinal(), Side.SERVER);
-        wrapper.registerMessage(MessageHandlerJobDataRequest.class, MessageJobDataRequest.class, Messages.JobDataRequest.ordinal(), Side.SERVER);
-        wrapper.registerMessage(MessageHandlerJobDataResponse.class, MessageJobDataResponse.class, Messages.JobDataResponse.ordinal(), Side.CLIENT);
     }
 
     public SimpleNetworkWrapper getWrapper() {

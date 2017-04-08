@@ -6,8 +6,6 @@ import li.cil.architect.common.api.BlueprintAPIImpl;
 import li.cil.architect.common.api.CreativeTab;
 import li.cil.architect.common.blueprint.ConverterSimpleBlock;
 import li.cil.architect.common.blueprint.JobManager;
-import li.cil.architect.common.blueprint.ProviderEntityManager;
-import li.cil.architect.common.blueprint.ProviderManager;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.integration.Integration;
 import li.cil.architect.common.network.Network;
@@ -49,8 +47,6 @@ public class ProxyCommon {
 
         // Register event handlers.
         MinecraftForge.EVENT_BUS.register(JobManager.INSTANCE);
-        MinecraftForge.EVENT_BUS.register(ProviderManager.INSTANCE);
-        MinecraftForge.EVENT_BUS.register(ProviderEntityManager.INSTANCE);
 
         // Register built-in dynamic converter.
         BlueprintAPI.addConverter(new ConverterSimpleBlock(Constants.UUID_CONVERTER_GENERIC));

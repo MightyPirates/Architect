@@ -2,7 +2,6 @@ package li.cil.architect.common.item;
 
 import li.cil.architect.common.Constants;
 import li.cil.architect.common.Settings;
-import li.cil.architect.common.blueprint.ProviderEntityManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
@@ -74,9 +73,9 @@ public final class ItemProvider extends Item {
     public void onUpdate(final ItemStack stack, final World world, final Entity entity, final int itemSlot, final boolean isSelected) {
         super.onUpdate(stack, world, entity, itemSlot, isSelected);
         if (entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
-            final float radius = MathHelper.clamp(Settings.maxProviderEntityRadius * radiusMultiplier, 1, 256);
-            final int operationsPerTick = MathHelper.clamp((int) (Settings.maxProviderEntityOperationsPerTick * operationsPerTickMultiplier), 1, 64);
-            ProviderEntityManager.INSTANCE.updateEntity(entity, radius, operationsPerTick);
+            final float radius = MathHelper.clamp(Settings.maxProviderRadius * radiusMultiplier, 1, 256);
+            final int operationsPerTick = MathHelper.clamp((int) (Settings.maxChunkOperationsPerTick * operationsPerTickMultiplier), 1, 64);
+//            ProviderEntityManager.INSTANCE.updateEntity(entity, radius, operationsPerTick);
         }
     }
 }
