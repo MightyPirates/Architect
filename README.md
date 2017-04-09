@@ -1,5 +1,5 @@
 # Architect
-Architect is a Minecraft mod that aims to make repetitive building tasks easier. It 
+Architect is a Minecraft mod that aims to make repetitive building tasks easier. It provides a streamlined workflow for creating blueprints (patterns) from existing structures in the world, which can then be placed again at any position and rotation given the required materials are found in the player's inventory or accessible via a provider.
 
 *This mod requires Java 8!*
 
