@@ -1,7 +1,7 @@
 package li.cil.architect.client.renderer;
 
 import li.cil.architect.common.init.Items;
-import li.cil.architect.common.item.ItemProvider;
+import li.cil.architect.common.item.AbstractProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -58,11 +58,11 @@ public enum ProviderRenderer {
             }
         }
 
-        if (ItemProvider.isBound(stack)) {
-            if (ItemProvider.getDimension(stack) == player.getEntityWorld().provider.getDimension()) {
-                final BlockPos pos = ItemProvider.getPosition(stack);
+        if (AbstractProvider.isBound(stack)) {
+            if (AbstractProvider.getDimension(stack) == player.getEntityWorld().provider.getDimension()) {
+                final BlockPos pos = AbstractProvider.getPosition(stack);
                 if (player.getDistanceSq(pos) <= 64) {
-                    final EnumFacing side = ItemProvider.getSide(stack);
+                    final EnumFacing side = AbstractProvider.getSide(stack);
 
 
                     GlStateManager.color(0.2f, 0.9f, 0.4f, 0.4f);

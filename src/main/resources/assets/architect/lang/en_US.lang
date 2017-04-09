@@ -2,9 +2,7 @@ itemGroup.architect=Architect
 
 item.architect.sketch.name=Sketch
 item.architect.blueprint.name=Blueprint
-item.architect.provider.name=Provider
-
-tile.architect.provider.name=Provider
+item.architect.provider_item.name=Item Provider
 
 architect.tooltip.sketch.bounds=§7Bounds: (%s, %s, %s) to (%s, %s, %s)
 architect.tooltip.sketch.convert=§8Use for more than a second to convert this sketch into a blueprint.
@@ -14,7 +12,7 @@ architect.tooltip.blueprint.costs.hint=§8Hold [§7%s§8] to show costs.
 architect.tooltip.blueprint.costs.title=§7Costs
 architect.tooltip.blueprint.costs.line=§7- %sx %s
 architect.tooltip.blueprint.costs.unknown=§7Unknown
-architect.tooltip.provider=§8Keep in inventory to use items from a bound-to inventory when placing blueprints.
+architect.tooltip.provider.item=§8Keep in inventory to use items from a bound-to inventory when placing blueprints.
 architect.tooltip.provider.target=§7Bound to (%s, %s, %s).
 
 key.architect.rotateBlueprint=Rotate Blueprint

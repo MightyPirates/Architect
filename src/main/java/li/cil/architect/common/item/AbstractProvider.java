@@ -1,8 +1,6 @@
 package li.cil.architect.common.item;
 
 import li.cil.architect.common.config.Constants;
-import li.cil.architect.common.config.Settings;
-import li.cil.architect.common.init.Items;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
@@ -15,19 +13,14 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public final class ItemProvider extends AbstractItem {
+public abstract class AbstractProvider extends AbstractItem {
     // --------------------------------------------------------------------- //
     // Computed data.
 
@@ -38,7 +31,7 @@ public final class ItemProvider extends AbstractItem {
 
     // --------------------------------------------------------------------- //
 
-    public ItemProvider() {
+    public AbstractProvider() {
         setMaxStackSize(1);
     }
 
@@ -94,53 +87,6 @@ public final class ItemProvider extends AbstractItem {
         return EnumFacing.VALUES[dataNbt.getByte(TAG_SIDE) & 0xFF];
     }
 
-    /**
-     * Get a list of all valid item-handlers accessible via providers in the
-     * specified inventory, in range of the specified position.
-     *
-     * @param consumerPos the position to base range checks on.
-     * @param inventory   the inventory to get providers from.
-     * @return the list of valid item handlers available.
-     */
-    public static List<IItemHandler> findProviders(final Vec3d consumerPos, final IItemHandler inventory) {
-        final List<IItemHandler> result = new ArrayList<>();
-
-        final float rangeSquared = Settings.maxProviderRadius * Settings.maxProviderRadius;
-        for (int slot = 0; slot < inventory.getSlots(); slot++) {
-            final ItemStack stack = inventory.getStackInSlot(slot);
-            if (!Items.isProvider(stack) || !isBound(stack)) {
-                continue;
-            }
-
-            final int dimension = getDimension(stack);
-            final World world = DimensionManager.getWorld(dimension);
-            if (world == null) {
-                continue;
-            }
-
-            final BlockPos pos = getPosition(stack);
-            if (consumerPos.squareDistanceTo(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > rangeSquared) {
-                continue;
-            }
-            if (!world.isBlockLoaded(pos)) {
-                continue;
-            }
-
-            final TileEntity tileEntity = world.getTileEntity(pos);
-            if (tileEntity == null) {
-                continue;
-            }
-
-            final IItemHandler itemHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, getSide(stack));
-            if (itemHandler == null) {
-                continue;
-            }
-
-            result.add(itemHandler);
-        }
-        return result;
-    }
-
     // --------------------------------------------------------------------- //
     // Item
 
@@ -148,7 +94,7 @@ public final class ItemProvider extends AbstractItem {
     @Override
     public void addInformation(final ItemStack stack, final EntityPlayer player, final List<String> tooltip, final boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        final String info = I18n.format(Constants.TOOLTIP_PROVIDER);
+        final String info = I18n.format(getTooltip());
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
 
@@ -161,7 +107,7 @@ public final class ItemProvider extends AbstractItem {
     @Override
     public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing side, final float hitX, final float hitY, final float hitZ) {
         final TileEntity tileEntity = world.getTileEntity(pos);
-        if (tileEntity != null && tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)) {
+        if (tileEntity != null && isValidTarget(tileEntity, side)) {
             if (player.isSneaking() && !world.isRemote) {
                 final ItemStack stack = player.getHeldItem(hand);
                 final NBTTagCompound dataNbt = getDataTag(stack);
@@ -190,4 +136,8 @@ public final class ItemProvider extends AbstractItem {
         }
         return new ActionResult<>(EnumActionResult.PASS, stack);
     }
+
+    abstract protected boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side);
+
+    abstract protected String getTooltip();
 }
