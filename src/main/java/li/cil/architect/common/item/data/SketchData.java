@@ -3,13 +3,12 @@ package li.cil.architect.common.item.data;
 import li.cil.architect.api.BlueprintAPI;
 import li.cil.architect.common.Settings;
 import li.cil.architect.util.AxisAlignedBBUtils;
-import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import javax.annotation.Nullable;
@@ -286,7 +285,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         }
 
         // Check if our bounds changed.
-        final AxisAlignedBB newBounds = computeBounds();
+        final AxisAlignedBB newBounds = computeBounds(blocks).offset(origin);
         if (newBounds.equals(bounds)) {
             return true;
         }
@@ -323,7 +322,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
     public NBTTagCompound serializeNBT() {
         final NBTTagCompound nbt = new NBTTagCompound();
         if (origin != null) {
-            nbt.setTag(TAG_BLOCKS, new NBTTagByteArray(blocks.toByteArray()));
+            nbt.setByteArray(TAG_BLOCKS, blocks.toByteArray());
             nbt.setLong(TAG_ORIGIN, origin.toLong());
         }
         return nbt;
@@ -335,7 +334,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         origin = null;
         bounds = null;
 
-        if (!nbt.hasKey(TAG_ORIGIN, Constants.NBT.TAG_LONG) || !nbt.hasKey(TAG_BLOCKS, Constants.NBT.TAG_BYTE_ARRAY)) {
+        if (!nbt.hasKey(TAG_ORIGIN, NBT.TAG_LONG) || !nbt.hasKey(TAG_BLOCKS, NBT.TAG_BYTE_ARRAY)) {
             return;
         }
 
@@ -346,7 +345,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         blocks.or(loaded);
         if (blocks.cardinality() > 0) { // Just in case...
             origin = BlockPos.fromLong(nbt.getLong(TAG_ORIGIN));
-            bounds = computeBounds(); // Requires origin to be set.
+            bounds = computeBounds(blocks).offset(origin);
         }
     }
 
@@ -366,61 +365,36 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         // Shift coordinates by negative delta so they're relative to the new
         // origin. Do this before setting the origin to its new value, because
         // toIndex and fromIndex use the origin field in their computations.
-        final BitSet newData = new BitSet(blocks.size());
+        final BitSet shiftedData = new BitSet(blocks.size());
         for (int index = blocks.nextSetBit(0); index >= 0; index = blocks.nextSetBit(index + 1)) {
-            newData.set(toIndex(fromIndex(index).subtract(delta)));
+            shiftedData.set(toIndex(fromIndex(index).subtract(delta)));
 
             assert index != Integer.MAX_VALUE;
         }
 
         blocks.clear();
-        blocks.or(newData);
+        blocks.or(shiftedData);
         origin = origin.add(delta);
         bounds = new AxisAlignedBB(bounds.minX + delta.getX(), bounds.minY + delta.getY(), bounds.minZ + delta.getZ(), bounds.maxX, bounds.maxY, bounds.maxZ);
-    }
-
-    /**
-     * Recompute the world space bounds of this sketch from scratch.
-     *
-     * @return the bounds of this sketch.
-     */
-    private AxisAlignedBB computeBounds() {
-        assert origin != null;
-        assert blocks.cardinality() > 0;
-
-        int index = blocks.nextSetBit(0);
-        BlockPos pos = fromIndex(index);
-        int minX = pos.getX(), minY = pos.getY(), minZ = pos.getZ(), maxX = pos.getX() + 1, maxY = pos.getY() + 1, maxZ = pos.getZ() + 1;
-        while ((index = blocks.nextSetBit(index + 1)) >= 0) {
-            pos = fromIndex(index);
-            minX = Math.min(minX, pos.getX());
-            minY = Math.min(minY, pos.getY());
-            minZ = Math.min(minZ, pos.getZ());
-            maxX = Math.max(maxX, pos.getX() + 1);
-            maxY = Math.max(maxY, pos.getY() + 1);
-            maxZ = Math.max(maxZ, pos.getZ() + 1);
-
-            assert index != Integer.MAX_VALUE;
-        }
-
-        return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ).offset(origin);
     }
 
     // --------------------------------------------------------------------- //
 
     private static final class BlockSpliterator extends Spliterators.AbstractSpliterator<BlockPos> {
-        private final SketchData data;
+        private final BitSet positions;
+        private final BlockPos origin;
         private int index = -1;
 
         BlockSpliterator(final SketchData data) {
             super(data.blocks.cardinality(), SIZED);
-            this.data = data;
+            this.positions = data.blocks;
+            this.origin = data.origin;
         }
 
         @Override
         public boolean tryAdvance(final Consumer<? super BlockPos> action) {
-            if (data.origin != null && (index = data.blocks.nextSetBit(index + 1)) >= 0) {
-                action.accept(fromIndex(index).add(data.origin));
+            if (origin != null && (index = positions.nextSetBit(index + 1)) >= 0) {
+                action.accept(fromIndex(index).add(origin));
                 return true;
             }
             return false;

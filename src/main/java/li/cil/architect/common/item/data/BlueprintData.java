@@ -1,11 +1,11 @@
 package li.cil.architect.common.item.data;
 
-import gnu.trove.iterator.TIntIntIterator;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import li.cil.architect.api.BlueprintAPI;
+import li.cil.architect.common.Architect;
 import li.cil.architect.common.blueprint.JobManager;
 import li.cil.architect.util.AxisAlignedBBUtils;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,10 +17,13 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
-import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Spliterators;
 import java.util.function.Consumer;
@@ -35,7 +38,8 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
     // NBT tag names.
     private static final String TAG_BLOCK_DATA = "data";
-    private static final String TAG_BLOCKS = "blocks";
+    private static final String TAG_BLOCK_POSITIONS = "positions";
+    private static final String TAG_BLOCK_REFERENCES = "references";
     private static final String TAG_SHIFT = "shift";
     private static final String TAG_ROTATION = "rotation";
 
@@ -43,7 +47,8 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     // Persisted data.
 
     private final List<NBTTagCompound> blockData = new ArrayList<>();
-    private final TIntIntMap blocks = new TIntIntHashMap();
+    private final BitSet blockPositions = new BitSet((1 << (NUM_BITS * 3)) - 1);
+    private int[] blockReferences = new int[0];
     private AxisAlignedBB bounds = EMPTY_BOUNDS;
     private BlockPos shift = BlockPos.ORIGIN;
     private Rotation rotation = Rotation.NONE;
@@ -96,11 +101,10 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
         assert bounds.minX == 0 && bounds.minY == 0 && bounds.minZ == 0;
 
-        final TIntIntMap rotatedBlocks = new TIntIntHashMap();
-        final TIntIntIterator iterator = blocks.iterator();
-        while (iterator.hasNext()) {
-            iterator.advance();
-            BlockPos rotPos = fromIndex(iterator.key());
+        final BitSet rotPositions = new BitSet(blockPositions.size());
+        final int[] rotMap = new int[blockReferences.length];
+        for (int index = blockPositions.nextSetBit(0), count = 0; index >= 0; index = blockPositions.nextSetBit(index + 1), ++count) {
+            BlockPos rotPos = fromIndex(index);
             AxisAlignedBB rotBounds = bounds;
             switch (amount) {
                 case COUNTERCLOCKWISE_90:
@@ -112,11 +116,21 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
                 case CLOCKWISE_90:
                     rotPos = rotatePosClockwise(rotPos, rotBounds);
             }
-            rotatedBlocks.put(toIndex(rotPos), iterator.value());
+            final int rotIndex = toIndex(rotPos);
+            rotPositions.set(rotIndex);
+            rotMap[count] = rotIndex;
+            assert index != Integer.MAX_VALUE;
         }
 
-        blocks.clear();
-        blocks.putAll(rotatedBlocks);
+        final int[] rotReferences = new int[blockReferences.length];
+        for (int index = rotPositions.nextSetBit(0), rotRefIndex = 0; index >= 0; index = rotPositions.nextSetBit(index + 1), ++rotRefIndex) {
+            final int refIndex = ArrayUtils.indexOf(rotMap, index);
+            rotReferences[rotRefIndex] = blockReferences[refIndex];
+        }
+
+        blockPositions.clear();
+        blockPositions.or(rotPositions);
+        blockReferences = rotReferences;
 
         switch (amount) {
             case COUNTERCLOCKWISE_90:
@@ -184,10 +198,9 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
      */
     public List<ItemStack> getCosts() {
         final int[] counts = new int[blockData.size()];
-        blocks.forEachValue(id -> {
+        for (final int id : blockReferences) {
             counts[id]++;
-            return true;
-        });
+        }
 
         final List<ItemStack> knownCosts = new ArrayList<>();
         for (int i = 0; i < blockData.size(); i++) {
@@ -240,14 +253,8 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         blockData.forEach(blockDataNbt::appendTag);
         nbt.setTag(TAG_BLOCK_DATA, blockDataNbt);
 
-        final int[] blocksZipped = new int[blocks.size() * 2];
-        int offset = 0;
-        for (final TIntIntIterator it = blocks.iterator(); it.hasNext(); ) {
-            it.advance();
-            blocksZipped[offset++] = it.key();
-            blocksZipped[offset++] = it.value();
-        }
-        nbt.setIntArray(TAG_BLOCKS, blocksZipped);
+        nbt.setByteArray(TAG_BLOCK_POSITIONS, blockPositions.toByteArray());
+        nbt.setIntArray(TAG_BLOCK_REFERENCES, blockReferences);
 
         nbt.setLong(TAG_SHIFT, shift.toLong());
         nbt.setByte(TAG_ROTATION, (byte) rotation.ordinal());
@@ -258,21 +265,39 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     @Override
     public void deserializeNBT(final NBTTagCompound nbt) {
         blockData.clear();
-        blocks.clear();
+        blockPositions.clear();
+        blockReferences = new int[0];
+        bounds = EMPTY_BOUNDS;
+        shift = BlockPos.ORIGIN;
+        rotation = Rotation.NONE;
 
-        final NBTTagList blockDataNbt = nbt.getTagList(TAG_BLOCK_DATA, Constants.NBT.TAG_COMPOUND);
+        if (!nbt.hasKey(TAG_BLOCK_DATA, NBT.TAG_LIST) ||
+            !nbt.hasKey(TAG_BLOCK_POSITIONS, NBT.TAG_BYTE_ARRAY) ||
+            !nbt.hasKey(TAG_BLOCK_REFERENCES, NBT.TAG_INT_ARRAY)) {
+            return;
+        }
+
+        final NBTTagList blockDataNbt = nbt.getTagList(TAG_BLOCK_DATA, NBT.TAG_COMPOUND);
         for (int index = 0; index < blockDataNbt.tagCount(); index++) {
             blockData.add(blockDataNbt.getCompoundTagAt(index));
         }
 
-        final int[] blocksZipped = nbt.getIntArray(TAG_BLOCKS);
-        for (int offset = 0; offset < blocksZipped.length; offset += 2) {
-            final int key = blocksZipped[offset];
-            final int value = blocksZipped[offset + 1];
-            blocks.put(key, value);
-            bounds = bounds.union(new AxisAlignedBB(fromIndex(key)));
+        final BitSet loaded = BitSet.valueOf(nbt.getByteArray(TAG_BLOCK_POSITIONS));
+        if (loaded.length() > blockPositions.size()) {
+            loaded.clear(blockPositions.size(), loaded.size() - 1);
+        }
+        blockPositions.or(loaded);
+        blockReferences = nbt.getIntArray(TAG_BLOCK_REFERENCES);
+
+        if (blockPositions.cardinality() != blockReferences.length) {
+            Architect.getLog().warn("Corrupt blueprint data, position count does not match reference count.");
+            blockData.clear();
+            blockPositions.clear();
+            blockReferences = null;
+            return;
         }
 
+        bounds = computeBounds(blockPositions);
         shift = BlockPos.fromLong(nbt.getLong(TAG_SHIFT));
         rotation = Rotation.values()[nbt.getByte(TAG_ROTATION)];
     }
@@ -305,14 +330,23 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     public static final class Builder {
         private final BlueprintData data = new BlueprintData();
         private final TObjectIntMap<NBTTagCompound> nbtToId = new TObjectIntHashMap<>();
+        private final TIntIntMap blocks = new TIntIntHashMap();
 
         public BlueprintData getData() {
+            final int[] keys = blocks.keys();
+            Arrays.sort(keys);
+            data.blockPositions.clear();
+            data.blockReferences = new int[keys.length];
+            for (int i = 0; i < keys.length; i++) {
+                data.blockPositions.set(keys[i]);
+                data.blockReferences[i] = blocks.get(keys[i]);
+            }
             return data;
         }
 
         public void add(final BlockPos pos, final NBTTagCompound nbt) {
             final int id = getId(nbt);
-            data.blocks.put(AbstractPatternData.toIndex(pos), id);
+            blocks.put(AbstractPatternData.toIndex(pos), id);
             data.bounds = data.bounds.union(new AxisAlignedBB(pos));
         }
 
@@ -331,21 +365,20 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     // --------------------------------------------------------------------- //
 
     private static final class BlockPosSpliterator extends Spliterators.AbstractSpliterator<BlockPos> {
+        private final BitSet positions;
         private final BlockPos origin;
-        private final TIntIntIterator iterator;
+        private int index = -1;
 
         BlockPosSpliterator(final BlueprintData data, final BlockPos origin) {
-            super(data.blocks.size(), SIZED);
+            super(data.blockReferences.length, SIZED);
+            this.positions = data.blockPositions;
             this.origin = origin;
-            this.iterator = data.blocks.iterator();
         }
 
         @Override
         public boolean tryAdvance(final Consumer<? super BlockPos> action) {
-            if (iterator.hasNext()) {
-                iterator.advance();
-                final BlockPos relPos = fromIndex(iterator.key());
-                // TODO Rotate by rotation around center of bounds.
+            if (origin != null && (index = positions.nextSetBit(index + 1)) >= 0) {
+                final BlockPos relPos = fromIndex(index);
                 final BlockPos worldPos = relPos.add(origin);
                 action.accept(worldPos);
                 return true;
@@ -356,21 +389,27 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
     private static final class JobAddSpliterator extends Spliterators.AbstractSpliterator<JobManager.JobSupplier> implements JobManager.JobSupplier {
         private final List<NBTTagCompound> blockData;
+        private final BitSet positions;
+        private final int[] references;
         private final BlockPos origin;
-        private final TIntIntIterator iterator;
+        private final Rotation rotation;
+        private int count = 0;
+        private int index = -1;
 
         JobAddSpliterator(final BlueprintData data, final BlockPos origin) {
-            super(data.blocks.size(), SIZED);
+            super(data.blockReferences.length, SIZED);
             this.blockData = data.blockData;
+            this.positions = data.blockPositions;
+            this.references = data.blockReferences;
             this.origin = origin;
-            this.iterator = data.blocks.iterator();
+            this.rotation = data.rotation;
         }
 
         @Override
         public boolean tryAdvance(final Consumer<? super JobManager.JobSupplier> action) {
-            if (iterator.hasNext()) {
-                iterator.advance();
+            if (origin != null && (index = positions.nextSetBit(index + 1)) >= 0) {
                 action.accept(this);
+                ++count;
                 return true;
             }
             return false;
@@ -378,11 +417,10 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
         @Override
         public void get(final JobManager.JobConsumer consumer) {
-            final BlockPos relPos = fromIndex(iterator.key());
-            // TODO Rotate by rotation around center of bounds.
+            final BlockPos relPos = fromIndex(index);
             final BlockPos worldPos = relPos.add(origin);
-            final NBTTagCompound nbt = blockData.get(iterator.value());
-            consumer.accept(worldPos, Rotation.NONE, nbt);
+            final NBTTagCompound nbt = blockData.get(references[count]);
+            consumer.accept(worldPos, rotation, nbt);
         }
     }
 }

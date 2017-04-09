@@ -16,7 +16,7 @@ public final class Settings {
     /**
      * The radius around providers in which players must be for them to count.
      */
-    public static int maxProviderRadius = 32;
+    public static int maxProviderRadius = 64;
 
     /**
      * The maximum number of blocks to deserialize (place) per tick per chunk.
@@ -26,7 +26,7 @@ public final class Settings {
     /**
      * The maximum number of blocks to deserialize (place) per tick per world.
      */
-    public static int maxWorldOperationsPerTick = 50;
+    public static int maxWorldOperationsPerTick = 16;
 
     /**
      * The distance at which the free-aim pointer is positioned (e.g. in sketch
