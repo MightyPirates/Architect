@@ -313,8 +313,8 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     }
 
     private static BlockPos rotatePosClockwise(final BlockPos pos, final AxisAlignedBB bounds) {
-        final int width = (int) (bounds.maxX - bounds.minX);
-        return new BlockPos(pos.getZ(), pos.getY(), width - 1 - pos.getX());
+        final int sizeZ = (int) (bounds.maxZ - bounds.minZ);
+        return new BlockPos(sizeZ - 1 - pos.getZ(), pos.getY(), pos.getX());
     }
 
     private static AxisAlignedBB rotateBoundsClockwise(final AxisAlignedBB bounds) {
@@ -322,7 +322,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     }
 
     private static BlockPos rotateVectorClockwise(final BlockPos value) {
-        return new BlockPos(-value.getZ(), value.getY(), value.getX());
+        return new BlockPos(value.getZ(), value.getY(), -value.getX());
     }
 
     // --------------------------------------------------------------------- //
