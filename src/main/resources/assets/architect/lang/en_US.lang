@@ -6,10 +6,10 @@ item.architect.provider.name=Provider
 
 tile.architect.provider.name=Provider
 
-architect.tooltip.sketch.bounds=§8Bounds: (%s, %s, %s) to (%s, %s, %s)
-architect.tooltip.sketch.convert=§8Sneak-use for a prolonged amount of time to convert this sketch into a blueprint.
+architect.tooltip.sketch.bounds=§7Bounds: (%s, %s, %s) to (%s, %s, %s)
+architect.tooltip.sketch.convert=§8Use for more than a second to convert this sketch into a blueprint.
 architect.tooltip.sketch.empty=§8Click on blocks to add them to the sketch.
-architect.tooltip.blueprint=§8Sneak-use for a prolonged amount of time to convert this blueprint into a blank sketch.
+architect.tooltip.blueprint=§8Sneak-use for more than a second to convert this blueprint into a blank sketch.
 architect.tooltip.blueprint.costs.hint=§8Hold [§7%s§8] to show costs.
 architect.tooltip.blueprint.costs.title=§7Costs
 architect.tooltip.blueprint.costs.line=§7- %sx %s

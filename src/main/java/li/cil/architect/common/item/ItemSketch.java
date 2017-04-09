@@ -19,8 +19,10 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
@@ -124,6 +126,20 @@ public final class ItemSketch extends AbstractPatternItem {
             return super.getMaxItemUseDuration(stack);
         } else {
             return 30;
+        }
+    }
+
+    @Override
+    public void onUsingTick(final ItemStack stack, final EntityLivingBase player, final int count) {
+        final Vec3d lookAtBase = player.
+                getPositionEyes(1).
+                add(player.getLookVec());
+        final Vec3d speedBase = player.
+                getLookVec();
+        for (int i = 0; i < 10; i++) {
+            final Vec3d lookAt = lookAtBase.addVector(itemRand.nextGaussian(), itemRand.nextGaussian(), itemRand.nextGaussian());
+            final Vec3d speed = speedBase.addVector(itemRand.nextGaussian(), itemRand.nextGaussian(), itemRand.nextGaussian());
+            player.getEntityWorld().spawnParticle(EnumParticleTypes.PORTAL, lookAt.xCoord, lookAt.yCoord, lookAt.zCoord, speed.xCoord, speed.yCoord, speed.zCoord);
         }
     }
 

@@ -16,9 +16,10 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -64,7 +65,7 @@ public final class ItemBlueprint extends AbstractPatternItem {
         tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
 
         final KeyBinding keyBind = Minecraft.getMinecraft().gameSettings.keyBindSneak;
-        if (Keyboard.isKeyDown(keyBind.getKeyCode()) && keyBind.getKeyModifier().isActive(KeyConflictContext.GUI)) {
+        if (Keyboard.isKeyDown(keyBind.getKeyCode())) {
             final List<ItemStack> costs = data.getCosts();
             costs.sort(Comparator.comparing(ItemStack::getDisplayName));
             tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_TITLE));
@@ -101,6 +102,21 @@ public final class ItemBlueprint extends AbstractPatternItem {
     @Override
     public int getMaxItemUseDuration(final ItemStack stack) {
         return 30;
+    }
+
+    @Override
+    public void onUsingTick(final ItemStack stack, final EntityLivingBase player, final int count) {
+        final Vec3d lookAtBase = player.
+                getPositionEyes(1).
+                add(player.getLookVec());
+        final Vec3d speedBase = player.
+                getLookVec().
+                scale(-1);
+        for (int i = 0; i < 10; i++) {
+            final Vec3d lookAt = lookAtBase.addVector(itemRand.nextGaussian(), itemRand.nextGaussian(), itemRand.nextGaussian());
+            final Vec3d speed = speedBase.addVector(itemRand.nextGaussian(), itemRand.nextGaussian(), itemRand.nextGaussian());
+            player.getEntityWorld().spawnParticle(EnumParticleTypes.PORTAL, lookAt.xCoord, lookAt.yCoord, lookAt.zCoord, speed.xCoord, speed.yCoord, speed.zCoord);
+        }
     }
 
     @Override
