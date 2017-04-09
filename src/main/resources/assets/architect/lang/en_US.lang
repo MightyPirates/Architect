@@ -15,3 +15,5 @@ architect.tooltip.blueprint.costs.title=§7Costs
 architect.tooltip.blueprint.costs.line=§7- %sx %s
 architect.tooltip.blueprint.costs.unknown=§7Unknown
 architect.tooltip.provider=§7Keep in inventory to provide items to nearby pending blueprint constructions.
+
+key.architect.rotateBlueprint=Rotate Blueprint

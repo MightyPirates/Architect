@@ -31,7 +31,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     // --------------------------------------------------------------------- //
     // Computed data.
 
-    private static final AxisAlignedBB EMPTY_AABB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    private static final AxisAlignedBB EMPTY_BOUNDS = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 
     // NBT tag names.
     private static final String TAG_BLOCK_DATA = "data";
@@ -44,7 +44,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
     private final List<NBTTagCompound> blockData = new ArrayList<>();
     private final TIntIntMap blocks = new TIntIntHashMap();
-    private AxisAlignedBB bounds = EMPTY_AABB;
+    private AxisAlignedBB bounds = EMPTY_BOUNDS;
     private BlockPos shift = BlockPos.ORIGIN;
     private Rotation rotation = Rotation.NONE;
 
@@ -82,8 +82,62 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         }
     }
 
+    /**
+     * Rotate this blueprint by the specified amount.
+     *
+     * @param amount the amount by which to rotate the blueprint.
+     */
     public void rotate(final Rotation amount) {
+        if (amount == Rotation.NONE) {
+            return;
+        }
+
         rotation = rotation.add(amount);
+
+        assert bounds.minX == 0 && bounds.minY == 0 && bounds.minZ == 0;
+
+        final TIntIntMap rotatedBlocks = new TIntIntHashMap();
+        final TIntIntIterator iterator = blocks.iterator();
+        while (iterator.hasNext()) {
+            iterator.advance();
+            BlockPos rotPos = fromIndex(iterator.key());
+            AxisAlignedBB rotBounds = bounds;
+            switch (amount) {
+                case COUNTERCLOCKWISE_90:
+                    rotPos = rotatePosClockwise(rotPos, rotBounds);
+                    rotBounds = rotateBoundsClockwise(rotBounds);
+                case CLOCKWISE_180:
+                    rotPos = rotatePosClockwise(rotPos, rotBounds);
+                    rotBounds = rotateBoundsClockwise(rotBounds);
+                case CLOCKWISE_90:
+                    rotPos = rotatePosClockwise(rotPos, rotBounds);
+            }
+            rotatedBlocks.put(toIndex(rotPos), iterator.value());
+        }
+
+        blocks.clear();
+        blocks.putAll(rotatedBlocks);
+
+        switch (amount) {
+            case COUNTERCLOCKWISE_90:
+                bounds = rotateBoundsClockwise(bounds);
+                shift = rotateVectorClockwise(shift);
+            case CLOCKWISE_180:
+                bounds = rotateBoundsClockwise(bounds);
+                shift = rotateVectorClockwise(shift);
+            case CLOCKWISE_90:
+                bounds = rotateBoundsClockwise(bounds);
+                shift = rotateVectorClockwise(shift);
+        }
+    }
+
+    /**
+     * Get the current rotation of this blueprint.
+     *
+     * @return the current rotation.
+     */
+    public Rotation getRotation() {
+        return rotation;
     }
 
     /**
@@ -233,6 +287,19 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         );
     }
 
+    private static BlockPos rotatePosClockwise(final BlockPos pos, final AxisAlignedBB bounds) {
+        final int width = (int) (bounds.maxX - bounds.minX);
+        return new BlockPos(pos.getZ(), pos.getY(), width - 1 - pos.getX());
+    }
+
+    private static AxisAlignedBB rotateBoundsClockwise(final AxisAlignedBB bounds) {
+        return new AxisAlignedBB(bounds.minX, bounds.minY, bounds.minZ, bounds.maxZ, bounds.maxY, bounds.maxX);
+    }
+
+    private static BlockPos rotateVectorClockwise(final BlockPos value) {
+        return new BlockPos(-value.getZ(), value.getY(), value.getX());
+    }
+
     // --------------------------------------------------------------------- //
 
     public static final class Builder {
@@ -262,10 +329,6 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     }
 
     // --------------------------------------------------------------------- //
-
-    public static final class JobData {
-
-    }
 
     private static final class BlockPosSpliterator extends Spliterators.AbstractSpliterator<BlockPos> {
         private final BlockPos origin;

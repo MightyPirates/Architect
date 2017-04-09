@@ -20,6 +20,9 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nullable;
+import java.util.stream.Stream;
+
 import static li.cil.architect.client.renderer.OverlayRendererUtils.*;
 
 public enum SketchRenderer {
@@ -32,7 +35,7 @@ public enum SketchRenderer {
         final Minecraft mc = Minecraft.getMinecraft();
         final EntityPlayer player = mc.player;
         final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (stack.getItem() != Items.sketch) {
+        if (!Items.isSketch(stack)) {
             return;
         }
 
@@ -55,91 +58,92 @@ public enum SketchRenderer {
 
         if (hitPos != null) {
             if (hasRangeSelection) {
-                final AxisAlignedBB rangeBounds = ItemSketch.getRangeSelection(stack, hitPos);
-                if (rangeBounds != null) {
-                    if (player.isSneaking()) {
-                        GlStateManager.color(0.9f, 0.4f, 0.2f, 0.2f);
-                    } else {
-                        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.2f);
-                    }
-                    renderCube(rangeBounds);
-                    if (player.isSneaking()) {
-                        GlStateManager.color(0.9f, 0.4f, 0.2f, 0.7f);
-                    } else {
-                        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.7f);
-                    }
-                    renderCubeWire(rangeBounds);
-                }
+                renderRangeSelection(player, ItemSketch.getRangeSelection(stack, hitPos));
             } else {
-                final AxisAlignedBB hitBounds = new AxisAlignedBB(hitPos);
-                if (player.isSneaking()) {
-                    if (potentialBounds.intersectsWith(hitBounds)) {
-                        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
-                    } else {
-                        GlStateManager.color(0.9f, 0.4f, 0.2f, 0.5f);
-                    }
-                    renderCubeWire(hitPos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
-                } else {
-                    if (potentialBounds.intersectsWith(hitBounds) && BlueprintAPI.canSerialize(mc.world, hitPos)) {
-                        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
-                    } else {
-                        GlStateManager.color(0.9f, 0.4f, 0.2f, 0.5f);
-                    }
-                    renderCube(hitPos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
-                }
+                renderBlockSelection(player, hitPos, potentialBounds);
             }
         }
 
         if (!data.isEmpty()) {
             GlStateManager.color(0.4f, 0.7f, 0.9f, 1f);
-
             renderCubeGrid(potentialBounds);
 
             final float dt = computeScaleOffset();
 
-            {
-                GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
-
-                final Tessellator t = Tessellator.getInstance();
-                final VertexBuffer buffer = t.getBuffer();
-                buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-
-                data.getBlocks().forEach(pos -> drawCube(pos, buffer, dt));
-
-                t.draw();
-            }
+            GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
+            renderBlocks(data.getBlocks(), dt);
 
             if (hitPos != null && data.isSet(hitPos)) {
-                {
-                    GlStateManager.color(0.2f, 0.4f, 0.9f, 0.3f);
+                GlStateManager.color(0.2f, 0.4f, 0.9f, 0.3f);
+                renderFocusHighlight(hitPos, dt);
 
-                    final Tessellator t = Tessellator.getInstance();
-                    final VertexBuffer buffer = t.getBuffer();
-                    buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-
-                    drawCube(hitPos, buffer, dt);
-
-                    t.draw();
-                }
-                {
-                    GlStateManager.color(0.2f, 0.4f, 0.9f, 0.5f);
-
-                    doWirePrologue();
-
-                    final Tessellator t = Tessellator.getInstance();
-                    final VertexBuffer buffer = t.getBuffer();
-                    buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-
-                    drawCube(hitPos, buffer, dt);
-
-                    t.draw();
-
-                    doWireEpilogue();
-                }
+                doWirePrologue();
+                GlStateManager.color(0.2f, 0.4f, 0.9f, 0.5f);
+                renderFocusHighlight(hitPos, dt);
+                doWireEpilogue();
             }
         }
 
         doOverlayEpilogue();
         doPositionEpilogue();
+    }
+
+    private static void renderBlockSelection(final EntityPlayer player, final BlockPos hitPos, final AxisAlignedBB potentialBounds) {
+        final AxisAlignedBB hitBounds = new AxisAlignedBB(hitPos);
+        if (player.isSneaking()) {
+            if (potentialBounds.intersectsWith(hitBounds)) {
+                GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
+            } else {
+                GlStateManager.color(0.9f, 0.4f, 0.2f, 0.5f);
+            }
+            renderCubeWire(hitPos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
+        } else {
+            if (potentialBounds.intersectsWith(hitBounds) && BlueprintAPI.canSerialize(player.getEntityWorld(), hitPos)) {
+                GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
+            } else {
+                GlStateManager.color(0.9f, 0.4f, 0.2f, 0.5f);
+            }
+            renderCube(hitPos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
+        }
+    }
+
+    private static void renderRangeSelection(final EntityPlayer player, @Nullable final AxisAlignedBB rangeBounds) {
+        if (rangeBounds == null) {
+            return;
+        }
+
+        if (player.isSneaking()) {
+            GlStateManager.color(0.9f, 0.4f, 0.2f, 0.2f);
+        } else {
+            GlStateManager.color(0.2f, 0.9f, 0.4f, 0.2f);
+        }
+        renderCube(rangeBounds);
+
+        if (player.isSneaking()) {
+            GlStateManager.color(0.9f, 0.4f, 0.2f, 0.7f);
+        } else {
+            GlStateManager.color(0.2f, 0.9f, 0.4f, 0.7f);
+        }
+        renderCubeWire(rangeBounds);
+    }
+
+    private static void renderBlocks(final Stream<BlockPos> blocks, final float dt) {
+        final Tessellator t = Tessellator.getInstance();
+        final VertexBuffer buffer = t.getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+
+        blocks.forEach(pos -> drawCube(pos, buffer, dt));
+
+        t.draw();
+    }
+
+    private static void renderFocusHighlight(final BlockPos hitPos, final float dt) {
+        final Tessellator t = Tessellator.getInstance();
+        final VertexBuffer buffer = t.getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+
+        drawCube(hitPos, buffer, dt);
+
+        t.draw();
     }
 }

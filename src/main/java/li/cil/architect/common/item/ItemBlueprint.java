@@ -18,6 +18,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -63,7 +64,7 @@ public final class ItemBlueprint extends AbstractPatternItem {
         tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
 
         final KeyBinding keyBind = Minecraft.getMinecraft().gameSettings.keyBindSneak;
-        if (Keyboard.isKeyDown(keyBind.getKeyCode()) && keyBind.getKeyModifier().isActive(keyBind.getKeyConflictContext())) {
+        if (Keyboard.isKeyDown(keyBind.getKeyCode()) && keyBind.getKeyModifier().isActive(KeyConflictContext.GUI)) {
             final List<ItemStack> costs = data.getCosts();
             costs.sort(Comparator.comparing(ItemStack::getDisplayName));
             tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_TITLE));

@@ -134,7 +134,7 @@ final class OverlayRendererUtils {
         drawCube(pos.getX() + min, pos.getY() + min, pos.getZ() + min, pos.getX() + max, pos.getY() + max, pos.getZ() + max, buffer);
     }
 
-    static void drawCube(final double minX, final double minY, final double minZ, final double maxX, final double maxY, final double maxZ, final VertexBuffer buffer) {
+    private static void drawCube(final double minX, final double minY, final double minZ, final double maxX, final double maxY, final double maxZ, final VertexBuffer buffer) {
         drawPlaneNegX(minX, minY, maxY, minZ, maxZ, buffer);
         drawPlanePosX(maxX, minY, maxY, minZ, maxZ, buffer);
         drawPlaneNegY(minY, minX, maxX, minZ, maxZ, buffer);
@@ -143,7 +143,7 @@ final class OverlayRendererUtils {
         drawPlanePosZ(maxZ, minX, maxX, minY, maxY, buffer);
     }
 
-    static void drawCubeGrid(final int minX, final int minY, final int minZ, final int maxX, final int maxY, final int maxZ, final VertexBuffer buffer) {
+    private static void drawCubeGrid(final int minX, final int minY, final int minZ, final int maxX, final int maxY, final int maxZ, final VertexBuffer buffer) {
         drawCube(minX, minY, minZ, maxX, maxY, maxZ, buffer);
 
         // FWIW, this would be much nicer, because it'd use a *lot* fewer polys,
@@ -214,14 +214,14 @@ final class OverlayRendererUtils {
         buffer.pos(x, minY, maxZ).endVertex();
     }
 
-    static void drawPlaneNegY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
+    private static void drawPlaneNegY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
         buffer.pos(minX, y, minZ).endVertex();
         buffer.pos(maxX, y, minZ).endVertex();
         buffer.pos(maxX, y, maxZ).endVertex();
         buffer.pos(minX, y, maxZ).endVertex();
     }
 
-    static void drawPlanePosY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
+    private static void drawPlanePosY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
         buffer.pos(minX, y, minZ).endVertex();
         buffer.pos(minX, y, maxZ).endVertex();
         buffer.pos(maxX, y, maxZ).endVertex();

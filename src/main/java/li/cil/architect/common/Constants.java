@@ -1,5 +1,7 @@
 package li.cil.architect.common;
 
+import li.cil.architect.api.API;
+
 import java.util.UUID;
 
 /**
@@ -9,8 +11,8 @@ public final class Constants {
     // --------------------------------------------------------------------- //
     // Mod data
 
-    public static final String PROXY_CLIENT = "li.cil.architect.client.ProxyClient";
-    public static final String PROXY_COMMON = "li.cil.architect.common.ProxyCommon";
+    static final String PROXY_CLIENT = "li.cil.architect.client.ProxyClient";
+    static final String PROXY_COMMON = "li.cil.architect.common.ProxyCommon";
 
     // --------------------------------------------------------------------- //
     // Block, item, entity and container names
@@ -22,13 +24,7 @@ public final class Constants {
     // --------------------------------------------------------------------- //
     // Converter UUIDs
 
-    public static final UUID UUID_CONVERTER_GENERIC = UUID.fromString("20a9cafc-d21c-49cd-9a40-f8ea34c91984");
-
-    // --------------------------------------------------------------------- //
-    // Converter errors
-
-    public static final String MESSAGE_WARN_UNSUPPORTED_BLOCKS = "architect.warn.unsupported_blocks";
-    public static final String MESSAGE_WARN_INSUFFICIENT_MATERIALS = "architect.warn.insufficient_materials";
+    static final UUID UUID_CONVERTER_GENERIC = UUID.fromString("20a9cafc-d21c-49cd-9a40-f8ea34c91984");
 
     // --------------------------------------------------------------------- //
     // Tooltips
@@ -44,6 +40,8 @@ public final class Constants {
     public static final String TOOLTIP_BLUEPRINT_COSTS_LINE = "architect.tooltip.blueprint.costs.line";
     public static final String TOOLTIP_BLUEPRINT_COSTS_UNKNOWN = "architect.tooltip.blueprint.costs.unknown";
     public static final String TOOLTIP_PROVIDER = "architect.tooltip.provider";
+    public static final String KEY_BINDINGS_CATEGORY_NAME = API.MOD_ID + " (" + Architect.MOD_NAME + ")";
+    public static final String KEY_BINDINGS_BLUEPRINT_ROTATE = "key.architect.rotateBlueprint";
 
     // --------------------------------------------------------------------- //
 

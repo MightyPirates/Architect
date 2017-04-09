@@ -44,6 +44,7 @@ import java.util.stream.Stream;
  */
 public enum JobManager {
     INSTANCE;
+
     // --------------------------------------------------------------------- //
 
     /**
@@ -192,6 +193,7 @@ public enum JobManager {
         }
 
         // For creation via reflection in MapStorage#getOrLoadData.
+        @SuppressWarnings("unused")
         public JobManagerImpl(final String id) {
             super(id);
         }

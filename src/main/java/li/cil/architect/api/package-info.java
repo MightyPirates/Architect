@@ -1,16 +1,13 @@
 /**
- * Welcome to the TIS-3D API, where some dreams come true, and others go to die.
+ * Welcome to the Architect API, step right in, we have cookies.
  * <p>
- * Anyway. This is the place to go if you'd like to register custom modules for
- * TIS-3D, extending its functionality. To do so, implement a module using the
- * {@link li.cil.architect.api.blueprint.Module} interface, as well as a provider
- * using the {@link li.cil.architect.api.blueprint.Converter} interface, then
- * register the provider with TIS-3D via {@link li.cil.architect.api.BlueprintAPI#addConverter(Converter)}.
+ * I assume you're here to register custom block converters to allow them being
+ * stored in and placed via blueprints.
  * <p>
- * The provider will then be queried by TIS-3D when an item is used on a
- * casing, and if it works the module created by the provider will be used.
- * See the module's interface and the provider's interface to see how you
- * can interact with the casing and other modules.
+ * To do so, have a look at implement a converter using the {@link li.cil.architect.api.blueprint.Converter}
+ * interface, then register the provider with Architect via {@link li.cil.architect.api.BlueprintAPI#addConverter(Converter)}.
+ * <p>
+ * The converter will then be queried by Architect when needed.
  */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault

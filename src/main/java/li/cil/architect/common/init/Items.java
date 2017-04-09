@@ -22,10 +22,6 @@ public final class Items {
 
     // --------------------------------------------------------------------- //
 
-    public static boolean isItem(final ItemStack stack, final Item item) {
-        return !stack.isEmpty() && stack.getItem() == item;
-    }
-
     public static boolean isSketch(final ItemStack stack) {
         return isItem(stack, sketch);
     }
@@ -49,9 +45,9 @@ public final class Items {
     public static void addRecipes() {
         GameRegistry.addRecipe(new ShapelessOreRecipe(
                 new ItemStack(sketch, 1),
-                "book",
+                net.minecraft.init.Items.BOOK,
                 "enderpearl",
-                "charcoal",
+                net.minecraft.init.Items.COAL,
                 "ingotIron"));
         GameRegistry.addRecipe(new ShapedOreRecipe(
                 new ItemStack(provider, 1),
@@ -63,6 +59,12 @@ public final class Items {
                 'Q', "gemQuartz",
                 'T', Blocks.TRAPDOOR,
                 'H', Blocks.HOPPER));
+    }
+
+    // --------------------------------------------------------------------- //
+
+    private static boolean isItem(final ItemStack stack, final Item item) {
+        return !stack.isEmpty() && stack.getItem() == item;
     }
 
     // --------------------------------------------------------------------- //

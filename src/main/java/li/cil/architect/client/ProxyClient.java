@@ -1,12 +1,11 @@
 package li.cil.architect.client;
 
-import li.cil.architect.client.gui.GuiHandlerClient;
+import li.cil.architect.client.event.KeyboardEventHandlerBlueprint;
+import li.cil.architect.client.event.MouseEventHandlerBlueprint;
+import li.cil.architect.client.event.MouseEventHandlerSketch;
 import li.cil.architect.client.renderer.BlueprintRenderer;
 import li.cil.architect.client.renderer.SketchRenderer;
-import li.cil.architect.common.Architect;
 import li.cil.architect.common.ProxyCommon;
-import li.cil.architect.common.event.MouseEventHandlerBlueprint;
-import li.cil.architect.common.event.MouseEventHandlerSketch;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -14,7 +13,6 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import java.util.function.Supplier;
 
@@ -28,6 +26,7 @@ public final class ProxyClient extends ProxyCommon {
 
         MinecraftForge.EVENT_BUS.register(BlueprintRenderer.INSTANCE);
         MinecraftForge.EVENT_BUS.register(SketchRenderer.INSTANCE);
+        MinecraftForge.EVENT_BUS.register(KeyboardEventHandlerBlueprint.INSTANCE);
         MinecraftForge.EVENT_BUS.register(MouseEventHandlerBlueprint.INSTANCE);
         MinecraftForge.EVENT_BUS.register(MouseEventHandlerSketch.INSTANCE);
     }
@@ -36,8 +35,7 @@ public final class ProxyClient extends ProxyCommon {
     public void onInit(final FMLInitializationEvent event) {
         super.onInit(event);
 
-        // Register GUI handler for fancy GUIs in our almost GUI-less mod!
-        NetworkRegistry.INSTANCE.registerGuiHandler(Architect.instance, new GuiHandlerClient());
+        KeyBindings.init();
     }
 
     // --------------------------------------------------------------------- //

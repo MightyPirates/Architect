@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -21,10 +22,14 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.util.stream.Stream;
+
 import static li.cil.architect.client.renderer.OverlayRendererUtils.*;
 
 public enum BlueprintRenderer {
     INSTANCE;
+
+    private static final float ROTATION_INSET = 0.2f;
 
     @SubscribeEvent
     public void onWorldRender(final RenderWorldLastEvent event) {
@@ -32,7 +37,7 @@ public enum BlueprintRenderer {
         final EntityPlayer player = mc.player;
         final World world = mc.world;
         final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (stack.getItem() != Items.blueprint) {
+        if (!Items.isBlueprint(stack)) {
             return;
         }
 
@@ -51,46 +56,80 @@ public enum BlueprintRenderer {
 
         final float dt = computeScaleOffset();
 
-        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
-
         final AxisAlignedBB cellBounds = data.getCellBounds(hitPos);
-        doWirePrologue();
-        renderCube(cellBounds);
-        doWireEpilogue();
+
+        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
+        renderCellBounds(cellBounds);
+        renderRotationIndicator(data.getRotation(), cellBounds);
 
         GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
-
-        {
-            final Tessellator t = Tessellator.getInstance();
-            final VertexBuffer buffer = t.getBuffer();
-            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-
-            data.getBlocks(hitPos).forEach(pos -> {
-                if (WorldUtils.isReplaceable(world, pos)) {
-                    drawCube(pos, buffer, dt);
-                }
-            });
-
-            t.draw();
-        }
+        renderValidBlocks(world, data.getBlocks(hitPos), dt);
 
         GlStateManager.color(0.9f, 0.2f, 0.2f, 0.3f);
-
-        {
-            final Tessellator t = Tessellator.getInstance();
-            final VertexBuffer buffer = t.getBuffer();
-            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-
-            data.getBlocks(hitPos).forEach(pos -> {
-                if (!WorldUtils.isReplaceable(world, pos)) {
-                    drawCube(pos, buffer, dt);
-                }
-            });
-
-            t.draw();
-        }
+        renderInvalidBlocks(world, data.getBlocks(hitPos), dt);
 
         doOverlayEpilogue();
         doPositionEpilogue();
+    }
+
+    private static void renderCellBounds(final AxisAlignedBB cellBounds) {
+        doWirePrologue();
+        renderCube(cellBounds);
+        doWireEpilogue();
+    }
+
+    private static void renderRotationIndicator(final Rotation rotation, final AxisAlignedBB cellBounds) {
+        GlStateManager.disableCull();
+
+        final Tessellator t = Tessellator.getInstance();
+        final VertexBuffer buffer = t.getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+
+        switch (rotation) {
+            case NONE:
+                drawPlaneNegZ(cellBounds.minZ, cellBounds.minX + ROTATION_INSET, cellBounds.maxX - ROTATION_INSET, cellBounds.minY + ROTATION_INSET, cellBounds.maxY - ROTATION_INSET, buffer);
+                break;
+            case CLOCKWISE_90:
+                drawPlanePosX(cellBounds.maxX, cellBounds.minY + ROTATION_INSET, cellBounds.maxY - ROTATION_INSET, cellBounds.minZ + ROTATION_INSET, cellBounds.maxZ - ROTATION_INSET, buffer);
+                break;
+            case CLOCKWISE_180:
+                drawPlanePosZ(cellBounds.maxZ, cellBounds.minX + ROTATION_INSET, cellBounds.maxX - ROTATION_INSET, cellBounds.minY + ROTATION_INSET, cellBounds.maxY - ROTATION_INSET, buffer);
+                break;
+            case COUNTERCLOCKWISE_90:
+                drawPlaneNegX(cellBounds.minX, cellBounds.minY + ROTATION_INSET, cellBounds.maxY - ROTATION_INSET, cellBounds.minZ + ROTATION_INSET, cellBounds.maxZ - ROTATION_INSET, buffer);
+                break;
+        }
+
+        t.draw();
+
+        GlStateManager.enableCull();
+    }
+
+    private static void renderValidBlocks(final World world, final Stream<BlockPos> blocks, final float dt) {
+        final Tessellator t = Tessellator.getInstance();
+        final VertexBuffer buffer = t.getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+
+        blocks.forEach(pos -> {
+            if (WorldUtils.isReplaceable(world, pos)) {
+                drawCube(pos, buffer, dt);
+            }
+        });
+
+        t.draw();
+    }
+
+    private static void renderInvalidBlocks(final World world, final Stream<BlockPos> blocks, final float dt) {
+        final Tessellator t = Tessellator.getInstance();
+        final VertexBuffer buffer = t.getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+
+        blocks.forEach(pos -> {
+            if (!WorldUtils.isReplaceable(world, pos)) {
+                drawCube(pos, buffer, dt);
+            }
+        });
+
+        t.draw();
     }
 }
