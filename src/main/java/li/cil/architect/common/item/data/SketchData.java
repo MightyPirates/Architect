@@ -278,9 +278,9 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         // Small performance early exit -- no need to change bounds if the
         // removed pos was an "inner" coordinate, i.e. it wasn't on the hull
         // of the sketch's bounds.
-        if (relPos.getX() != bounds.minX && relPos.getX() != bounds.maxX &&
-            relPos.getY() != bounds.minY && relPos.getY() != bounds.maxY &&
-            relPos.getZ() != bounds.minZ && relPos.getZ() != bounds.maxZ) {
+        if (pos.getX() != bounds.minX && pos.getX() != bounds.maxX - 1 &&
+            pos.getY() != bounds.minY && pos.getY() != bounds.maxY - 1 &&
+            pos.getZ() != bounds.minZ && pos.getZ() != bounds.maxZ - 1) {
             return true;
         }
 
@@ -294,7 +294,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         final BlockPos oldMin = new BlockPos(bounds.minX, bounds.minY, bounds.minZ);
         final BlockPos newMin = new BlockPos(newBounds.minX, newBounds.minY, newBounds.minZ);
         final BlockPos minDelta = newMin.subtract(oldMin);
-        if (minDelta.getX() != 0 && minDelta.getY() != 0 && minDelta.getZ() != 0) {
+        if (minDelta.getX() != 0 || minDelta.getY() != 0 || minDelta.getZ() != 0) {
             // Minimum changed, origin needs adjusting.
             shiftOrigin(minDelta);
             assert bounds.equals(newBounds);
