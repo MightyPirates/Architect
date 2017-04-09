@@ -44,7 +44,8 @@ public interface Converter {
      * <p>
      * This is not used for logic, purely for user feedback, e.g. in tooltips.
      *
-     * @return a list of materials missing.
+     * @param data the data to get the costs for.
+     * @return the list of materials required.
      */
     Iterable<ItemStack> getItemCosts(final NBTBase data);
 
@@ -61,7 +62,8 @@ public interface Converter {
      * <p>
      * This is not used for logic, purely for user feedback, e.g. in tooltips.
      *
-     * @return a list of materials missing.
+     * @param data the data to get the costs for.
+     * @return the list of materials required.
      */
     Iterable<FluidStack> getFluidCosts(final NBTBase data);
 

@@ -101,7 +101,8 @@ public final class ConverterAPI {
      * <p>
      * This is not used for logic, purely for user feedback, e.g. in tooltips.
      *
-     * @return a list of materials missing.
+     * @param data the data to get the costs for.
+     * @return the list of materials required.
      */
     public static Iterable<ItemStack> getItemCosts(final NBTTagCompound data) {
         if (API.converterAPI != null) {
@@ -123,7 +124,8 @@ public final class ConverterAPI {
      * <p>
      * This is not used for logic, purely for user feedback, e.g. in tooltips.
      *
-     * @return a list of materials missing.
+     * @param data the data to get the costs for.
+     * @return the list of materials required.
      */
     public static Iterable<FluidStack> getFluidCosts(final NBTTagCompound data) {
         if (API.converterAPI != null) {

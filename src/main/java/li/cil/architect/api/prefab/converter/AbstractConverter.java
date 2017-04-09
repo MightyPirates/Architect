@@ -101,6 +101,7 @@ public abstract class AbstractConverter implements Converter {
         return !haveStack.isEmpty();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
         final NBTTagCompound nbt = (NBTTagCompound) data;
@@ -112,7 +113,6 @@ public abstract class AbstractConverter implements Converter {
             return; // Block type does not exist in this Minecraft instance.
         }
 
-        //noinspection deprecation
         final IBlockState state = block.getStateFromMeta(metadata).withRotation(rotation);
 
         world.setBlockState(pos, state);
