@@ -20,19 +20,31 @@ public abstract class AbstractConverterBase extends AbstractConverter {
         super(uuid);
     }
 
-    protected boolean canSerialize(final IBlockState state) {
-        final Block block = state.getBlock();
-        return Item.getItemFromBlock(block) != Items.AIR &&
-               !block.hasTileEntity(state);
+    protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
+        final Block block = getBlock(state);
+        return getItem(block) != Items.AIR && !block.hasTileEntity(state);
     }
 
     // --------------------------------------------------------------------- //
+    // Converter
 
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        final Block block = state.getBlock();
-        return !Settings.isBlacklisted(block) && canSerialize(state);
+        final Block block = getBlock(state);
+        return !Settings.isBlacklisted(block) && canSerialize(world, pos, state);
+    }
 
+    // --------------------------------------------------------------------- //
+    // AbstractConverter
+
+    @Override
+    protected Block getBlock(final IBlockState state) {
+        return Settings.mapBlockToBlock(super.getBlock(state));
+    }
+
+    @Override
+    protected Item getItem(final Block block) {
+        return Settings.mapBlockToItem(block);
     }
 }

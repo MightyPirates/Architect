@@ -77,7 +77,7 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public NBTBase serialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        final Block block = state.getBlock();
+        final Block block = getBlock(state);
 
         final ResourceLocation name = block.getRegistryName();
         final int metadata = block.getMetaFromState(state);
@@ -128,6 +128,30 @@ public abstract class AbstractConverter implements Converter {
 
     // --------------------------------------------------------------------- //
 
+    /**
+     * Allows hooking into block lookup logic. This is used in Architect to
+     * apply block mappings for example (lit furnace to furnace, read from the
+     * <code>block_mappings.json</code> file).
+     *
+     * @param state the state to get the block from.
+     * @return the block, possibly mapped to an alias value.
+     */
+    protected Block getBlock(final IBlockState state) {
+        return state.getBlock();
+    }
+
+    /**
+     * Allows hooking into item lookup logic. This is used in Architect to
+     * apply item mappings for example (redstone wire to redstone, read from the
+     * <code>item_mappings.json</code> file).
+     *
+     * @param block the block to get the item representation for.
+     * @return the item representing the block.
+     */
+    protected Item getItem(final Block block) {
+        return Item.getItemFromBlock(block);
+    }
+
     @Nullable
     protected Block getBlock(final NBTBase data) {
         final NBTTagCompound nbt = (NBTTagCompound) data;
@@ -142,7 +166,7 @@ public abstract class AbstractConverter implements Converter {
             return ItemStack.EMPTY;
         }
 
-        final Item item = Item.getItemFromBlock(block);
+        final Item item = getItem(block);
         if (item == Items.AIR) {
             return ItemStack.EMPTY;
         }

@@ -3,7 +3,6 @@ package li.cil.architect.common.converter;
 import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Settings;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.Rotation;
@@ -16,9 +15,8 @@ public final class ConverterAttachedBlock extends AbstractConverterBase {
     }
 
     @Override
-    protected boolean canSerialize(final IBlockState state) {
-        final Block block = state.getBlock();
-        return Settings.isAttachedBlock(block) && super.canSerialize(state);
+    protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
+        return Settings.isAttachedBlock(getBlock(state)) && super.canSerialize(world, pos, state);
     }
 
     @Override

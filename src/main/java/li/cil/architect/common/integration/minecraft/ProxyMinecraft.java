@@ -11,6 +11,6 @@ public final class ProxyMinecraft implements ModProxy {
 
     @Override
     public void init(final FMLInitializationEvent event) {
-//        BlueprintAPI.addConverter(new ConverterMinecraft());
+//        ConverterAPI.addConverter(new ConverterMinecraft());
     }
 }
