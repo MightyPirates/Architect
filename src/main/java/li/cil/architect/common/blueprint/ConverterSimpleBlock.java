@@ -1,9 +1,11 @@
 package li.cil.architect.common.blueprint;
 
+import li.cil.architect.api.blueprint.ItemSource;
 import li.cil.architect.api.prefab.blueprint.AbstractConverter;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -13,7 +15,6 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.items.IItemHandler;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -57,24 +58,14 @@ public final class ConverterSimpleBlock extends AbstractConverter {
     }
 
     @Override
-    public boolean preDeserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
+    public boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
         final ItemStack wantStack = getItem(data);
         if (wantStack.isEmpty()) {
             return true;
         }
 
-        for (int slot = 0; slot < materials.getSlots(); slot++) {
-            final ItemStack haveStack = materials.getStackInSlot(slot);
-            if (haveStack.isItemEqual(wantStack)) {
-                final ItemStack extractedStack = materials.extractItem(slot, 1, false);
-                assert extractedStack.isItemEqual(wantStack);
-                if (!extractedStack.isEmpty()) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        final ItemStack haveStack = itemSource.extract(wantStack);
+        return !haveStack.isEmpty();
     }
 
     @Override
@@ -91,6 +82,14 @@ public final class ConverterSimpleBlock extends AbstractConverter {
         final IBlockState state = block.getStateFromMeta(metadata).withRotation(rotation);
 
         world.setBlockState(pos, state);
+    }
+
+    @Override
+    public void cancelDeserialization(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
+        final ItemStack wantStack = getItem(data);
+        if (!wantStack.isEmpty()) {
+            InventoryHelper.spawnItemStack(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, wantStack);
+        }
     }
 
     private static ItemStack getItem(final NBTBase data) {

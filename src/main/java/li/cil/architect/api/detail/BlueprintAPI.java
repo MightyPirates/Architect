@@ -1,6 +1,7 @@
 package li.cil.architect.api.detail;
 
 import li.cil.architect.api.blueprint.Converter;
+import li.cil.architect.api.blueprint.ItemSource;
 import li.cil.architect.api.blueprint.SortIndex;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -89,15 +90,15 @@ public interface BlueprintAPI {
      * deserialized, in particular with respect to available materials which
      * are consumed from the specified {@link IItemHandler}.
      *
-     * @param materials access to building materials available for deserialization.
-     * @param world     the world into which to deserialize the block.
-     * @param pos       the position at which to deserialize the block.
-     * @param rotation  the rotation to deserialize with.
-     * @param data      the serialized representation of the block to deserialize.
+     * @param itemSource access to building materials available for deserialization.
+     * @param world      the world into which to deserialize the block.
+     * @param pos        the position at which to deserialize the block.
+     * @param rotation   the rotation to deserialize with.
+     * @param data       the serialized representation of the block to deserialize.
      * @return <code>true</code> if the data can be deserialized;
      * <code>false</code> otherwise.
      */
-    boolean preDeserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data);
+    boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data);
 
     /**
      * Deserialize the specified serialized block data into the world at the

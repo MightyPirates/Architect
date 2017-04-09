@@ -94,15 +94,15 @@ public interface Converter {
      * deserialized, in particular with respect to available materials which
      * are consumed from the specified {@link IItemHandler}.
      *
-     * @param materials access to building materials available for deserialization.
-     * @param world     the world into which to deserialize the block.
-     * @param pos       the position at which to deserialize the block.
-     * @param rotation  the rotation to deserialize with.
-     * @param data      the serialized representation of the block to deserialize.
+     * @param itemSource access to building materials available for deserialization.
+     * @param world      the world into which to deserialize the block.
+     * @param pos        the position at which to deserialize the block.
+     * @param rotation   the rotation to deserialize with.
+     * @param data       the serialized representation of the block to deserialize.
      * @return <code>true</code> if the data can be deserialized;
      * <code>false</code> otherwise.
      */
-    boolean preDeserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
+    boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
 
     /**
      * Deserialize the specified serialized block data into the world at the
@@ -117,4 +117,23 @@ public interface Converter {
      * @param data     the serialized representation of the block to deserialize.
      */
     void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
+
+    /**
+     * Cancel a pending deserialization that has already been prepared.
+     * <p>
+     * This is called if the location to deserialize into has become occupied
+     * after {@link #preDeserialize} was called, but before {@link #deserialize}
+     * could be called.
+     * <p>
+     * To avoid destruction of materials consumed in pre-deserialization, this
+     * method should spawn the consumed materials as {@link net.minecraft.entity.item.EntityItem}s
+     * in the world, preferably at or around the location the deserialization
+     * would have taken place at.
+     *
+     * @param world    the world the deserialization would have occurred in.
+     * @param pos      the position the deserialization would have occurred at.
+     * @param rotation the rotation the deserialization would have occurred with.
+     * @param data     the serialized representation of the block that would have been deserialized.
+     */
+    void cancelDeserialization(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
 }

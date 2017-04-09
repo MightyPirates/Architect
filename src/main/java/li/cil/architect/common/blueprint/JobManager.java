@@ -469,8 +469,8 @@ public enum JobManager {
      * the data.
      */
     private static class JobBatch implements JobConsumer {
-        // The player creating the jobs and from whose inventory take materials.
-        private final EntityPlayer player;
+        private final ItemSourceImpl itemSource;
+        private final World world;
 
         // Re-use NBTs to allow GC to collect duplicates while adding large batches.
         private final TObjectIntMap<NBTTagCompound> nbtToId = new TObjectIntHashMap<>();
@@ -481,12 +481,13 @@ public enum JobManager {
         private final TIntObjectMap<List<BatchedJob>> jobs = new TIntObjectHashMap<>();
 
         JobBatch(final EntityPlayer player) {
-            this.player = player;
+            this.world = player.getEntityWorld();
+            this.itemSource = new ItemSourceImpl(player.isCreative(), new InvWrapper(player.inventory));
         }
 
         @Override
         public void accept(final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
-            if (!BlueprintAPI.preDeserialize(new InvWrapper(player.inventory), player.getEntityWorld(), pos, rotation, nbt)) {
+            if (!BlueprintAPI.preDeserialize(itemSource, world, pos, rotation, nbt)) {
                 return;
             }
 
@@ -509,7 +510,7 @@ public enum JobManager {
         void finish(final JobManagerImpl manager) {
             // Shuffle jobs per sort index, to get a less... boring order when
             // actually deserializing the blocks.
-            final Random rng = player.world.rand;
+            final Random rng = world.rand;
             jobs.forEachValue(list -> {
                 Collections.shuffle(list, rng);
                 return true;

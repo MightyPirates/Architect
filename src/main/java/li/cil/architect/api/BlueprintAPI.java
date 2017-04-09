@@ -1,6 +1,7 @@
 package li.cil.architect.api;
 
 import li.cil.architect.api.blueprint.Converter;
+import li.cil.architect.api.blueprint.ItemSource;
 import li.cil.architect.api.blueprint.SortIndex;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -50,7 +51,7 @@ public final class BlueprintAPI {
      */
     public static int getSortIndex(final NBTTagCompound data) {
         if (API.blueprintAPI != null) {
-            API.blueprintAPI.getSortIndex(data);
+            return API.blueprintAPI.getSortIndex(data);
         }
         return 0;
     }
@@ -118,17 +119,17 @@ public final class BlueprintAPI {
      * deserialized, in particular with respect to available materials which
      * are consumed from the specified {@link IItemHandler}.
      *
-     * @param materials access to building materials available for deserialization.
-     * @param world     the world into which to deserialize the block.
-     * @param pos       the position at which to deserialize the block.
-     * @param rotation  the rotation to deserialize with.
-     * @param data      the serialized representation of the block to deserialize.
+     * @param itemSource access to building materials available for deserialization.
+     * @param world      the world into which to deserialize the block.
+     * @param pos        the position at which to deserialize the block.
+     * @param rotation   the rotation to deserialize with.
+     * @param data       the serialized representation of the block to deserialize.
      * @return <code>true</code> if the data can be deserialized;
      * <code>false</code> otherwise.
      */
-    public static boolean preDeserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
+    public static boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
         if (API.blueprintAPI != null) {
-            return API.blueprintAPI.preDeserialize(materials, world, pos, rotation, data);
+            return API.blueprintAPI.preDeserialize(itemSource, world, pos, rotation, data);
         }
         return false;
     }

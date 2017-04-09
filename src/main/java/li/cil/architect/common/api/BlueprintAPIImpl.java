@@ -1,6 +1,7 @@
 package li.cil.architect.common.api;
 
 import li.cil.architect.api.blueprint.Converter;
+import li.cil.architect.api.blueprint.ItemSource;
 import li.cil.architect.api.detail.BlueprintAPI;
 import li.cil.architect.common.Architect;
 import net.minecraft.block.state.IBlockState;
@@ -9,7 +10,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public final class BlueprintAPIImpl implements BlueprintAPI {
     }
 
     @Override
-    public boolean preDeserialize(final IItemHandler materials, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
+    public boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
         if (!isValidPosition(world, pos)) {
             return false;
         }
@@ -87,25 +87,25 @@ public final class BlueprintAPIImpl implements BlueprintAPI {
             return false;
         }
 
-        return converter.preDeserialize(materials, world, pos, rotation, data.getTag(TAG_DATA));
+        return converter.preDeserialize(itemSource, world, pos, rotation, data.getTag(TAG_DATA));
     }
 
     @Override
     public void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
-        if (!isValidPosition(world, pos)) {
-            return;
-        }
-
         final Converter converter = findConverter(data);
         if (converter == null) {
             Architect.getLog().warn("Trying to deserialize block that was serialized with a converter that is not present in the current installation. Ignoring.");
             return;
         }
 
-        converter.deserialize(world, pos, rotation, data.getTag(TAG_DATA));
+        if (!isValidPosition(world, pos)) {
+            converter.cancelDeserialization(world, pos, rotation, data.getTag(TAG_DATA));
+        } else {
+            converter.deserialize(world, pos, rotation, data.getTag(TAG_DATA));
+        }
     }
 
-    private boolean isValidPosition(final World world, final BlockPos pos) {
+    private static boolean isValidPosition(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
         return state.getBlock().isReplaceable(world, pos);
     }
