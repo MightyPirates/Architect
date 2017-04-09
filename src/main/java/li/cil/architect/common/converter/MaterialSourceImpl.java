@@ -1,6 +1,6 @@
-package li.cil.architect.common.blueprint;
+package li.cil.architect.common.converter;
 
-import li.cil.architect.api.blueprint.MaterialSource;
+import li.cil.architect.api.converter.MaterialSource;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;

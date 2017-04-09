@@ -1,12 +1,15 @@
 package li.cil.architect.common;
 
 import li.cil.architect.api.API;
-import li.cil.architect.api.BlueprintAPI;
-import li.cil.architect.common.api.BlueprintAPIImpl;
+import li.cil.architect.api.ConverterAPI;
+import li.cil.architect.common.api.ConverterAPIImpl;
 import li.cil.architect.common.api.CreativeTab;
-import li.cil.architect.common.blueprint.ConverterSimpleBlock;
+import li.cil.architect.common.config.Settings;
+import li.cil.architect.common.converter.ConverterFallingBlock;
+import li.cil.architect.common.converter.ConverterSolidBlock;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.integration.Integration;
+import li.cil.architect.common.jobs.JobManager;
 import li.cil.architect.common.network.Network;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
@@ -28,7 +31,7 @@ public class ProxyCommon {
         // Initialize API.
         API.creativeTab = new CreativeTab();
 
-        API.blueprintAPI = new BlueprintAPIImpl();
+        API.converterAPI = new ConverterAPIImpl();
 
         // Register blocks and items.
         Items.register(this);
@@ -48,7 +51,8 @@ public class ProxyCommon {
         MinecraftForge.EVENT_BUS.register(JobManager.INSTANCE);
 
         // Register built-in dynamic converter.
-        BlueprintAPI.addConverter(new ConverterSimpleBlock(Constants.UUID_CONVERTER_GENERIC));
+        ConverterAPI.addConverter(new ConverterSolidBlock());
+        ConverterAPI.addConverter(new ConverterFallingBlock());
 
         // Mod integration.
         Integration.init(event);

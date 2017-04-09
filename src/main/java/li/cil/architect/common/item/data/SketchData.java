@@ -1,7 +1,7 @@
 package li.cil.architect.common.item.data;
 
-import li.cil.architect.api.BlueprintAPI;
-import li.cil.architect.common.Settings;
+import li.cil.architect.api.ConverterAPI;
+import li.cil.architect.common.config.Settings;
 import li.cil.architect.util.AxisAlignedBBUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -201,7 +201,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
      * @return <code>true</code> if the position was added; <code>false</code> otherwise.
      */
     public boolean set(final World world, final BlockPos pos) {
-        if (!BlueprintAPI.canSerialize(world, pos)) {
+        if (!ConverterAPI.canSerialize(world, pos)) {
             return false;
         }
 

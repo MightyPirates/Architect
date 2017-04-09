@@ -1,6 +1,6 @@
 package li.cil.architect.common.item;
 
-import li.cil.architect.common.Constants;
+import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.data.BlueprintData;
 import li.cil.architect.util.PlayerUtils;

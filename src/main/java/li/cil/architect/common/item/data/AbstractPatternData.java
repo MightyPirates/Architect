@@ -1,6 +1,6 @@
 package li.cil.architect.common.item.data;
 
-import li.cil.architect.common.Settings;
+import li.cil.architect.common.config.Settings;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;

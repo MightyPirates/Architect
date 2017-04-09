@@ -1,7 +1,7 @@
 package li.cil.architect.common.item;
 
-import li.cil.architect.api.BlueprintAPI;
-import li.cil.architect.common.Constants;
+import li.cil.architect.api.ConverterAPI;
+import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.data.BlueprintData;
 import li.cil.architect.common.item.data.SketchData;
@@ -163,7 +163,7 @@ public final class ItemSketch extends AbstractItem {
         }
 
         sketchData.getBlocks().forEach(pos -> {
-            final NBTTagCompound nbt = BlueprintAPI.serialize(world, pos);
+            final NBTTagCompound nbt = ConverterAPI.serialize(world, pos);
             if (nbt != null) {
                 builder.add(pos.subtract(origin), nbt);
             }

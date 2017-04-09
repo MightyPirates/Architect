@@ -4,8 +4,8 @@
  * I assume you're here to register custom block converters to allow them being
  * stored in and placed via blueprints.
  * <p>
- * To do so, have a look at implement a converter using the {@link li.cil.architect.api.blueprint.Converter}
- * interface, then register the provider with Architect via {@link li.cil.architect.api.BlueprintAPI#addConverter(Converter)}.
+ * To do so, have a look at implement a converter using the {@link li.cil.architect.api.converter.Converter}
+ * interface, then register the provider with Architect via {@link li.cil.architect.api.ConverterAPI#addConverter(Converter)}.
  * <p>
  * The converter will then be queried by Architect when needed.
  */
@@ -17,7 +17,7 @@
         apiVersion = API.MOD_VERSION)
 package li.cil.architect.api;
 
-import li.cil.architect.api.blueprint.Converter;
+import li.cil.architect.api.converter.Converter;
 import mcp.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -1,8 +1,8 @@
 package li.cil.architect.common.api;
 
-import li.cil.architect.api.blueprint.Converter;
-import li.cil.architect.api.blueprint.MaterialSource;
-import li.cil.architect.api.detail.BlueprintAPI;
+import li.cil.architect.api.converter.Converter;
+import li.cil.architect.api.converter.MaterialSource;
+import li.cil.architect.api.detail.ConverterAPI;
 import li.cil.architect.common.Architect;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public final class BlueprintAPIImpl implements BlueprintAPI {
+public final class ConverterAPIImpl implements ConverterAPI {
     private static final String TAG_CONVERTER_LSB = "converterLSB";
     private static final String TAG_CONVERTER_MSB = "converterMSB";
     private static final String TAG_DATA = "data";

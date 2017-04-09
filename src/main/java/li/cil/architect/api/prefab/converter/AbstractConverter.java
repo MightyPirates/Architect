@@ -1,9 +1,8 @@
-package li.cil.architect.common.blueprint;
+package li.cil.architect.api.prefab.converter;
 
-import li.cil.architect.api.blueprint.MaterialSource;
-import li.cil.architect.api.prefab.blueprint.AbstractConverter;
-import li.cil.architect.common.Architect;
-import li.cil.architect.common.Settings;
+import li.cil.architect.api.converter.Converter;
+import li.cil.architect.api.converter.MaterialSource;
+import li.cil.architect.api.converter.SortIndex;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Items;
@@ -16,41 +15,63 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
-public final class ConverterSimpleBlock extends AbstractConverter {
+/**
+ * Base implementation of a converter.
+ */
+public abstract class AbstractConverter implements Converter {
+    // --------------------------------------------------------------------- //
+    // Computed data
+
+    private final UUID uuid;
+    private final int sortIndex;
+
+    // NBT tag names.
     private static final String TAG_NAME = "name";
     private static final String TAG_METADATA = "meta";
 
-    private final Set<ResourceLocation> blacklist = new HashSet<>();
+    // --------------------------------------------------------------------- //
 
-    public ConverterSimpleBlock(final UUID uuid) {
-        super(uuid);
-        for (final String blacklistItem : Settings.simpleBlockBlacklist) {
-            try {
-                final ResourceLocation location = new ResourceLocation(blacklistItem);
-                blacklist.add(location);
-            } catch (final Throwable t) {
-                Architect.getLog().warn("Failed parsing simple block converter blacklist entry '" + blacklistItem + "'.", t);
-            }
-        }
+    protected AbstractConverter(final UUID uuid, final int sortIndex) {
+        this.uuid = uuid;
+        this.sortIndex = sortIndex;
+    }
+
+    protected AbstractConverter(final UUID uuid) {
+        this(uuid, SortIndex.SOLID_BLOCK);
+    }
+
+    // --------------------------------------------------------------------- //
+    // Converter
+
+    @Override
+    public UUID getUUID() {
+        return uuid;
     }
 
     @Override
-    public boolean canSerialize(final World world, final BlockPos pos) {
-        final IBlockState state = world.getBlockState(pos);
-        final Block block = state.getBlock();
-
-        if (blacklist.contains(block.getRegistryName())) {
-            return false;
+    public Iterable<ItemStack> getItemCosts(final NBTBase data) {
+        final ItemStack wantStack = getItem(data);
+        if (wantStack.isEmpty()) {
+            return Collections.emptyList();
         }
+        return Collections.singleton(wantStack);
+    }
 
-        return Item.getItemFromBlock(block) != Items.AIR && block.getRegistryName() != null && !block.hasTileEntity(state);
+    @Override
+    public Iterable<FluidStack> getFluidCosts(final NBTBase data) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public int getSortIndex(final NBTBase data) {
+        return sortIndex;
     }
 
     @Override
@@ -61,19 +82,12 @@ public final class ConverterSimpleBlock extends AbstractConverter {
         final ResourceLocation name = block.getRegistryName();
         final int metadata = block.getMetaFromState(state);
 
+        assert name != null;
+
         final NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString(TAG_NAME, name.toString());
         nbt.setByte(TAG_METADATA, (byte) metadata);
         return nbt;
-    }
-
-    @Override
-    public Iterable<ItemStack> getItemCosts(final NBTBase data) {
-        final ItemStack wantStack = getItem(data);
-        if (wantStack.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return Collections.singleton(wantStack);
     }
 
     @Override
@@ -98,6 +112,7 @@ public final class ConverterSimpleBlock extends AbstractConverter {
             return; // Block type does not exist in this Minecraft instance.
         }
 
+        //noinspection deprecation
         final IBlockState state = block.getStateFromMeta(metadata).withRotation(rotation);
 
         world.setBlockState(pos, state);
@@ -111,11 +126,18 @@ public final class ConverterSimpleBlock extends AbstractConverter {
         }
     }
 
-    private static ItemStack getItem(final NBTBase data) {
+    // --------------------------------------------------------------------- //
+
+    @Nullable
+    protected Block getBlock(final NBTBase data) {
         final NBTTagCompound nbt = (NBTTagCompound) data;
         final ResourceLocation name = new ResourceLocation(nbt.getString(TAG_NAME));
 
-        final Block block = ForgeRegistries.BLOCKS.getValue(name);
+        return ForgeRegistries.BLOCKS.getValue(name);
+    }
+
+    protected ItemStack getItem(final NBTBase data) {
+        final Block block = getBlock(data);
         if (block == null) {
             return ItemStack.EMPTY;
         }

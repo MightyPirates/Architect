@@ -1,6 +1,6 @@
 package li.cil.architect.client.input;
 
-import li.cil.architect.common.Settings;
+import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.init.Items;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;

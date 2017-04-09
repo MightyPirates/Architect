@@ -4,9 +4,9 @@ import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import li.cil.architect.api.BlueprintAPI;
+import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.common.Architect;
-import li.cil.architect.common.JobManager;
+import li.cil.architect.common.jobs.JobManager;
 import li.cil.architect.util.AxisAlignedBBUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -226,7 +226,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         final List<ItemStack> knownCosts = new ArrayList<>();
         for (int i = 0; i < blockData.size(); i++) {
             final NBTTagCompound data = blockData.get(i);
-            final Iterable<ItemStack> costs = BlueprintAPI.getItemCosts(data);
+            final Iterable<ItemStack> costs = ConverterAPI.getItemCosts(data);
             for (final ItemStack cost : costs) {
                 cost.setCount(counts[i]);
                 boolean found = false;

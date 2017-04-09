@@ -1,8 +1,13 @@
-package li.cil.architect.common;
+package li.cil.architect.common.config;
 
+import li.cil.architect.common.Architect;
+import net.minecraft.block.Block;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * User configurable stuff via config file.
@@ -35,14 +40,22 @@ public final class Settings {
      */
     public static int maxWorldOperationsPerTick = 16;
 
-    public static String[] simpleBlockBlacklist = {};
+    /**
+     * A list of registry names of blocks to ignore in built-in converters.
+     */
+    public static String[] rawBlockBlacklist = {};
+
+    /**
+     * The parsed list of blocks to ignore in built-in converters.
+     */
+    public static final Set<ResourceLocation> blockBlacklist = new HashSet<>();
 
     // --------------------------------------------------------------------- //
 
     private static final String CONFIG_VERSION = "1";
 
     private static final String CATEGORY_BLUEPRINT = "blueprint";
-    private static final String CATEGORY_CONVERTER_SIMPLE = "converter.simple";
+    private static final String CATEGORY_CONVERTER = "converter";
     private static final String CATEGORY_PROVIDER = "provider";
     private static final String CATEGORY_SYSTEM = "system";
 
@@ -50,7 +63,7 @@ public final class Settings {
     private static final String NAME_MAX_PROVIDER_RADIUS = "maxProviderRadius";
     private static final String NAME_MAX_CHUNK_OPERATIONS_PER_TICK = "maxChunkOperationsPerTick";
     private static final String NAME_MAX_WORLD_OPERATIONS_PER_TICK = "maxWorldOperationsPerTick";
-    private static final String NAME_SIMPLE_BLOCK_BLACKLIST = "simpleBlockBlacklist";
+    private static final String NAME_CONVERTER_BLACKLIST = "blacklist";
 
     private static final String COMMENT_MAX_BLUEPRINT_SIZE =
             "The maximum size of a blueprint in any dimension.";
@@ -60,21 +73,19 @@ public final class Settings {
             "The maximum number of blocks to deserialize (place) per tick per chunk.";
     private static final String COMMENT_MAX_WORLD_OPERATIONS_PER_TICK =
             "The maximum number of blocks to deserialize (place) per tick per world.";
-    private static final String COMMENT_SIMPLE_BLOCK_BLACKLIST =
-            "Registry names of blocks to ignore in the simple block converter.\n" +
-            "The simple block converter will by default work for all blocks that\n" +
-            "do not have a TileEntity, and that have a corresponding ItemBlock.\n" +
-            "However, it does not take metadata into account when looking for items\n" +
-            "when deserializing a block (to 'pay' for it), and as such there may be\n" +
-            "cases where it would try to use the wrong item in deserialization. For\n" +
-            "those cases, add the block's registry name in this list. Or throw it in\n" +
-            "if you just don't want the block to be copyable by blueprints.\n" +
+    private static final String COMMENT_CONVERTER_BLACKLIST =
+            "Registry names of blocks to ignore in the built-in converters.\n" +
             "Values must be formatted as resource locations, e.g.:\n" +
             "  minecraft:iron_block";
 
     // --------------------------------------------------------------------- //
 
-    static void load(final File configFile) {
+    public static boolean isBlacklisted(final Block block) {
+        final ResourceLocation location = block.getRegistryName();
+        return location == null || blockBlacklist.contains(location);
+    }
+
+    public static void load(final File configFile) {
         final Configuration config = new Configuration(configFile, CONFIG_VERSION);
 
         config.load();
@@ -94,12 +105,21 @@ public final class Settings {
                 NAME_MAX_WORLD_OPERATIONS_PER_TICK, CATEGORY_SYSTEM,
                 maxWorldOperationsPerTick, 1, 1000, COMMENT_MAX_WORLD_OPERATIONS_PER_TICK);
 
-        simpleBlockBlacklist = config.getStringList(
-                NAME_SIMPLE_BLOCK_BLACKLIST, CATEGORY_CONVERTER_SIMPLE,
-                simpleBlockBlacklist, COMMENT_SIMPLE_BLOCK_BLACKLIST);
+        rawBlockBlacklist = config.getStringList(
+                NAME_CONVERTER_BLACKLIST, CATEGORY_CONVERTER,
+                rawBlockBlacklist, COMMENT_CONVERTER_BLACKLIST);
 
         if (config.hasChanged()) {
             config.save();
+        }
+
+        for (final String blacklistItem : rawBlockBlacklist) {
+            try {
+                final ResourceLocation location = new ResourceLocation(blacklistItem);
+                blockBlacklist.add(location);
+            } catch (final Throwable t) {
+                Architect.getLog().warn("Failed parsing simple block converter blacklist entry '" + blacklistItem + "'.", t);
+            }
         }
     }
 

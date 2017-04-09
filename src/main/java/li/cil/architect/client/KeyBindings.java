@@ -1,6 +1,6 @@
 package li.cil.architect.client;
 
-import li.cil.architect.common.Constants;
+import li.cil.architect.common.config.Constants;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;

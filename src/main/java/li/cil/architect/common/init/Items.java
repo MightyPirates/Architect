@@ -1,7 +1,7 @@
 package li.cil.architect.common.init;
 
-import li.cil.architect.common.Constants;
 import li.cil.architect.common.ProxyCommon;
+import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.item.ItemBlueprint;
 import li.cil.architect.common.item.ItemProvider;
 import li.cil.architect.common.item.ItemSketch;

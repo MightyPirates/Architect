@@ -1,6 +1,6 @@
 package li.cil.architect.util;
 
-import li.cil.architect.common.Settings;
+import li.cil.architect.common.config.Settings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;

@@ -1,8 +1,8 @@
 package li.cil.architect.api.detail;
 
-import li.cil.architect.api.blueprint.Converter;
-import li.cil.architect.api.blueprint.MaterialSource;
-import li.cil.architect.api.blueprint.SortIndex;
+import li.cil.architect.api.converter.Converter;
+import li.cil.architect.api.converter.MaterialSource;
+import li.cil.architect.api.converter.SortIndex;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
  * When trying to serialize a block in the world, all registered converters will
  * be queried, until one returns <code>true</code> from {@link #canSerialize}.
  */
-public interface BlueprintAPI {
+public interface ConverterAPI {
     /**
      * Register the specified converter.
      *

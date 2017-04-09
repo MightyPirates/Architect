@@ -1,8 +1,8 @@
 package li.cil.architect.api;
 
-import li.cil.architect.api.blueprint.Converter;
-import li.cil.architect.api.blueprint.MaterialSource;
-import li.cil.architect.api.blueprint.SortIndex;
+import li.cil.architect.api.converter.Converter;
+import li.cil.architect.api.converter.MaterialSource;
+import li.cil.architect.api.converter.SortIndex;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -25,15 +25,15 @@ import java.util.Collections;
  * This is made available in the init phase, so you'll either have to (soft)
  * depend on the mod, or you must not make calls to this before the init phase.
  */
-public final class BlueprintAPI {
+public final class ConverterAPI {
     /**
      * Register the specified converter.
      *
      * @param converter the converter to register.
      */
     public static void addConverter(Converter converter) {
-        if (API.blueprintAPI != null) {
-            API.blueprintAPI.addConverter(converter);
+        if (API.converterAPI != null) {
+            API.converterAPI.addConverter(converter);
         }
     }
 
@@ -51,8 +51,8 @@ public final class BlueprintAPI {
      * @see SortIndex
      */
     public static int getSortIndex(final NBTTagCompound data) {
-        if (API.blueprintAPI != null) {
-            return API.blueprintAPI.getSortIndex(data);
+        if (API.converterAPI != null) {
+            return API.converterAPI.getSortIndex(data);
         }
         return 0;
     }
@@ -66,8 +66,8 @@ public final class BlueprintAPI {
      * <code>false</code> otherwise.
      */
     public static boolean canSerialize(final World world, final BlockPos pos) {
-        if (API.blueprintAPI != null) {
-            return API.blueprintAPI.canSerialize(world, pos);
+        if (API.converterAPI != null) {
+            return API.converterAPI.canSerialize(world, pos);
         }
         return false;
     }
@@ -82,8 +82,8 @@ public final class BlueprintAPI {
      */
     @Nullable
     public static NBTTagCompound serialize(final World world, final BlockPos pos) {
-        if (API.blueprintAPI != null) {
-            return API.blueprintAPI.serialize(world, pos);
+        if (API.converterAPI != null) {
+            return API.converterAPI.serialize(world, pos);
         }
         return null;
     }
@@ -104,8 +104,8 @@ public final class BlueprintAPI {
      * @return a list of materials missing.
      */
     public static Iterable<ItemStack> getItemCosts(final NBTTagCompound data) {
-        if (API.blueprintAPI != null) {
-            return API.blueprintAPI.getItemCosts(data);
+        if (API.converterAPI != null) {
+            return API.converterAPI.getItemCosts(data);
         }
         return Collections.emptyList();
     }
@@ -126,8 +126,8 @@ public final class BlueprintAPI {
      * @return a list of materials missing.
      */
     public static Iterable<FluidStack> getFluidCosts(final NBTTagCompound data) {
-        if (API.blueprintAPI != null) {
-            return API.blueprintAPI.getFluidCosts(data);
+        if (API.converterAPI != null) {
+            return API.converterAPI.getFluidCosts(data);
         }
         return Collections.emptyList();
     }
@@ -151,8 +151,8 @@ public final class BlueprintAPI {
      * <code>false</code> otherwise.
      */
     public static boolean preDeserialize(final MaterialSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
-        if (API.blueprintAPI != null) {
-            return API.blueprintAPI.preDeserialize(itemSource, world, pos, rotation, data);
+        if (API.converterAPI != null) {
+            return API.converterAPI.preDeserialize(itemSource, world, pos, rotation, data);
         }
         return false;
     }
@@ -170,13 +170,13 @@ public final class BlueprintAPI {
      * @param data     the serialized representation of the block to deserialize.
      */
     public static void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
-        if (API.blueprintAPI != null) {
-            API.blueprintAPI.deserialize(world, pos, rotation, data);
+        if (API.converterAPI != null) {
+            API.converterAPI.deserialize(world, pos, rotation, data);
         }
     }
 
     // --------------------------------------------------------------------- //
 
-    private BlueprintAPI() {
+    private ConverterAPI() {
     }
 }

@@ -1,4 +1,4 @@
-package li.cil.architect.api.blueprint;
+package li.cil.architect.api.converter;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -29,44 +29,7 @@ public interface Converter {
      */
     UUID getUUID();
 
-    /**
-     * A sort index used to control in which order blocks are deserialized.
-     * <p>
-     * Blocks being deserialized using converters that provide lower numbers
-     * here will be processed first.
-     * <p>
-     * This allows deserialization of solid blocks (e.g. cobble) before non-
-     * solid blocks (e.g. levers, water).
-     *
-     * @param data the serialized representation of the block in question.
-     * @return the sort index of the specified data.
-     * @see SortIndex
-     */
-    int getSortIndex(final NBTBase data);
-
-    /**
-     * Checks if this converter can be used to serialize the block at the
-     * specified world position.
-     *
-     * @param world the world containing the block to serialize.
-     * @param pos   the position of the block to serialize.
-     * @return <code>true</code> if the converter can serialize the block;
-     * <code>false</code> otherwise;
-     */
-    boolean canSerialize(final World world, final BlockPos pos);
-
-    /**
-     * Creates a serialized representation of the block at the specified world
-     * position.
-     * <p>
-     * This is guaranteed to only called if {@link #canSerialize} returned
-     * <code>true</code> for the passed parameters.
-     *
-     * @param world the world containing the block to serialize.
-     * @param pos   the position of the block to serialize.
-     * @return a serialized representation of the block.
-     */
-    NBTBase serialize(final World world, final BlockPos pos);
+    // --------------------------------------------------------------------- //
 
     /**
      * Get a list of materials required to deserialize the block described by
@@ -101,6 +64,47 @@ public interface Converter {
      * @return a list of materials missing.
      */
     Iterable<FluidStack> getFluidCosts(final NBTBase data);
+
+    /**
+     * A sort index used to control in which order blocks are deserialized.
+     * <p>
+     * Blocks being deserialized using converters that provide lower numbers
+     * here will be processed first.
+     * <p>
+     * This allows deserialization of solid blocks (e.g. cobble) before non-
+     * solid blocks (e.g. levers, water).
+     *
+     * @param data the serialized representation of the block in question.
+     * @return the sort index of the specified data.
+     * @see SortIndex
+     */
+    int getSortIndex(final NBTBase data);
+
+    // --------------------------------------------------------------------- //
+
+    /**
+     * Checks if this converter can be used to serialize the block at the
+     * specified world position.
+     *
+     * @param world the world containing the block to serialize.
+     * @param pos   the position of the block to serialize.
+     * @return <code>true</code> if the converter can serialize the block;
+     * <code>false</code> otherwise;
+     */
+    boolean canSerialize(final World world, final BlockPos pos);
+
+    /**
+     * Creates a serialized representation of the block at the specified world
+     * position.
+     * <p>
+     * This is guaranteed to only called if {@link #canSerialize} returned
+     * <code>true</code> for the passed parameters.
+     *
+     * @param world the world containing the block to serialize.
+     * @param pos   the position of the block to serialize.
+     * @return a serialized representation of the block.
+     */
+    NBTBase serialize(final World world, final BlockPos pos);
 
     /**
      * Called when a job for deserialization should be created.

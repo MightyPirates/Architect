@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package li.cil.architect.api.prefab.blueprint;
+package li.cil.architect.common.converter;
 
 import mcp.MethodsReturnNonnullByDefault;
 

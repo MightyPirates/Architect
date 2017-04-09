@@ -1,7 +1,7 @@
 package li.cil.architect.common.item;
 
-import li.cil.architect.common.Constants;
-import li.cil.architect.common.Settings;
+import li.cil.architect.common.config.Constants;
+import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.init.Items;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -150,7 +150,7 @@ public final class ItemProvider extends AbstractItem {
         super.addInformation(stack, player, tooltip, advanced);
         final String info = I18n.format(Constants.TOOLTIP_PROVIDER);
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, li.cil.architect.common.Constants.MAX_TOOLTIP_WIDTH));
+        tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
 
         if (isBound(stack)) {
             final BlockPos pos = getPosition(stack);

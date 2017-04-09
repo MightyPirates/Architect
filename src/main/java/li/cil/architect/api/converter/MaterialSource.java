@@ -1,4 +1,4 @@
-package li.cil.architect.api.blueprint;
+package li.cil.architect.api.converter;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;

@@ -1,6 +1,6 @@
 package li.cil.architect.api;
 
-import li.cil.architect.api.detail.BlueprintAPI;
+import li.cil.architect.api.detail.ConverterAPI;
 import li.cil.architect.common.api.CreativeTab;
 
 /**
@@ -22,7 +22,7 @@ public final class API {
     public static CreativeTab creativeTab;
 
     // Set in pre-init, prefer using static entry point classes instead.
-    public static BlueprintAPI blueprintAPI;
+    public static ConverterAPI converterAPI;
 
     private API() {
     }

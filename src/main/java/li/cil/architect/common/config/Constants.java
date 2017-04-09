@@ -1,6 +1,7 @@
-package li.cil.architect.common;
+package li.cil.architect.common.config;
 
 import li.cil.architect.api.API;
+import li.cil.architect.common.Architect;
 
 import java.util.UUID;
 
@@ -11,8 +12,8 @@ public final class Constants {
     // --------------------------------------------------------------------- //
     // Mod data
 
-    static final String PROXY_CLIENT = "li.cil.architect.client.ProxyClient";
-    static final String PROXY_COMMON = "li.cil.architect.common.ProxyCommon";
+    public static final String PROXY_CLIENT = "li.cil.architect.client.ProxyClient";
+    public static final String PROXY_COMMON = "li.cil.architect.common.ProxyCommon";
 
     // --------------------------------------------------------------------- //
     // Block, item, entity and container names
@@ -24,7 +25,8 @@ public final class Constants {
     // --------------------------------------------------------------------- //
     // Converter UUIDs
 
-    static final UUID UUID_CONVERTER_GENERIC = UUID.fromString("20a9cafc-d21c-49cd-9a40-f8ea34c91984");
+    public static final UUID UUID_CONVERTER_SOLID_BLOCKS = UUID.fromString("20a9cafc-d21c-49cd-9a40-f8ea34c91984");
+    public static final UUID UUID_CONVERTER_FALLING_BLOCKS = UUID.fromString("74365f58-01c6-4b85-b069-e73656e57064");
 
     // --------------------------------------------------------------------- //
     // Tooltips

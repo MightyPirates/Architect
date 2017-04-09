@@ -1,6 +1,6 @@
 package li.cil.architect.client.renderer;
 
-import li.cil.architect.api.BlueprintAPI;
+import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.ItemSketch;
 import li.cil.architect.common.item.data.SketchData;
@@ -104,7 +104,7 @@ public enum SketchRenderer {
             }
             renderCubeWire(pos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
         } else {
-            if (potentialBounds.intersectsWith(bounds) && BlueprintAPI.canSerialize(player.getEntityWorld(), pos)) {
+            if (potentialBounds.intersectsWith(bounds) && ConverterAPI.canSerialize(player.getEntityWorld(), pos)) {
                 GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
             } else {
                 GlStateManager.color(0.9f, 0.4f, 0.2f, 0.5f);
