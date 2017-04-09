@@ -1,7 +1,9 @@
 package li.cil.architect.common.blueprint;
 
-import li.cil.architect.api.blueprint.ItemSource;
+import li.cil.architect.api.blueprint.MaterialSource;
 import li.cil.architect.api.prefab.blueprint.AbstractConverter;
+import li.cil.architect.common.Architect;
+import li.cil.architect.common.Settings;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Items;
@@ -17,20 +19,37 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public final class ConverterSimpleBlock extends AbstractConverter {
     private static final String TAG_NAME = "name";
     private static final String TAG_METADATA = "meta";
 
+    private final Set<ResourceLocation> blacklist = new HashSet<>();
+
     public ConverterSimpleBlock(final UUID uuid) {
         super(uuid);
+        for (final String blacklistItem : Settings.simpleBlockBlacklist) {
+            try {
+                final ResourceLocation location = new ResourceLocation(blacklistItem);
+                blacklist.add(location);
+            } catch (final Throwable t) {
+                Architect.getLog().warn("Failed parsing simple block converter blacklist entry '" + blacklistItem + "'.", t);
+            }
+        }
     }
 
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
+
+        if (blacklist.contains(block.getRegistryName())) {
+            return false;
+        }
+
         return Item.getItemFromBlock(block) != Items.AIR && block.getRegistryName() != null && !block.hasTileEntity(state);
     }
 
@@ -49,7 +68,7 @@ public final class ConverterSimpleBlock extends AbstractConverter {
     }
 
     @Override
-    public Iterable<ItemStack> getMaterialCosts(final NBTBase data) {
+    public Iterable<ItemStack> getItemCosts(final NBTBase data) {
         final ItemStack wantStack = getItem(data);
         if (wantStack.isEmpty()) {
             return Collections.emptyList();
@@ -58,13 +77,13 @@ public final class ConverterSimpleBlock extends AbstractConverter {
     }
 
     @Override
-    public boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
+    public boolean preDeserialize(final MaterialSource materialSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
         final ItemStack wantStack = getItem(data);
         if (wantStack.isEmpty()) {
             return true;
         }
 
-        final ItemStack haveStack = itemSource.extract(wantStack);
+        final ItemStack haveStack = materialSource.extractItem(wantStack);
         return !haveStack.isEmpty();
     }
 

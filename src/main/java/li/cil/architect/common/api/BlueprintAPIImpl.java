@@ -1,7 +1,7 @@
 package li.cil.architect.common.api;
 
 import li.cil.architect.api.blueprint.Converter;
-import li.cil.architect.api.blueprint.ItemSource;
+import li.cil.architect.api.blueprint.MaterialSource;
 import li.cil.architect.api.detail.BlueprintAPI;
 import li.cil.architect.common.Architect;
 import net.minecraft.block.state.IBlockState;
@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -66,17 +67,27 @@ public final class BlueprintAPIImpl implements BlueprintAPI {
     }
 
     @Override
-    public Iterable<ItemStack> getMaterialCosts(final NBTTagCompound data) {
+    public Iterable<ItemStack> getItemCosts(final NBTTagCompound data) {
         final Converter converter = findConverter(data);
         if (converter == null) {
             return Collections.emptyList();
         }
 
-        return converter.getMaterialCosts(data.getTag(TAG_DATA));
+        return converter.getItemCosts(data.getTag(TAG_DATA));
     }
 
     @Override
-    public boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
+    public Iterable<FluidStack> getFluidCosts(final NBTTagCompound data) {
+        final Converter converter = findConverter(data);
+        if (converter == null) {
+            return Collections.emptyList();
+        }
+
+        return converter.getFluidCosts(data.getTag(TAG_DATA));
+    }
+
+    @Override
+    public boolean preDeserialize(final MaterialSource materialSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
         if (!isValidPosition(world, pos)) {
             return false;
         }
@@ -87,7 +98,7 @@ public final class BlueprintAPIImpl implements BlueprintAPI {
             return false;
         }
 
-        return converter.preDeserialize(itemSource, world, pos, rotation, data.getTag(TAG_DATA));
+        return converter.preDeserialize(materialSource, world, pos, rotation, data.getTag(TAG_DATA));
     }
 
     @Override
@@ -118,12 +129,9 @@ public final class BlueprintAPIImpl implements BlueprintAPI {
 
     @Nullable
     private Converter findConverter(final World world, final BlockPos pos) {
-        for (int i = 0; i < converters.size(); i++) {
+        for (int i = converters.size() - 1; i >= 0; i--) {
             final Converter converter = converters.get(i);
             if (converter.canSerialize(world, pos)) {
-                // Bring to front, assuming it'll be used again sooner than
-                // others, potentially speeding up future look-ups.
-                Collections.swap(converters, i, 0);
                 return converter;
             }
         }

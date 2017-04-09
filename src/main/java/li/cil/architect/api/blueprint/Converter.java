@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.UUID;
@@ -82,7 +83,24 @@ public interface Converter {
      *
      * @return a list of materials missing.
      */
-    Iterable<ItemStack> getMaterialCosts(final NBTBase data);
+    Iterable<ItemStack> getItemCosts(final NBTBase data);
+
+    /**
+     * Get a list of materials required to deserialize the block described by
+     * the specified data.
+     * <p>
+     * The data passed along is guaranteed to be a value that was previously
+     * produced by this converter's {@link #serialize} method.
+     * <p>
+     * This will typically return a singleton list or an empty list, but for more
+     * complex converters, e.g. ones handling multi-part blocks this returns an
+     * iterable.
+     * <p>
+     * This is not used for logic, purely for user feedback, e.g. in tooltips.
+     *
+     * @return a list of materials missing.
+     */
+    Iterable<FluidStack> getFluidCosts(final NBTBase data);
 
     /**
      * Called when a job for deserialization should be created.
@@ -94,15 +112,17 @@ public interface Converter {
      * deserialized, in particular with respect to available materials which
      * are consumed from the specified {@link IItemHandler}.
      *
-     * @param itemSource access to building materials available for deserialization.
-     * @param world      the world into which to deserialize the block.
-     * @param pos        the position at which to deserialize the block.
-     * @param rotation   the rotation to deserialize with.
-     * @param data       the serialized representation of the block to deserialize.
+     * @param materialSource access to building materials available for
+     *                       deserialization.
+     * @param world          the world into which to deserialize the block.
+     * @param pos            the position at which to deserialize the block.
+     * @param rotation       the rotation to deserialize with.
+     * @param data           the serialized representation of the block to
+     *                       deserialize.
      * @return <code>true</code> if the data can be deserialized;
      * <code>false</code> otherwise.
      */
-    boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
+    boolean preDeserialize(final MaterialSource materialSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
 
     /**
      * Deserialize the specified serialized block data into the world at the
@@ -114,7 +134,8 @@ public interface Converter {
      * @param world    the world to deserialize the block into.
      * @param pos      the position to deserialize the block at.
      * @param rotation the rotation to deserialize with.
-     * @param data     the serialized representation of the block to deserialize.
+     * @param data     the serialized representation of the block to
+     *                 deserialize.
      */
     void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
 
@@ -132,8 +153,10 @@ public interface Converter {
      *
      * @param world    the world the deserialization would have occurred in.
      * @param pos      the position the deserialization would have occurred at.
-     * @param rotation the rotation the deserialization would have occurred with.
-     * @param data     the serialized representation of the block that would have been deserialized.
+     * @param rotation the rotation the deserialization would have occurred
+     *                 with.
+     * @param data     the serialized representation of the block that would
+     *                 have been deserialized.
      */
     void cancelDeserialization(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data);
 }

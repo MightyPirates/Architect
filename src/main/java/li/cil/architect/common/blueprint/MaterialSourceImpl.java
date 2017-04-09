@@ -1,14 +1,19 @@
 package li.cil.architect.common.blueprint;
 
-import li.cil.architect.api.blueprint.ItemSource;
+import li.cil.architect.api.blueprint.MaterialSource;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 
-public final class ItemSourceImpl implements ItemSource {
+import javax.annotation.Nullable;
+
+public final class MaterialSourceImpl implements MaterialSource {
     private final boolean isCreative;
     private final IItemHandler handler;
 
-    ItemSourceImpl(final boolean isCreative, final IItemHandler handler) {
+    public MaterialSourceImpl(final boolean isCreative, final IItemHandler handler) {
         this.isCreative = isCreative;
         this.handler = handler;
     }
@@ -24,10 +29,11 @@ public final class ItemSourceImpl implements ItemSource {
     }
 
     @Override
-    public ItemStack extract(final ItemStack wantStack) {
+    public ItemStack extractItem(final ItemStack wantStack) {
         if (isCreative) {
             return wantStack.copy();
         }
+
         for (int slot = 0; slot < handler.getSlots(); slot++) {
             final ItemStack haveStack = handler.getStackInSlot(slot);
             if (haveStack.isItemEqual(wantStack)) {
@@ -38,6 +44,22 @@ public final class ItemSourceImpl implements ItemSource {
                 }
             }
         }
+
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    public IFluidHandler getFluidHandler() {
+        return EmptyFluidHandler.INSTANCE;
+    }
+
+    @Override
+    @Nullable
+    public FluidStack extractFluid(final FluidStack stack) {
+        if (isCreative) {
+            return stack.copy();
+        }
+
+        return null;
     }
 }

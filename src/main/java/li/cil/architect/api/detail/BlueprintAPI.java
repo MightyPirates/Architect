@@ -1,7 +1,7 @@
 package li.cil.architect.api.detail;
 
 import li.cil.architect.api.blueprint.Converter;
-import li.cil.architect.api.blueprint.ItemSource;
+import li.cil.architect.api.blueprint.MaterialSource;
 import li.cil.architect.api.blueprint.SortIndex;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
@@ -70,15 +71,32 @@ public interface BlueprintAPI {
      * The data passed along is guaranteed to be a value that was previously
      * produced by this converter's {@link #serialize} method.
      * <p>
-     * This will typically return a singleton list or an empty list, but for more
-     * complex converters, e.g. ones handling multi-part blocks this returns an
-     * iterable.
+     * This will typically return a singleton list or an empty list, but for
+     * more complex converters, e.g. ones handling multi-part blocks this
+     * returns an iterable.
      * <p>
      * This is not used for logic, purely for user feedback, e.g. in tooltips.
      *
      * @return a list of materials missing.
      */
-    Iterable<ItemStack> getMaterialCosts(final NBTTagCompound data);
+    Iterable<ItemStack> getItemCosts(final NBTTagCompound data);
+
+    /**
+     * Get a list of materials required to deserialize the block described by
+     * the specified data.
+     * <p>
+     * The data passed along is guaranteed to be a value that was previously
+     * produced by this converter's {@link #serialize} method.
+     * <p>
+     * This will typically return a singleton list or an empty list, but for
+     * more complex converters, e.g. ones handling multi-part blocks this
+     * returns an iterable.
+     * <p>
+     * This is not used for logic, purely for user feedback, e.g. in tooltips.
+     *
+     * @return a list of materials missing.
+     */
+    Iterable<FluidStack> getFluidCosts(final NBTTagCompound data);
 
     /**
      * Called when a job for deserialization should be created.
@@ -90,15 +108,17 @@ public interface BlueprintAPI {
      * deserialized, in particular with respect to available materials which
      * are consumed from the specified {@link IItemHandler}.
      *
-     * @param itemSource access to building materials available for deserialization.
-     * @param world      the world into which to deserialize the block.
-     * @param pos        the position at which to deserialize the block.
-     * @param rotation   the rotation to deserialize with.
-     * @param data       the serialized representation of the block to deserialize.
+     * @param materialSource access to building materials available for
+     *                       deserialization.
+     * @param world          the world into which to deserialize the block.
+     * @param pos            the position at which to deserialize the block.
+     * @param rotation       the rotation to deserialize with.
+     * @param data           the serialized representation of the block to
+     *                       deserialize.
      * @return <code>true</code> if the data can be deserialized;
      * <code>false</code> otherwise.
      */
-    boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data);
+    boolean preDeserialize(final MaterialSource materialSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data);
 
     /**
      * Deserialize the specified serialized block data into the world at the
@@ -110,7 +130,8 @@ public interface BlueprintAPI {
      * @param world    the world to deserialize the block into.
      * @param pos      the position to deserialize the block at.
      * @param rotation the rotation to deserialize with.
-     * @param data     the serialized representation of the block to deserialize.
+     * @param data     the serialized representation of the block to
+     *                 deserialize.
      */
     void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data);
 }

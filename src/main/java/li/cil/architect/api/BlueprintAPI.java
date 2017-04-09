@@ -1,7 +1,7 @@
 package li.cil.architect.api;
 
 import li.cil.architect.api.blueprint.Converter;
-import li.cil.architect.api.blueprint.ItemSource;
+import li.cil.architect.api.blueprint.MaterialSource;
 import li.cil.architect.api.blueprint.SortIndex;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
@@ -102,9 +103,31 @@ public final class BlueprintAPI {
      *
      * @return a list of materials missing.
      */
-    public static Iterable<ItemStack> getMaterialCosts(final NBTTagCompound data) {
+    public static Iterable<ItemStack> getItemCosts(final NBTTagCompound data) {
         if (API.blueprintAPI != null) {
-            return API.blueprintAPI.getMaterialCosts(data);
+            return API.blueprintAPI.getItemCosts(data);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Get a list of materials required to deserialize the block described by
+     * the specified data.
+     * <p>
+     * The data passed along is guaranteed to be a value that was previously
+     * produced by this converter's {@link #serialize} method.
+     * <p>
+     * This will typically return a singleton list or an empty list, but for more
+     * complex converters, e.g. ones handling multi-part blocks this returns an
+     * iterable.
+     * <p>
+     * This is not used for logic, purely for user feedback, e.g. in tooltips.
+     *
+     * @return a list of materials missing.
+     */
+    public static Iterable<FluidStack> getFluidCosts(final NBTTagCompound data) {
+        if (API.blueprintAPI != null) {
+            return API.blueprintAPI.getFluidCosts(data);
         }
         return Collections.emptyList();
     }
@@ -127,7 +150,7 @@ public final class BlueprintAPI {
      * @return <code>true</code> if the data can be deserialized;
      * <code>false</code> otherwise.
      */
-    public static boolean preDeserialize(final ItemSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
+    public static boolean preDeserialize(final MaterialSource itemSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
         if (API.blueprintAPI != null) {
             return API.blueprintAPI.preDeserialize(itemSource, world, pos, rotation, data);
         }

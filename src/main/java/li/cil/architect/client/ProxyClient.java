@@ -1,8 +1,8 @@
 package li.cil.architect.client;
 
-import li.cil.architect.client.event.KeyboardEventHandlerBlueprint;
-import li.cil.architect.client.event.MouseEventHandlerBlueprint;
-import li.cil.architect.client.event.MouseEventHandlerSketch;
+import li.cil.architect.client.input.KeyboardEventHandlerBlueprint;
+import li.cil.architect.client.input.MouseEventHandlerBlueprint;
+import li.cil.architect.client.input.MouseEventHandlerSketch;
 import li.cil.architect.client.renderer.BlueprintRenderer;
 import li.cil.architect.client.renderer.ProviderRenderer;
 import li.cil.architect.client.renderer.SketchRenderer;

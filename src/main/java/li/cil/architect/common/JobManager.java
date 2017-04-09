@@ -1,4 +1,4 @@
-package li.cil.architect.common.blueprint;
+package li.cil.architect.common;
 
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TLongObjectMap;
@@ -8,8 +8,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import li.cil.architect.api.API;
 import li.cil.architect.api.BlueprintAPI;
-import li.cil.architect.common.Architect;
-import li.cil.architect.common.Settings;
+import li.cil.architect.common.blueprint.MaterialSourceImpl;
 import li.cil.architect.common.inventory.CompoundItemHandler;
 import li.cil.architect.common.item.ItemProvider;
 import li.cil.architect.util.ChunkUtils;
@@ -472,7 +471,7 @@ public enum JobManager {
      * the data.
      */
     private static class JobBatch implements JobConsumer {
-        private final ItemSourceImpl itemSource;
+        private final MaterialSourceImpl itemSource;
         private final World world;
 
         // Re-use NBTs to allow GC to collect duplicates while adding large batches.
@@ -489,7 +488,7 @@ public enum JobManager {
             final List<IItemHandler> providers = ItemProvider.findProviders(player.getPositionVector(), inventory);
             providers.add(inventory);
             final IItemHandler compoundProvider = new CompoundItemHandler(providers.toArray(new IItemHandler[providers.size()]));
-            this.itemSource = new ItemSourceImpl(player.isCreative(), compoundProvider);
+            this.itemSource = new MaterialSourceImpl(player.isCreative(), compoundProvider);
         }
 
         @Override

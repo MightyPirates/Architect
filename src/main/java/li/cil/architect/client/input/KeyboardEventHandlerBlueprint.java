@@ -1,4 +1,4 @@
-package li.cil.architect.client.event;
+package li.cil.architect.client.input;
 
 import li.cil.architect.client.KeyBindings;
 import li.cil.architect.common.init.Items;

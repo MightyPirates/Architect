@@ -5,7 +5,6 @@ import li.cil.architect.api.BlueprintAPI;
 import li.cil.architect.common.api.BlueprintAPIImpl;
 import li.cil.architect.common.api.CreativeTab;
 import li.cil.architect.common.blueprint.ConverterSimpleBlock;
-import li.cil.architect.common.blueprint.JobManager;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.integration.Integration;
 import li.cil.architect.common.network.Network;

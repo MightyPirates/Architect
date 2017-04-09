@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package li.cil.architect.client.event;
+package li.cil.architect.client.input;
 
 import mcp.MethodsReturnNonnullByDefault;
 
