@@ -39,7 +39,7 @@ public final class Items {
     public static void register(final ProxyCommon proxy) {
         sketch = proxy.registerItem(Constants.NAME_ITEM_SKETCH, ItemSketch::new);
         blueprint = proxy.registerItem(Constants.NAME_ITEM_BLUEPRINT, ItemBlueprint::new);
-        provider = proxy.registerItem(Constants.NAME_ITEM_PROVIDER, () -> new ItemProvider(1, 1));
+        provider = proxy.registerItem(Constants.NAME_ITEM_PROVIDER, ItemProvider::new);
     }
 
     public static void addRecipes() {

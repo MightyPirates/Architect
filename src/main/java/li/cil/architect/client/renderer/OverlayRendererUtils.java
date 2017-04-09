@@ -126,6 +126,16 @@ final class OverlayRendererUtils {
         doWireEpilogue();
     }
 
+    static void renderCubePulsing(final BlockPos hitPos, final float dt) {
+        final Tessellator t = Tessellator.getInstance();
+        final VertexBuffer buffer = t.getBuffer();
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+
+        drawCube(hitPos, buffer, dt);
+
+        t.draw();
+    }
+
     static void drawCube(final BlockPos pos, final VertexBuffer buffer, final float dt) {
         final float offset = (pos.getX() + pos.getY() + pos.getZ()) % TWO_PI;
         final float scale = SCALE_STRENGTH * MathHelper.sin(offset + dt);
@@ -214,14 +224,14 @@ final class OverlayRendererUtils {
         buffer.pos(x, minY, maxZ).endVertex();
     }
 
-    private static void drawPlaneNegY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
+    static void drawPlaneNegY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
         buffer.pos(minX, y, minZ).endVertex();
         buffer.pos(maxX, y, minZ).endVertex();
         buffer.pos(maxX, y, maxZ).endVertex();
         buffer.pos(minX, y, maxZ).endVertex();
     }
 
-    private static void drawPlanePosY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
+    static void drawPlanePosY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
         buffer.pos(minX, y, minZ).endVertex();
         buffer.pos(minX, y, maxZ).endVertex();
         buffer.pos(maxX, y, maxZ).endVertex();

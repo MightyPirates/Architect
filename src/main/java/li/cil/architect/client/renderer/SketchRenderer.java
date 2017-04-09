@@ -40,8 +40,13 @@ public enum SketchRenderer {
             return;
         }
 
-        final boolean hasRangeSelection = ItemSketch.hasRangeSelection(stack);
         final SketchData data = ItemSketch.getData(stack);
+        //noinspection ConstantConditions !isEmpty guarantees non-null.
+        if (!data.isEmpty() && player.getDistanceSq(data.getOrigin()) > 64) {
+            return;
+        }
+
+        final boolean hasRangeSelection = ItemSketch.hasRangeSelection(stack);
         final AxisAlignedBB potentialBounds = data.getPotentialBounds();
 
         final BlockPos hitPos;
@@ -76,11 +81,11 @@ public enum SketchRenderer {
 
             if (hitPos != null && data.isSet(hitPos)) {
                 GlStateManager.color(0.2f, 0.4f, 0.9f, 0.3f);
-                renderFocusHighlight(hitPos, dt);
+                renderCubePulsing(hitPos, dt);
 
                 doWirePrologue();
                 GlStateManager.color(0.2f, 0.4f, 0.9f, 0.5f);
-                renderFocusHighlight(hitPos, dt);
+                renderCubePulsing(hitPos, dt);
                 doWireEpilogue();
             }
         }
@@ -89,27 +94,27 @@ public enum SketchRenderer {
         doPositionEpilogue();
     }
 
-    private static void renderBlockSelection(final EntityPlayer player, final BlockPos hitPos, final AxisAlignedBB potentialBounds) {
-        final AxisAlignedBB hitBounds = new AxisAlignedBB(hitPos);
+    private static void renderBlockSelection(final EntityPlayer player, final BlockPos pos, final AxisAlignedBB potentialBounds) {
+        final AxisAlignedBB bounds = new AxisAlignedBB(pos);
         if (player.isSneaking()) {
-            if (potentialBounds.intersectsWith(hitBounds)) {
+            if (potentialBounds.intersectsWith(bounds)) {
                 GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
             } else {
                 GlStateManager.color(0.9f, 0.4f, 0.2f, 0.5f);
             }
-            renderCubeWire(hitPos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
+            renderCubeWire(pos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
         } else {
-            if (potentialBounds.intersectsWith(hitBounds) && BlueprintAPI.canSerialize(player.getEntityWorld(), hitPos)) {
+            if (potentialBounds.intersectsWith(bounds) && BlueprintAPI.canSerialize(player.getEntityWorld(), pos)) {
                 GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
             } else {
                 GlStateManager.color(0.9f, 0.4f, 0.2f, 0.5f);
             }
-            renderCube(hitPos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
+            renderCube(pos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
         }
     }
 
-    private static void renderRangeSelection(final EntityPlayer player, @Nullable final AxisAlignedBB rangeBounds) {
-        if (rangeBounds == null) {
+    private static void renderRangeSelection(final EntityPlayer player, @Nullable final AxisAlignedBB bounds) {
+        if (bounds == null) {
             return;
         }
 
@@ -118,14 +123,14 @@ public enum SketchRenderer {
         } else {
             GlStateManager.color(0.2f, 0.9f, 0.4f, 0.2f);
         }
-        renderCube(rangeBounds);
+        renderCube(bounds);
 
         if (player.isSneaking()) {
             GlStateManager.color(0.9f, 0.4f, 0.2f, 0.7f);
         } else {
             GlStateManager.color(0.2f, 0.9f, 0.4f, 0.7f);
         }
-        renderCubeWire(rangeBounds);
+        renderCubeWire(bounds);
     }
 
     private static void renderBlocks(final Stream<BlockPos> blocks, final float dt) {
@@ -134,16 +139,6 @@ public enum SketchRenderer {
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         blocks.forEach(pos -> drawCube(pos, buffer, dt));
-
-        t.draw();
-    }
-
-    private static void renderFocusHighlight(final BlockPos hitPos, final float dt) {
-        final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-
-        drawCube(hitPos, buffer, dt);
 
         t.draw();
     }

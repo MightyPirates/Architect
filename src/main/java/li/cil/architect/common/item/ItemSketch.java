@@ -31,12 +31,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public final class ItemSketch extends AbstractPatternItem {
+public final class ItemSketch extends AbstractItem {
     // --------------------------------------------------------------------- //
     // Computed data.
 
     // NBT tag names.
-    private static final String TAG_RANGE_START = "range_start";
+    private static final String TAG_RANGE_START = "rangeStart";
     private static final String TAG_SKETCH = "sketch";
 
     // --------------------------------------------------------------------- //
@@ -104,7 +104,8 @@ public final class ItemSketch extends AbstractPatternItem {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
-        if (!player.isSneaking() && !hasRangeSelection(player.getHeldItem(hand))) {
+        final ItemStack stack = player.getHeldItem(hand);
+        if (!player.isSneaking() && !hasRangeSelection(stack) && !getData(stack).isEmpty()) {
             player.setActiveHand(hand);
         } else if (!world.isRemote) {
             handleInput(player, hand, PlayerUtils.getLookAtPos(player), false);
@@ -122,11 +123,7 @@ public final class ItemSketch extends AbstractPatternItem {
 
     @Override
     public int getMaxItemUseDuration(final ItemStack stack) {
-        if (getData(stack).isEmpty()) {
-            return super.getMaxItemUseDuration(stack);
-        } else {
-            return 30;
-        }
+        return 30;
     }
 
     @Override

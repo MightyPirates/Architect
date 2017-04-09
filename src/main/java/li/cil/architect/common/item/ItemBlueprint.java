@@ -28,7 +28,11 @@ import org.lwjgl.input.Keyboard;
 import java.util.Comparator;
 import java.util.List;
 
-public final class ItemBlueprint extends AbstractPatternItem {
+public final class ItemBlueprint extends AbstractItem {
+    // --------------------------------------------------------------------- //
+    // Computed data.
+
+    // NBT tag names.
     private static final String TAG_BLUEPRINT = "blueprint";
 
     // --------------------------------------------------------------------- //

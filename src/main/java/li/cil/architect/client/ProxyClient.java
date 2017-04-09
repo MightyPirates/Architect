@@ -4,6 +4,7 @@ import li.cil.architect.client.event.KeyboardEventHandlerBlueprint;
 import li.cil.architect.client.event.MouseEventHandlerBlueprint;
 import li.cil.architect.client.event.MouseEventHandlerSketch;
 import li.cil.architect.client.renderer.BlueprintRenderer;
+import li.cil.architect.client.renderer.ProviderRenderer;
 import li.cil.architect.client.renderer.SketchRenderer;
 import li.cil.architect.common.ProxyCommon;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -25,6 +26,7 @@ public final class ProxyClient extends ProxyCommon {
         super.onPreInit(event);
 
         MinecraftForge.EVENT_BUS.register(BlueprintRenderer.INSTANCE);
+        MinecraftForge.EVENT_BUS.register(ProviderRenderer.INSTANCE);
         MinecraftForge.EVENT_BUS.register(SketchRenderer.INSTANCE);
         MinecraftForge.EVENT_BUS.register(KeyboardEventHandlerBlueprint.INSTANCE);
         MinecraftForge.EVENT_BUS.register(MouseEventHandlerBlueprint.INSTANCE);
