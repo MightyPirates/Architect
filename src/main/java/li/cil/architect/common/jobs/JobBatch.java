@@ -63,11 +63,11 @@ class JobBatch implements JobManager.JobConsumer {
         });
 
         // Sort by sort index (the key of the job map).
-        final int[] keys = jobs.keys();
-        Arrays.sort(keys);
-        for (final int key : keys) {
-            for (final BatchedJob job : jobs.get(key)) {
-                manager.addJob(job.pos, job.rotation, idToNbt.get(job.id));
+        final int[] sortIndices = jobs.keys();
+        Arrays.sort(sortIndices);
+        for (final int sortIndex : sortIndices) {
+            for (final BatchedJob job : jobs.get(sortIndex)) {
+                manager.addJob(sortIndex, job.pos, job.rotation, idToNbt.get(job.id));
             }
         }
     }

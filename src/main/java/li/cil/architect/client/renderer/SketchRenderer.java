@@ -42,7 +42,7 @@ public enum SketchRenderer {
 
         final SketchData data = ItemSketch.getData(stack);
         //noinspection ConstantConditions !isEmpty guarantees non-null.
-        if (!data.isEmpty() && player.getDistanceSq(data.getOrigin()) > 64) {
+        if (!data.isEmpty() && player.getDistanceSq(data.getOrigin()) > 64*64) {
             return;
         }
 

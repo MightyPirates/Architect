@@ -59,13 +59,13 @@ public final class JobManagerImpl extends WorldSavedData {
         super(id);
     }
 
-    void addJob(final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
+    void addJob(final int sortIndex, final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
         Architect.getLog().debug("Add Job at {}: {}", pos, nbt);
 
         final Job job = new Job(addReference(nbt), pos, rotation);
 
         final JobChunkStorage storage = getChunkStorage(new ChunkPos(pos));
-        storage.pushJob(job);
+        storage.pushJob(sortIndex, job);
     }
 
     void updateJobs(final World world) {
@@ -74,7 +74,7 @@ public final class JobManagerImpl extends WorldSavedData {
             chunkOps = 0;
 
             final ChunkPos chunkPos = ChunkUtils.longToChunkPos(key);
-            while (!storage.isEmpty()) {
+            while (!storage.isEmpty() && isSortOrderSatisfied(storage.getSortOrder(), chunkPos)) {
                 final Job job = storage.popJob();
                 final BlockPos pos = job.getPos(chunkPos);
                 Architect.getLog().debug("Process Job at {}: @{}", pos, job.dataReference);
@@ -156,6 +156,18 @@ public final class JobManagerImpl extends WorldSavedData {
             Architect.getLog().debug("Destroy Reference @{}", entry.id);
         }
         return entry.data;
+    }
+
+    private boolean isSortOrderSatisfied(final int sortOrder, final ChunkPos chunkPos) {
+        return isSortOrderSatisfied(sortOrder, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos - 1, chunkPos.chunkZPos))) &&
+               isSortOrderSatisfied(sortOrder, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos + 1, chunkPos.chunkZPos))) &&
+               isSortOrderSatisfied(sortOrder, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos, chunkPos.chunkZPos - 1))) &&
+               isSortOrderSatisfied(sortOrder, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos, chunkPos.chunkZPos + 1)));
+    }
+
+    private boolean isSortOrderSatisfied(final int sortOrder, final long key) {
+        final JobChunkStorage storage = chunkData.get(key);
+        return storage == null || storage.getSortOrder() >= sortOrder;
     }
 
     // --------------------------------------------------------------------- //

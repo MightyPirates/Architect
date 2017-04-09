@@ -5,6 +5,7 @@ import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.common.api.ConverterAPIImpl;
 import li.cil.architect.common.api.CreativeTab;
 import li.cil.architect.common.config.Settings;
+import li.cil.architect.common.converter.ConverterAttachedBlock;
 import li.cil.architect.common.converter.ConverterFallingBlock;
 import li.cil.architect.common.converter.ConverterSolidBlock;
 import li.cil.architect.common.init.Items;
@@ -53,6 +54,7 @@ public class ProxyCommon {
         // Register built-in dynamic converter.
         ConverterAPI.addConverter(new ConverterSolidBlock());
         ConverterAPI.addConverter(new ConverterFallingBlock());
+        ConverterAPI.addConverter(new ConverterAttachedBlock());
 
         // Mod integration.
         Integration.init(event);
