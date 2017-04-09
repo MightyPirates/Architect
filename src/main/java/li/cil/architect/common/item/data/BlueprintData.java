@@ -5,9 +5,11 @@ import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import li.cil.architect.api.BlueprintAPI;
 import li.cil.architect.common.blueprint.JobManager;
 import li.cil.architect.util.AxisAlignedBBUtils;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.Rotation;
@@ -60,23 +62,23 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         shift = shift.add(value);
 
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
-        while (shift.getX() <= -size.getX()) {
-            shift = shift.add(size.getX(), 0, 0);
+        while (shift.getX() < -size.getX()) {
+            shift = shift.add(size.getX() + 1, 0, 0);
         }
-        while (shift.getY() <= -size.getY()) {
-            shift = shift.add(0, size.getY(), 0);
+        while (shift.getY() < -size.getY()) {
+            shift = shift.add(0, size.getY() + 1, 0);
         }
-        while (shift.getZ() <= -size.getZ()) {
-            shift = shift.add(0, 0, size.getZ());
+        while (shift.getZ() < -size.getZ()) {
+            shift = shift.add(0, 0, size.getZ() + 1);
         }
-        while (shift.getX() >= size.getX()) {
-            shift = shift.add(-size.getX(), 0, 0);
+        while (shift.getX() > size.getX()) {
+            shift = shift.add(-size.getX() - 1, 0, 0);
         }
-        while (shift.getY() >= size.getY()) {
-            shift = shift.add(0, -size.getY(), 0);
+        while (shift.getY() > size.getY()) {
+            shift = shift.add(0, -size.getY() - 1, 0);
         }
-        while (shift.getZ() >= size.getZ()) {
-            shift = shift.add(0, 0, -size.getZ());
+        while (shift.getZ() > size.getZ()) {
+            shift = shift.add(0, 0, -size.getZ() - 1);
         }
     }
 
@@ -117,6 +119,43 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         }
         final BlockPos origin = snapToGrid(pos, size).add(shift);
         return StreamSupport.stream(new BlockPosSpliterator(this, origin), false);
+    }
+
+    /**
+     * Compute the total costs in items it would take to deserialize this block.
+     * <p>
+     * Returns a list of distinct item stacks with their count set accordingly.
+     *
+     * @return the total costs for deserializing this blueprint.
+     */
+    public List<ItemStack> getCosts() {
+        final int[] counts = new int[blockData.size()];
+        blocks.forEachValue(id -> {
+            counts[id]++;
+            return true;
+        });
+
+        final List<ItemStack> knownCosts = new ArrayList<>();
+        for (int i = 0; i < blockData.size(); i++) {
+            final NBTTagCompound data = blockData.get(i);
+            final Iterable<ItemStack> costs = BlueprintAPI.getMaterialCosts(data);
+            for (final ItemStack cost : costs) {
+                cost.setCount(counts[i]);
+                boolean found = false;
+                for (final ItemStack knownCost : knownCosts) {
+                    if (ItemStack.areItemsEqual(cost, knownCost) && ItemStack.areItemStackTagsEqual(cost, knownCost)) {
+                        knownCost.grow(cost.getCount());
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    knownCosts.add(cost);
+                }
+            }
+        }
+
+        return knownCosts;
     }
 
     /**

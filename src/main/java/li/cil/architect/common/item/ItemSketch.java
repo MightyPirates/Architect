@@ -123,7 +123,7 @@ public final class ItemSketch extends AbstractPatternItem {
         if (getData(stack).isEmpty()) {
             return super.getMaxItemUseDuration(stack);
         } else {
-            return 60;
+            return 30;
         }
     }
 
@@ -158,6 +158,7 @@ public final class ItemSketch extends AbstractPatternItem {
 
         final ItemStack result = new ItemStack(Items.blueprint);
         ItemBlueprint.setData(result, builder.getData());
+        disableUseAfterConversion();
         return result;
     }
 
@@ -188,6 +189,10 @@ public final class ItemSketch extends AbstractPatternItem {
     }
 
     private void handleInput(final EntityPlayer player, final EnumHand hand, final BlockPos pos, final boolean canToggleSingle) {
+        if (isUseDisabled()) {
+            return;
+        }
+
         final World world = player.getEntityWorld();
         final ItemStack stack = player.getHeldItem(hand);
         if (hasRangeSelection(stack)) {

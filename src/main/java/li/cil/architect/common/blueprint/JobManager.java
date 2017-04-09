@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
+import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
@@ -85,30 +86,42 @@ public enum JobManager {
 
     @SubscribeEvent
     public void onWorldTick(final TickEvent.WorldTickEvent event) {
+        assert !event.world.isRemote;
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         final JobManagerImpl manager = getInstance(event.world);
         manager.updateJobs(event.world);
     }
 
     @SubscribeEvent
     public void onWorldUnload(final WorldEvent.Unload event) {
+        if (event.getWorld().isRemote) {
+            return;
+        }
         final int dimension = event.getWorld().provider.getDimension();
         MANAGERS.remove(dimension);
     }
 
     @SubscribeEvent
     public void onChunkLoad(final ChunkDataEvent.Load event) {
+        assert !event.getWorld().isRemote;
         final JobManagerImpl manager = getInstance(event.getWorld());
         manager.loadChunk(event.getChunk().getPos(), event.getData());
     }
 
     @SubscribeEvent
     public void onChunkSave(final ChunkDataEvent.Save event) {
+        assert !event.getWorld().isRemote;
         final JobManagerImpl manager = getInstance(event.getWorld());
         manager.saveChunk(event.getChunk().getPos(), event.getData());
     }
 
     @SubscribeEvent
     public void onChunkUnload(final ChunkEvent.Unload event) {
+        if (event.getWorld().isRemote) {
+            return;
+        }
         final JobManagerImpl manager = getInstance(event.getWorld());
         manager.unloadChunk(event.getChunk().getPos());
     }
@@ -132,10 +145,11 @@ public enum JobManager {
         final int dimension = world.provider.getDimension();
         JobManagerImpl manager = MANAGERS.get(dimension);
         if (manager == null) {
-            manager = (JobManagerImpl) world.loadData(JobManagerImpl.class, JobManagerImpl.ID);
+            final MapStorage storage = world.getPerWorldStorage();
+            manager = (JobManagerImpl) storage.getOrLoadData(JobManagerImpl.class, JobManagerImpl.ID);
             if (manager == null) {
                 manager = new JobManagerImpl();
-                world.setData(JobManagerImpl.ID, manager);
+                storage.setData(JobManagerImpl.ID, manager);
             }
             MANAGERS.put(dimension, manager);
         }
@@ -144,11 +158,11 @@ public enum JobManager {
 
     // --------------------------------------------------------------------- //
 
-    private static final class JobManagerImpl extends WorldSavedData {
+    public static final class JobManagerImpl extends WorldSavedData {
         // --------------------------------------------------------------------- //
         // Computed data.
 
-        private static final String ID = API.MOD_ID + ":blocks";
+        private static final String ID = API.MOD_ID + "_blocks";
 
         private static final String TAG_NEXT_ID = "nextId";
         private static final String TAG_BLOCK_DATA = "blockData";
@@ -177,7 +191,14 @@ public enum JobManager {
             super(ID);
         }
 
+        // For creation via reflection in MapStorage#getOrLoadData.
+        public JobManagerImpl(final String id) {
+            super(id);
+        }
+
         void addJob(final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
+            Architect.getLog().debug("Add Job at {}: {}", pos, nbt);
+
             final Job job = new Job(addReference(nbt), pos, rotation);
 
             final JobChunkStorage storage = getChunkStorage(new ChunkPos(pos));
@@ -192,9 +213,12 @@ public enum JobManager {
                 final ChunkPos chunkPos = ChunkUtils.longToChunkPos(key);
                 while (!storage.isEmpty()) {
                     final Job job = storage.popJob();
+                    final BlockPos pos = job.getPos(chunkPos);
+                    Architect.getLog().debug("Process Job at {}: @{}", pos, job.dataReference);
                     final NBTTagCompound data = removeReference(job.dataReference);
                     if (data != null) {
-                        BlueprintAPI.deserialize(world, job.getPos(chunkPos), job.getRotation(), data);
+                        BlueprintAPI.deserialize(world, pos, job.getRotation(), data);
+                        Architect.getLog().debug("Finished Job at {}: {}", pos, data);
                     }
 
                     // Check limits. Total first, to make sure it's always
@@ -245,8 +269,10 @@ public enum JobManager {
                 entry = new JobBlockData(nextId++, nbt);
                 idToData.put(entry.id, entry);
                 nbtToData.put(nbt, entry);
+                Architect.getLog().debug("New Reference @{}: {}", entry.id, entry.data);
             }
             entry.referenceCount++;
+            Architect.getLog().debug("Add Reference @{}: #{}", entry.id, entry.referenceCount);
             markDirty();
             return entry.id;
         }
@@ -259,10 +285,12 @@ public enum JobManager {
                 return null;
             }
             entry.referenceCount--;
+            Architect.getLog().debug("Remove Reference @{}: #{}", entry.id, entry.referenceCount);
             markDirty();
             if (entry.referenceCount <= 0) {
                 idToData.remove(entry.id);
                 nbtToData.remove(entry.data);
+                Architect.getLog().debug("Destroy Reference @{}", entry.id);
             }
             return entry.data;
         }

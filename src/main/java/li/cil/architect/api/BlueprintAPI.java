@@ -87,12 +87,11 @@ public final class BlueprintAPI {
     }
 
     /**
-     * Get a list of materials missing from the specified {@link IItemHandler}
-     * that are required to deserialize the block described by the specified
-     * {@link NBTBase}.
+     * Get a list of materials required to deserialize the block described by
+     * the specified data.
      * <p>
-     * The passed {@link NBTBase} passed along is guaranteed to be a value that
-     * was previously produced by this converter's {@link #serialize} method.
+     * The data passed along is guaranteed to be a value that was previously
+     * produced by this converter's {@link #serialize} method.
      * <p>
      * This will typically return a singleton list or an empty list, but for more
      * complex converters, e.g. ones handling multi-part blocks this returns an
@@ -100,12 +99,11 @@ public final class BlueprintAPI {
      * <p>
      * This is not used for logic, purely for user feedback, e.g. in tooltips.
      *
-     * @param materials access to materials available for deserialization.
      * @return a list of materials missing.
      */
-    public static Iterable<ItemStack> getMissingMaterials(final IItemHandler materials, final World world, final BlockPos pos, final NBTTagCompound data) {
+    public static Iterable<ItemStack> getMaterialCosts(final NBTTagCompound data) {
         if (API.blueprintAPI != null) {
-            return API.blueprintAPI.getMissingMaterials(materials, world, pos, data);
+            return API.blueprintAPI.getMaterialCosts(data);
         }
         return Collections.emptyList();
     }

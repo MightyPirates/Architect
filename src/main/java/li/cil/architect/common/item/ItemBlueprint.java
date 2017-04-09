@@ -7,6 +7,7 @@ import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -20,7 +21,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
 
+import java.util.Comparator;
 import java.util.List;
 
 public final class ItemBlueprint extends AbstractPatternItem {
@@ -59,7 +62,21 @@ public final class ItemBlueprint extends AbstractPatternItem {
         final String info = I18n.format(Constants.TOOLTIP_BLUEPRINT);
         tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
 
-        // TODO Costs while sneaking.
+        final KeyBinding keyBind = Minecraft.getMinecraft().gameSettings.keyBindSneak;
+        if (Keyboard.isKeyDown(keyBind.getKeyCode()) && keyBind.getKeyModifier().isActive(keyBind.getKeyConflictContext())) {
+            final List<ItemStack> costs = data.getCosts();
+            costs.sort(Comparator.comparing(ItemStack::getDisplayName));
+            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_TITLE));
+            if (!costs.isEmpty()) {
+                for (final ItemStack cost : costs) {
+                    tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_LINE, cost.getCount(), cost.getDisplayName()));
+                }
+            } else {
+                tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_UNKNOWN));
+            }
+        } else {
+            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_HINT, Keyboard.getKeyName(keyBind.getKeyCode())));
+        }
     }
 
     @Override
@@ -82,11 +99,12 @@ public final class ItemBlueprint extends AbstractPatternItem {
 
     @Override
     public int getMaxItemUseDuration(final ItemStack stack) {
-        return 60;
+        return 30;
     }
 
     @Override
     public ItemStack onItemUseFinish(final ItemStack stack, final World world, final EntityLivingBase entity) {
+        disableUseAfterConversion();
         return new ItemStack(Items.sketch);
     }
 
@@ -98,6 +116,10 @@ public final class ItemBlueprint extends AbstractPatternItem {
     // --------------------------------------------------------------------- //
 
     private void handleInput(final EntityPlayer player, final EnumHand hand, final BlockPos pos) {
+        if (isUseDisabled()) {
+            return;
+        }
+
         final ItemStack stack = player.getHeldItem(hand);
         final BlueprintData data = getData(stack);
         data.createJobs(player, pos);

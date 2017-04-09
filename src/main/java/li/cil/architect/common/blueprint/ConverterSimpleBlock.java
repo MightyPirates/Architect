@@ -48,13 +48,10 @@ public final class ConverterSimpleBlock extends AbstractConverter {
     }
 
     @Override
-    public Iterable<ItemStack> getMissingMaterials(final IItemHandler materials, final NBTBase data) {
+    public Iterable<ItemStack> getMaterialCosts(final NBTBase data) {
         final ItemStack wantStack = getItem(data);
-        for (int slot = 0; slot < materials.getSlots(); slot++) {
-            final ItemStack haveStack = materials.getStackInSlot(slot);
-            if (haveStack.isItemEqual(wantStack)) {
-                return Collections.emptyList();
-            }
+        if (wantStack.isEmpty()) {
+            return Collections.emptyList();
         }
         return Collections.singleton(wantStack);
     }

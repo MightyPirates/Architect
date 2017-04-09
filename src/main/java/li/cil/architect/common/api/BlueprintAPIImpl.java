@@ -66,17 +66,13 @@ public final class BlueprintAPIImpl implements BlueprintAPI {
     }
 
     @Override
-    public Iterable<ItemStack> getMissingMaterials(final IItemHandler materials, final World world, final BlockPos pos, final NBTTagCompound data) {
-        if (!isValidPosition(world, pos)) {
-            return Collections.emptyList();
-        }
-
+    public Iterable<ItemStack> getMaterialCosts(final NBTTagCompound data) {
         final Converter converter = findConverter(data);
         if (converter == null) {
             return Collections.emptyList();
         }
 
-        return converter.getMissingMaterials(materials, data.getTag(TAG_DATA));
+        return converter.getMaterialCosts(data.getTag(TAG_DATA));
     }
 
     @Override
