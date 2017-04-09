@@ -58,6 +58,17 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     // --------------------------------------------------------------------- //
 
     /**
+     * Check whether this blueprint is empty. An empty blueprint is basically
+     * an invalid blueprint (but can be obtained by cheating in the item, for
+     * example).
+     *
+     * @return whether this is an empty blueprint.
+     */
+    public boolean isEmpty() {
+        return blockData.size() == 0 || blockPositions.cardinality() == 0;
+    }
+
+    /**
      * Adjust the current shift of this blueprint by the specified amount.
      * <p>
      * This will automatically wrap the shift if it exceeds the blueprint's
@@ -209,7 +220,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
                 counts[id]++;
             }
         } else {
-            counts[0] = blockPositions.size();
+            counts[0] = blockPositions.cardinality();
         }
 
         final List<ItemStack> knownCosts = new ArrayList<>();

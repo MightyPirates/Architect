@@ -36,15 +36,16 @@ public enum BlueprintRenderer {
         final Minecraft mc = Minecraft.getMinecraft();
         final EntityPlayer player = mc.player;
         final World world = mc.world;
+
         final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
         if (!Items.isBlueprint(stack)) {
             return;
         }
 
-        doPositionPrologue(event);
-        doOverlayPrologue();
-
         final BlueprintData data = ItemBlueprint.getData(stack);
+        if (data.isEmpty()) {
+            return;
+        }
 
         final BlockPos hitPos;
         final RayTraceResult hit = mc.objectMouseOver;
@@ -55,8 +56,10 @@ public enum BlueprintRenderer {
         }
 
         final float dt = computeScaleOffset();
-
         final AxisAlignedBB cellBounds = data.getCellBounds(hitPos);
+
+        doPositionPrologue(event);
+        doOverlayPrologue();
 
         GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
         renderCellBounds(cellBounds);

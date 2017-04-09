@@ -64,6 +64,10 @@ public final class ItemBlueprint extends AbstractPatternItem {
         final String info = I18n.format(Constants.TOOLTIP_BLUEPRINT);
         tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
 
+        if (data.isEmpty()) {
+            return;
+        }
+
         final KeyBinding keyBind = Minecraft.getMinecraft().gameSettings.keyBindSneak;
         if (Keyboard.isKeyDown(keyBind.getKeyCode())) {
             final List<ItemStack> costs = data.getCosts();

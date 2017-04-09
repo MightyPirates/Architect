@@ -34,13 +34,11 @@ public enum SketchRenderer {
     public void onWorldRender(final RenderWorldLastEvent event) {
         final Minecraft mc = Minecraft.getMinecraft();
         final EntityPlayer player = mc.player;
+
         final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
         if (!Items.isSketch(stack)) {
             return;
         }
-
-        doPositionPrologue(event);
-        doOverlayPrologue();
 
         final boolean hasRangeSelection = ItemSketch.hasRangeSelection(stack);
         final SketchData data = ItemSketch.getData(stack);
@@ -55,6 +53,9 @@ public enum SketchRenderer {
         } else {
             hitPos = null;
         }
+
+        doPositionPrologue(event);
+        doOverlayPrologue();
 
         if (hitPos != null) {
             if (hasRangeSelection) {
