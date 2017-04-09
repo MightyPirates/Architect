@@ -10,6 +10,8 @@ import li.cil.architect.api.API;
 import li.cil.architect.api.BlueprintAPI;
 import li.cil.architect.common.Architect;
 import li.cil.architect.common.Settings;
+import li.cil.architect.common.inventory.CompoundItemHandler;
+import li.cil.architect.common.item.ItemProvider;
 import li.cil.architect.util.ChunkUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,6 +28,7 @@ import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
@@ -482,7 +485,11 @@ public enum JobManager {
 
         JobBatch(final EntityPlayer player) {
             this.world = player.getEntityWorld();
-            this.itemSource = new ItemSourceImpl(player.isCreative(), new InvWrapper(player.inventory));
+            final IItemHandler inventory = new InvWrapper(player.inventory);
+            final List<IItemHandler> providers = ItemProvider.findProviders(player.getPositionVector(), inventory);
+            providers.add(inventory);
+            final IItemHandler compoundProvider = new CompoundItemHandler(providers.toArray(new IItemHandler[providers.size()]));
+            this.itemSource = new ItemSourceImpl(player.isCreative(), compoundProvider);
         }
 
         @Override

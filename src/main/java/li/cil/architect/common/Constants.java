@@ -40,7 +40,7 @@ public final class Constants {
     public static final String TOOLTIP_BLUEPRINT_COSTS_LINE = "architect.tooltip.blueprint.costs.line";
     public static final String TOOLTIP_BLUEPRINT_COSTS_UNKNOWN = "architect.tooltip.blueprint.costs.unknown";
     public static final String TOOLTIP_PROVIDER = "architect.tooltip.provider";
-    public static final String TOOLTIP_PROVIDER_TARGET = "architect.tooltip.target";
+    public static final String TOOLTIP_PROVIDER_TARGET = "architect.tooltip.provider.target";
     public static final String KEY_BINDINGS_CATEGORY_NAME = API.MOD_ID + " (" + Architect.MOD_NAME + ")";
     public static final String KEY_BINDINGS_BLUEPRINT_ROTATE = "key.architect.rotateBlueprint";
 

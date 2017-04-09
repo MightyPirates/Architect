@@ -1,6 +1,8 @@
 package li.cil.architect.common.item;
 
 import li.cil.architect.common.Constants;
+import li.cil.architect.common.Settings;
+import li.cil.architect.common.init.Items;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
@@ -13,12 +15,16 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class ItemProvider extends AbstractItem {
@@ -36,6 +42,12 @@ public final class ItemProvider extends AbstractItem {
         setMaxStackSize(1);
     }
 
+    /**
+     * Check whether this provider is currently bound to a position.
+     *
+     * @param stack the provider to check for.
+     * @return <code>true</code> if the provider is bound; <code>false</code> otherwise.
+     */
     public static boolean isBound(final ItemStack stack) {
         final NBTTagCompound dataNbt = getDataTag(stack);
         return dataNbt.hasKey(TAG_DIMENSION, NBT.TAG_INT) &&
@@ -43,19 +55,90 @@ public final class ItemProvider extends AbstractItem {
                dataNbt.hasKey(TAG_SIDE, NBT.TAG_BYTE);
     }
 
+    /**
+     * Get the dimension the position the provider is bound to is in.
+     * <p>
+     * Behavior is undefined if {@link #isBound(ItemStack)} returns <code>false</code>.
+     *
+     * @param stack the provider to get the dimension for.
+     * @return the dimension of the position the provider is bound to.
+     */
     public static int getDimension(final ItemStack stack) {
         final NBTTagCompound dataNbt = getDataTag(stack);
         return dataNbt.getInteger(TAG_DIMENSION);
     }
 
+    /**
+     * Get the position the provider is bound to.
+     * <p>
+     * Behavior is undefined if {@link #isBound(ItemStack)} returns <code>false</code>.
+     *
+     * @param stack the provider to get the position for.
+     * @return the position the provider is bound to.
+     */
     public static BlockPos getPosition(final ItemStack stack) {
         final NBTTagCompound dataNbt = getDataTag(stack);
         return BlockPos.fromLong(dataNbt.getLong(TAG_POSITION));
     }
 
+    /**
+     * Get the side of the block the provider is bound to.
+     * <p>
+     * Behavior is undefined if {@link #isBound(ItemStack)} returns <code>false</code>.
+     *
+     * @param stack the provider to get the bound-to side for.
+     * @return the side the provider is bound to.
+     */
     public static EnumFacing getSide(final ItemStack stack) {
         final NBTTagCompound dataNbt = getDataTag(stack);
         return EnumFacing.VALUES[dataNbt.getByte(TAG_SIDE) & 0xFF];
+    }
+
+    /**
+     * Get a list of all valid item-handlers accessible via providers in the
+     * specified inventory, in range of the specified position.
+     *
+     * @param consumerPos the position to base range checks on.
+     * @param inventory   the inventory to get providers from.
+     * @return the list of valid item handlers available.
+     */
+    public static List<IItemHandler> findProviders(final Vec3d consumerPos, final IItemHandler inventory) {
+        final List<IItemHandler> result = new ArrayList<>();
+
+        final float rangeSquared = Settings.maxProviderRadius * Settings.maxProviderRadius;
+        for (int slot = 0; slot < inventory.getSlots(); slot++) {
+            final ItemStack stack = inventory.getStackInSlot(slot);
+            if (!Items.isProvider(stack) || !isBound(stack)) {
+                continue;
+            }
+
+            final int dimension = getDimension(stack);
+            final World world = DimensionManager.getWorld(dimension);
+            if (world == null) {
+                continue;
+            }
+
+            final BlockPos pos = getPosition(stack);
+            if (consumerPos.squareDistanceTo(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > rangeSquared) {
+                continue;
+            }
+            if (!world.isBlockLoaded(pos)) {
+                continue;
+            }
+
+            final TileEntity tileEntity = world.getTileEntity(pos);
+            if (tileEntity == null) {
+                continue;
+            }
+
+            final IItemHandler itemHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, getSide(stack));
+            if (itemHandler == null) {
+                continue;
+            }
+
+            result.add(itemHandler);
+        }
+        return result;
     }
 
     // --------------------------------------------------------------------- //

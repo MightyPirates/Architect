@@ -15,6 +15,6 @@ architect.tooltip.blueprint.costs.title=§7Costs
 architect.tooltip.blueprint.costs.line=§7- %sx %s
 architect.tooltip.blueprint.costs.unknown=§7Unknown
 architect.tooltip.provider=§8Keep in inventory to use items from a bound-to inventory when placing blueprints.
-architect.tooltip.provider.target=§8Bound to (%s, %s, %s).
+architect.tooltip.provider.target=§7Bound to (%s, %s, %s).
 
 key.architect.rotateBlueprint=Rotate Blueprint
