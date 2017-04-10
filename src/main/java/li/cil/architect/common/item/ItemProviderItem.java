@@ -16,7 +16,7 @@ import net.minecraftforge.items.IItemHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ItemItemProvider extends AbstractProvider {
+public final class ItemProviderItem extends AbstractProvider {
     /**
      * Get a list of all valid item-handlers accessible via providers in the
      * specified inventory, in range of the specified position.

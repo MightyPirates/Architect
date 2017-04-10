@@ -2,10 +2,10 @@ package li.cil.architect.common.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import li.cil.architect.api.API;
 import li.cil.architect.common.Architect;
 import li.cil.architect.common.json.ResourceLocationAdapter;
+import li.cil.architect.common.json.Types;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -15,9 +15,10 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -55,119 +56,30 @@ public final class Settings {
     public static int maxWorldOperationsPerTick = 16;
 
     /**
-     * The parsed list of blocks to ignore in built-in converters.
+     * The list of blocks to ignore in built-in converters.
      */
-    private static Set<ResourceLocation> blockBlacklist = new HashSet<>();
+    private static final Set<ResourceLocation> blockBlacklist = new HashSet<>();
 
     /**
-     * The parsed list of blocks with tile entities allowed to be converted by
+     * The list of blocks with tile entities allowed to be converted by
      * built-in converters.
      */
-    private static Set<ResourceLocation> tileEntityWhitelist = new HashSet<>(Arrays.asList(new ResourceLocation[]{
-            new ResourceLocation("minecraft:beacon"),
-            new ResourceLocation("minecraft:brewing_stand"),
-            new ResourceLocation("minecraft:chest"),
-            new ResourceLocation("minecraft:daylight_detector"),
-            new ResourceLocation("minecraft:daylight_detector_inverted"),
-            new ResourceLocation("minecraft:dispenser"),
-            new ResourceLocation("minecraft:enchanting_table"),
-            new ResourceLocation("minecraft:flower_pot"),
-            new ResourceLocation("minecraft:furnace"),
-            new ResourceLocation("minecraft:lit_furnace"),
-            new ResourceLocation("minecraft:hopper"),
-            new ResourceLocation("minecraft:jukebox"),
-            new ResourceLocation("minecraft:noteblock"),
-            new ResourceLocation("minecraft:piston"),
-            new ResourceLocation("minecraft:sticky_piston"),
-            new ResourceLocation("minecraft:unpowered_comparator"),
-            new ResourceLocation("minecraft:powered_comparator"),
-            new ResourceLocation("minecraft:white_shulker_box"),
-            new ResourceLocation("minecraft:orange_shulker_box"),
-            new ResourceLocation("minecraft:magenta_shulker_box"),
-            new ResourceLocation("minecraft:light_blue_shulker_box"),
-            new ResourceLocation("minecraft:yellow_shulker_box"),
-            new ResourceLocation("minecraft:lime_shulker_box"),
-            new ResourceLocation("minecraft:pink_shulker_box"),
-            new ResourceLocation("minecraft:gray_shulker_box"),
-            new ResourceLocation("minecraft:silver_shulker_box"),
-            new ResourceLocation("minecraft:cyan_shulker_box"),
-            new ResourceLocation("minecraft:purple_shulker_box"),
-            new ResourceLocation("minecraft:blue_shulker_box"),
-            new ResourceLocation("minecraft:brown_shulker_box"),
-            new ResourceLocation("minecraft:green_shulker_box"),
-            new ResourceLocation("minecraft:red_shulker_box"),
-            new ResourceLocation("minecraft:black_shulker_box")
-    }));
+    private static final Set<ResourceLocation> tileEntityWhitelist = new HashSet<>();
 
     /**
-     * The parsed list of blocks to ignore in built-in converters.
+     * The list of blocks to convert using the attached block sorting index.
      */
-    private static Set<ResourceLocation> attachedBlocks = new HashSet<>(Arrays.asList(new ResourceLocation[]{
-            new ResourceLocation("minecraft:grass"),
-            new ResourceLocation("minecraft:sapling"),
-            new ResourceLocation("minecraft:leaves"),
-            new ResourceLocation("minecraft:leaves2"),
-            new ResourceLocation("minecraft:tallgrass"),
-            new ResourceLocation("minecraft:deadbush"),
-            new ResourceLocation("minecraft:yellow_flower"),
-            new ResourceLocation("minecraft:red_flower"),
-            new ResourceLocation("minecraft:brown_mushroom"),
-            new ResourceLocation("minecraft:red_mushroom"),
-            new ResourceLocation("minecraft:torch"),
-            new ResourceLocation("minecraft:wheat"),
-            new ResourceLocation("minecraft:ladder"),
-            new ResourceLocation("minecraft:rail"),
-            new ResourceLocation("minecraft:lever"),
-            new ResourceLocation("minecraft:stone_pressure_plate"),
-            new ResourceLocation("minecraft:wooden_pressure_plate"),
-            new ResourceLocation("minecraft:redstone_torch"),
-            new ResourceLocation("minecraft:stone_button"),
-            new ResourceLocation("minecraft:snow_layer"),
-            new ResourceLocation("minecraft:cactus"),
-            new ResourceLocation("minecraft:reeds"),
-            new ResourceLocation("minecraft:cake"),
-            new ResourceLocation("minecraft:powered_repeater"),
-            new ResourceLocation("minecraft:unpowered_repeater"),
-            new ResourceLocation("minecraft:pumpkin_stem"),
-            new ResourceLocation("minecraft:melon_stem"),
-            new ResourceLocation("minecraft:vine"),
-            new ResourceLocation("minecraft:nether_wart"),
-            new ResourceLocation("minecraft:cocoa"),
-            new ResourceLocation("minecraft:tripwire_hook"),
-            new ResourceLocation("minecraft:tripwire"),
-            new ResourceLocation("minecraft:carrots"),
-            new ResourceLocation("minecraft:potatoes"),
-            new ResourceLocation("minecraft:wooden_button"),
-            new ResourceLocation("minecraft:light_weighted_pressure_plate"),
-            new ResourceLocation("minecraft:heavy_weighted_pressure_plate"),
-            new ResourceLocation("minecraft:powered_comparator"),
-            new ResourceLocation("minecraft:unpowered_comparator"),
-            new ResourceLocation("minecraft:activator_rail"),
-            new ResourceLocation("minecraft:end_rod"),
-            new ResourceLocation("minecraft:chorus_plant"),
-            new ResourceLocation("minecraft:chorus_flower"),
-            new ResourceLocation("minecraft:beetroots")
-    }));
+    private static final Set<ResourceLocation> attachedBlocks = new HashSet<>();
 
-    private static Map<ResourceLocation, ResourceLocation> blockToItemMapping = new HashMap<>();
+    /**
+     * The mappings of blocks to other blocks for replacements in blueprints.
+     */
+    private static final Map<ResourceLocation, ResourceLocation> blockToBlockMapping = new HashMap<>();
 
-    private static Map<ResourceLocation, ResourceLocation> blockToBlockMapping = new HashMap<>();
-
-    static {
-        addBlockMapping("minecraft:lit_furnace", "minecraft:furnace");
-        addBlockMapping("minecraft:lit_redstone_lamp", "minecraft:redstone_lamp");
-        addBlockMapping("minecraft:lit_redstone_ore", "minecraft:redstone_ore");
-        addBlockMapping("minecraft:powered_comparator", "minecraft:unpowered_comparator");
-        addBlockMapping("minecraft:powered_repeater", "minecraft:unpowered_repeater");
-        addBlockMapping("minecraft:unlit_redstone_torch", "minecraft:redstone_torch");
-
-        addItemMapping("minecraft:brewing_stand", "minecraft:brewing_stand");
-        addItemMapping("minecraft:daylight_detector_inverted", "minecraft:daylight_detector");
-        addItemMapping("minecraft:flower_pot", "minecraft:flower_pot");
-        addItemMapping("minecraft:unpowered_comparator", "minecraft:comparator");
-        addItemMapping("minecraft:unpowered_repeater", "minecraft:repeater");
-        addItemMapping("minecraft:redstone_wire", "minecraft:redstone");
-    }
+    /**
+     * The mappings of blocks to items for lookup of items for blocks.
+     */
+    private static final Map<ResourceLocation, ResourceLocation> blockToItemMapping = new HashMap<>();
 
     // --------------------------------------------------------------------- //
 
@@ -258,37 +170,54 @@ public final class Settings {
             config.save();
         }
 
-        final Gson gson = new GsonBuilder().
-                setPrettyPrinting().
-                registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).create();
-
-        final Type resourceLocationSetType = new TypeToken<HashSet<ResourceLocation>>(){}.getType();
-        final Type resourceLocationMapType = new TypeToken<HashMap<ResourceLocation, ResourceLocation>>(){}.getType();
-
-        blockBlacklist = deserialize("blacklist.json", blockBlacklist, configFile, gson, resourceLocationSetType);
-        tileEntityWhitelist = deserialize("whitelist.json", tileEntityWhitelist, configFile, gson, resourceLocationSetType);
-        attachedBlocks = deserialize("attached.json", attachedBlocks, configFile, gson, resourceLocationSetType);
-        blockToItemMapping = deserialize("item_mapping.json", blockToItemMapping, configFile, gson, resourceLocationMapType);
-        blockToBlockMapping = deserialize("block_mapping.json", blockToBlockMapping, configFile, gson, resourceLocationMapType);
+        loadJason(configFile.getParent());
     }
 
     // --------------------------------------------------------------------- //
 
-    private static void addBlockMapping(final String key, final String value) {
-        blockToBlockMapping.put(new ResourceLocation(key), new ResourceLocation(value));
+    private static void loadJason(final String configDirectory) {
+        final Gson gson = new GsonBuilder().
+                setPrettyPrinting().
+                registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).create();
+
+        loadJason(blockBlacklist, "blacklist.json", configDirectory, gson);
+        loadJason(tileEntityWhitelist, "whitelist.json", configDirectory, gson);
+        loadJason(attachedBlocks, "attached.json", configDirectory, gson);
+        loadJason(blockToBlockMapping, "block_mapping.json", configDirectory, gson);
+        loadJason(blockToItemMapping, "item_mapping.json", configDirectory, gson);
     }
 
-    private static void addItemMapping(final String key, final String value) {
-        blockToItemMapping.put(new ResourceLocation(key), new ResourceLocation(value));
+    private static void loadJason(final Set<ResourceLocation> set, final String fileName, final String basePath, final Gson gson) {
+        final Set<ResourceLocation> result = loadJason(set, fileName, Types.SET_RESOURCE_LOCATION, basePath, gson);
+        if (result != set) {
+            set.clear();
+            set.addAll(result);
+        }
     }
 
-    private static <T> T deserialize(final String fileName, T value, final File basePath, final Gson gson, final Type type) {
-        final File path = Paths.get(basePath.getParent(), API.MOD_ID, fileName).toFile();
+    private static void loadJason(final Map<ResourceLocation, ResourceLocation> map, final String fileName, final String basePath, final Gson gson) {
+        final Map<ResourceLocation, ResourceLocation> result = loadJason(map, fileName, Types.MAP_RESOURCE_LOCATION, basePath, gson);
+        if (result != map) {
+            map.clear();
+            map.putAll(result);
+        }
+    }
+
+    private static <T> T loadJason(T value, final String fileName, final Type type, final String basePath, final Gson gson) {
+        final File path = Paths.get(basePath, API.MOD_ID, fileName).toFile();
         if (path.exists()) {
             try {
                 value = gson.fromJson(FileUtils.readFileToString(path), type);
             } catch (IOException e) {
                 Architect.getLog().warn("Failed reading " + path.toString() + ".", e);
+            }
+        } else {
+            Architect.getLog().info("Writing defaults for " + fileName + ".");
+            try (final InputStream stream = Settings.class.getResourceAsStream("/assets/" + API.MOD_ID + "/config/" + fileName)) {
+                value = gson.fromJson(new InputStreamReader(stream), type);
+            } catch (IOException e) {
+                Architect.getLog().warn("Failed loading defaults for " + fileName + ".", e);
+                e.printStackTrace();
             }
         }
         try {

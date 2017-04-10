@@ -4,6 +4,8 @@ import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.common.config.Constants;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -15,5 +17,12 @@ public final class ConverterFallingBlock extends AbstractConverterBase {
     @Override
     protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
         return getBlock(state) instanceof BlockFalling && super.canSerialize(world, pos, state);
+    }
+
+    @Override
+    public void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
+        super.deserialize(world, pos, rotation, data);
+
+        world.neighborChanged(pos, world.getBlockState(pos).getBlock(), pos);
     }
 }

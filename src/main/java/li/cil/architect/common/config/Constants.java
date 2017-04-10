@@ -20,7 +20,7 @@ public final class Constants {
 
     public static final String NAME_ITEM_SKETCH = "sketch";
     public static final String NAME_ITEM_BLUEPRINT = "blueprint";
-    public static final String NAME_ITEM_PROVIDER = "provider_item";
+    public static final String NAME_ITEM_PROVIDER_ITEM = "provider_item";
 
     // --------------------------------------------------------------------- //
     // Converter UUIDs

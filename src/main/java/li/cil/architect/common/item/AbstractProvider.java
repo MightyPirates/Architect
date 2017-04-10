@@ -31,7 +31,7 @@ public abstract class AbstractProvider extends AbstractItem {
 
     // --------------------------------------------------------------------- //
 
-    public AbstractProvider() {
+    AbstractProvider() {
         setMaxStackSize(1);
     }
 

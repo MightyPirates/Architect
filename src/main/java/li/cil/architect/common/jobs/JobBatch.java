@@ -7,7 +7,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.common.converter.MaterialSourceImpl;
 import li.cil.architect.common.inventory.CompoundItemHandler;
-import li.cil.architect.common.item.ItemItemProvider;
+import li.cil.architect.common.item.ItemProviderItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Rotation;
@@ -47,7 +47,7 @@ class JobBatch implements JobManager.JobConsumer {
     JobBatch(final EntityPlayer player) {
         this.world = player.getEntityWorld();
         final IItemHandler inventory = new InvWrapper(player.inventory);
-        final List<IItemHandler> providers = ItemItemProvider.findProviders(player.getPositionVector(), inventory);
+        final List<IItemHandler> providers = ItemProviderItem.findProviders(player.getPositionVector(), inventory);
         providers.add(inventory);
         final IItemHandler compoundProvider = new CompoundItemHandler(providers.toArray(new IItemHandler[providers.size()]));
         this.itemSource = new MaterialSourceImpl(player.isCreative(), compoundProvider);
