@@ -1,12 +1,27 @@
 package li.cil.architect.util;
 
-import li.cil.architect.common.config.Settings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class PlayerUtils {
+    private static float freeAimDistance = 4;
+
+    /**
+     * Change the distance at which the free-aim pointer is positioned.
+     */
+    public static void changeFreeAimDistance(final float delta) {
+        freeAimDistance = MathHelper.clamp(freeAimDistance + delta, 1, 5);
+    }
+
+    public static BlockPos getLookAtPos(final EntityPlayer player) {
+        final Vec3d lookVec = player.getLookVec();
+        final Vec3d eyePos = player.getPositionEyes(1);
+        return new BlockPos(eyePos.add(lookVec.scale(freeAimDistance)));
+    }
+
     public static EnumFacing getPrimaryFacing(final EntityPlayer player) {
         final Vec3d lookVec = player.getLookVec();
         final double absX = Math.abs(lookVec.xCoord);
@@ -32,12 +47,6 @@ public final class PlayerUtils {
                 return EnumFacing.NORTH;
             }
         }
-    }
-
-    public static BlockPos getLookAtPos(final EntityPlayer player) {
-        final Vec3d lookVec = player.getLookVec();
-        final Vec3d eyePos = player.getPositionEyes(1);
-        return new BlockPos(eyePos.add(lookVec.scale(Settings.freeAimDistance)));
     }
 
     private PlayerUtils() {

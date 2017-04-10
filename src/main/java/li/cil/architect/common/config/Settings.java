@@ -9,62 +9,61 @@ import li.cil.architect.common.json.Types;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * User configurable stuff via config file.
  */
+@Config(modid = API.MOD_ID)
 public final class Settings {
-    /**
-     * The distance at which the free-aim pointer is positioned (e.g. in sketch
-     * when finishing a ranged selection in mid-air). This can be changed
-     * during runtime.
-     */
-    public static float freeAimDistance = 4;
-
-    /**
-     * The maximum size of a blueprint in any dimension.
-     */
+    @Config.LangKey(Constants.CONFIG_MAX_BLUEPRINT_SIZE)
+    @Config.Comment("The maximum size of a blueprint in any dimension.")
+    @Config.RangeInt(min = 1, max = 255)
     public static int maxBlueprintSize = 16;
 
-    /**
-     * The radius around providers in which players must be for them to count.
-     */
+    @Config.LangKey(Constants.CONFIG_MAX_PROVIDER_RADIUS)
+    @Config.Comment("The maximum distance between a player and the position a provider is bound to for the provider to work.")
+    @Config.RangeInt(min = 1, max = 1000)
     public static int maxProviderRadius = 64;
 
-    /**
-     * The maximum number of blocks to deserialize (place) per tick per chunk.
-     */
+    @Config.LangKey(Constants.CONFIG_MAX_CHUNK_OPS_PER_TICK)
+    @Config.Comment("The maximum number of blocks to deserialize (place) per tick per chunk.")
+    @Config.RangeInt(min = 1, max = 100)
     public static int maxChunkOperationsPerTick = 1;
 
-    /**
-     * The maximum number of blocks to deserialize (place) per tick per world.
-     */
+    @Config.LangKey(Constants.CONFIG_MAX_WORLD_OPS_PER_TICK)
+    @Config.Comment("The maximum number of blocks to deserialize (place) per tick per world.")
+    @Config.RangeInt(min = 1, max = 1000)
     public static int maxWorldOperationsPerTick = 16;
 
     /**
      * The list of blocks to ignore in built-in converters.
      */
-    private static final Set<ResourceLocation> blockBlacklist = new HashSet<>();
+    private static final Set<ResourceLocation> blacklist = new HashSet<>();
 
     /**
      * The list of blocks with tile entities allowed to be converted by
      * built-in converters.
      */
-    private static final Set<ResourceLocation> tileEntityWhitelist = new HashSet<>();
+    private static final Set<ResourceLocation> whitelist = new HashSet<>();
 
     /**
      * The list of blocks to convert using the attached block sorting index.
@@ -83,36 +82,41 @@ public final class Settings {
 
     // --------------------------------------------------------------------- //
 
-    private static final String CONFIG_VERSION = "1";
+    public static String[] getBlacklist() {
+        return toStringArray(blacklist);
+    }
 
-    private static final String CATEGORY_BLUEPRINT = "blueprint";
-    private static final String CATEGORY_PROVIDER = "provider";
-    private static final String CATEGORY_SYSTEM = "system";
+    public static void setBlacklist(final String[] values) {
+        blacklist.clear();
+        blacklist.addAll(toResourceLocationSet(values));
+    }
 
-    private static final String NAME_MAX_BLUEPRINT_SIZE = "maxSize";
-    private static final String NAME_MAX_PROVIDER_RADIUS = "maxProviderRadius";
-    private static final String NAME_MAX_CHUNK_OPERATIONS_PER_TICK = "maxChunkOperationsPerTick";
-    private static final String NAME_MAX_WORLD_OPERATIONS_PER_TICK = "maxWorldOperationsPerTick";
+    public static String[] getWhitelist() {
+        return toStringArray(whitelist);
+    }
 
-    private static final String COMMENT_MAX_BLUEPRINT_SIZE =
-            "The maximum size of a blueprint in any dimension.";
-    private static final String COMMENT_MAX_PROVIDER_ITEM_RADIUS =
-            "The radius around providers in which players must be for them to count.";
-    private static final String COMMENT_MAX_CHUNK_OPERATIONS_PER_TICK =
-            "The maximum number of blocks to deserialize (place) per tick per chunk.";
-    private static final String COMMENT_MAX_WORLD_OPERATIONS_PER_TICK =
-            "The maximum number of blocks to deserialize (place) per tick per world.";
+    public static void setWhitelist(final String[] values) {
+        whitelist.clear();
+        whitelist.addAll(toResourceLocationSet(values));
+    }
 
-    // --------------------------------------------------------------------- //
+    public static String[] getAttachedBlocks() {
+        return toStringArray(attachedBlocks);
+    }
+
+    public static void setAttachedBlocks(final String[] values) {
+        attachedBlocks.clear();
+        attachedBlocks.addAll(toResourceLocationSet(values));
+    }
 
     public static boolean isBlacklisted(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        return location == null || blockBlacklist.contains(location);
+        return location == null || blacklist.contains(location);
     }
 
     public static boolean isWhitelisted(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        return location != null && tileEntityWhitelist.contains(location);
+        return location != null && whitelist.contains(location);
     }
 
     public static boolean isAttachedBlock(final Block block) {
@@ -146,45 +150,40 @@ public final class Settings {
         return item == null ? Item.getItemFromBlock(block) : item;
     }
 
-    public static void load(final File configFile) {
-        final Configuration config = new Configuration(configFile, CONFIG_VERSION);
-
-        config.load();
-
-        maxBlueprintSize = config.getInt(
-                NAME_MAX_BLUEPRINT_SIZE, CATEGORY_BLUEPRINT,
-                maxBlueprintSize, 1, 255, COMMENT_MAX_BLUEPRINT_SIZE);
-
-        maxProviderRadius = config.getInt(
-                NAME_MAX_PROVIDER_RADIUS, CATEGORY_PROVIDER,
-                maxProviderRadius, 1, 1000, COMMENT_MAX_PROVIDER_ITEM_RADIUS);
-
-        maxChunkOperationsPerTick = config.getInt(
-                NAME_MAX_CHUNK_OPERATIONS_PER_TICK, CATEGORY_SYSTEM,
-                maxChunkOperationsPerTick, 1, 64, COMMENT_MAX_CHUNK_OPERATIONS_PER_TICK);
-        maxWorldOperationsPerTick = config.getInt(
-                NAME_MAX_WORLD_OPERATIONS_PER_TICK, CATEGORY_SYSTEM,
-                maxWorldOperationsPerTick, 1, 1000, COMMENT_MAX_WORLD_OPERATIONS_PER_TICK);
-
-        if (config.hasChanged()) {
-            config.save();
-        }
-
-        loadJason(configFile.getParent());
-    }
-
     // --------------------------------------------------------------------- //
 
-    private static void loadJason(final String configDirectory) {
+    public static void loadJSON() {
+        final String configDirectory = Loader.instance().getConfigDir().getPath();
         final Gson gson = new GsonBuilder().
                 setPrettyPrinting().
                 registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).create();
 
-        loadJason(blockBlacklist, "blacklist.json", configDirectory, gson);
-        loadJason(tileEntityWhitelist, "whitelist.json", configDirectory, gson);
+        loadJason(blacklist, "blacklist.json", configDirectory, gson);
+        loadJason(whitelist, "whitelist.json", configDirectory, gson);
         loadJason(attachedBlocks, "attached.json", configDirectory, gson);
         loadJason(blockToBlockMapping, "block_mapping.json", configDirectory, gson);
         loadJason(blockToItemMapping, "item_mapping.json", configDirectory, gson);
+    }
+
+    public static void saveJSON() {
+        final String configDirectory = Loader.instance().getConfigDir().getPath();
+        final Gson gson = new GsonBuilder().
+                setPrettyPrinting().
+                registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).create();
+
+        saveJason(blacklist, "blacklist.json", configDirectory, gson);
+        saveJason(whitelist, "whitelist.json", configDirectory, gson);
+        saveJason(attachedBlocks, "attached.json", configDirectory, gson);
+    }
+
+    // --------------------------------------------------------------------- //
+
+    private static String[] toStringArray(final Collection<ResourceLocation> locations) {
+        return locations.stream().map(ResourceLocation::toString).sorted().toArray(String[]::new);
+    }
+
+    private static Set<ResourceLocation> toResourceLocationSet(final String[] values) {
+        return Arrays.stream(values).map(ResourceLocation::new).collect(Collectors.toSet());
     }
 
     private static void loadJason(final Set<ResourceLocation> set, final String fileName, final String basePath, final Gson gson) {
@@ -206,26 +205,43 @@ public final class Settings {
     private static <T> T loadJason(T value, final String fileName, final Type type, final String basePath, final Gson gson) {
         final File path = Paths.get(basePath, API.MOD_ID, fileName).toFile();
         if (path.exists()) {
-            try {
-                value = gson.fromJson(FileUtils.readFileToString(path), type);
-            } catch (IOException e) {
-                Architect.getLog().warn("Failed reading " + path.toString() + ".", e);
-            }
+            value = loadJason(value, path, type, gson);
         } else {
-            Architect.getLog().info("Writing defaults for " + fileName + ".");
-            try (final InputStream stream = Settings.class.getResourceAsStream("/assets/" + API.MOD_ID + "/config/" + fileName)) {
-                value = gson.fromJson(new InputStreamReader(stream), type);
-            } catch (IOException e) {
-                Architect.getLog().warn("Failed loading defaults for " + fileName + ".", e);
-                e.printStackTrace();
-            }
+            value = loadDefaultJason(value, fileName, type, gson);
         }
+        saveJason(value, path, gson);
+        return value;
+    }
+
+    private static <T> T loadJason(T value, final File path, final Type type, final Gson gson) {
+        try (final InputStream stream = new FileInputStream(path)) {
+            value = gson.fromJson(new InputStreamReader(stream), type);
+        } catch (IOException e) {
+            Architect.getLog().warn("Failed reading " + path.toString() + ".", e);
+        }
+        return value;
+    }
+
+    private static <T> T loadDefaultJason(T value, final String fileName, final Type type, final Gson gson) {
+        try (final InputStream stream = Settings.class.getResourceAsStream("/assets/" + API.MOD_ID + "/config/" + fileName)) {
+            value = gson.fromJson(new InputStreamReader(stream), type);
+        } catch (IOException e) {
+            Architect.getLog().warn("Failed loading defaults for " + fileName + ".", e);
+        }
+        return value;
+    }
+
+    private static void saveJason(final Object value, final String fileName, final String basePath, final Gson gson) {
+        final File path = Paths.get(basePath, API.MOD_ID, fileName).toFile();
+        saveJason(value, path, gson);
+    }
+
+    private static void saveJason(final Object value, final File path, final Gson gson) {
         try {
             FileUtils.writeStringToFile(path, gson.toJson(value));
         } catch (final IOException e) {
             Architect.getLog().warn("Failed writing " + path.toString() + ".", e);
         }
-        return value;
     }
 
     // --------------------------------------------------------------------- //

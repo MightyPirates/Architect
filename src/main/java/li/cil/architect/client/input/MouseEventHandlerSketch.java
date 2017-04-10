@@ -1,12 +1,11 @@
 package li.cil.architect.client.input;
 
-import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.init.Items;
+import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -30,9 +29,10 @@ public enum MouseEventHandlerSketch {
         }
 
         final float delta = Math.signum(event.getDwheel());
-        Settings.freeAimDistance = MathHelper.clamp(Settings.freeAimDistance + delta, 1, 5);
+        PlayerUtils.changeFreeAimDistance(delta);
 
         // Avoid selecting different item.
         event.setCanceled(true);
     }
+
 }

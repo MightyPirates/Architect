@@ -4,15 +4,23 @@ item.architect.sketch.name=Sketch
 item.architect.blueprint.name=Blueprint
 item.architect.provider_item.name=Item Provider
 
-architect.tooltip.sketch.bounds=§7Bounds: (%s, %s, %s) to (%s, %s, %s)
-architect.tooltip.sketch.convert=§8Use for more than a second to convert this sketch into a blueprint.
-architect.tooltip.sketch.empty=§8Click on blocks to add them to the sketch.
-architect.tooltip.blueprint=§8Sneak-use for more than a second to convert this blueprint into a blank sketch.
-architect.tooltip.blueprint.costs.hint=§8Hold [§7%s§8] to show costs.
-architect.tooltip.blueprint.costs.title=§7Costs
-architect.tooltip.blueprint.costs.line=§7- %sx %s
-architect.tooltip.blueprint.costs.unknown=§7Unknown
-architect.tooltip.provider.item=§8Keep in inventory to use items from a bound-to inventory when placing blueprints.
-architect.tooltip.provider.target=§7Bound to (%s, %s, %s).
+tooltip.architect.sketch.bounds=§7Bounds: (%s, %s, %s) to (%s, %s, %s)
+tooltip.architect.sketch.convert=§8Use for more than a second to convert this sketch into a blueprint.
+tooltip.architect.sketch.empty=§8Click on blocks to add them to the sketch.
+tooltip.architect.blueprint=§8Sneak-use for more than a second to convert this blueprint into a blank sketch.
+tooltip.architect.blueprint.costs.hint=§8Hold [§7%s§8] to show costs.
+tooltip.architect.blueprint.costs.title=§7Costs
+tooltip.architect.blueprint.costs.line=§7- %sx %s
+tooltip.architect.blueprint.costs.unknown=§7Unknown
+tooltip.architect.provider.item=§8Keep in inventory to use items from a bound-to inventory when placing blueprints.
+tooltip.architect.provider.target=§7Bound to (%s, %s, %s).
 
 key.architect.rotateBlueprint=Rotate Blueprint
+
+config.architect.maxBlueprintSize=Maximum Blueprint Size
+config.architect.maxProviderRadius=Maximum Provider Radius
+config.architect.maxChunkOperationsPerTick=Maximum Chunk Operations/t
+config.architect.maxWorldOperationsPerTick=Maximum World Operations/t
+config.architect.blacklist=Block Blacklist
+config.architect.whitelist=Block Whitelist
+config.architect.attached=Attached Block

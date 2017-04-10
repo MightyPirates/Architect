@@ -27,8 +27,8 @@ import java.util.function.Supplier;
  */
 public class ProxyCommon {
     public void onPreInit(final FMLPreInitializationEvent event) {
-        // Load our settings first to have all we need for remaining init.
-        Settings.load(event.getSuggestedConfigurationFile());
+        // Load additional JSON based settings (black/whitelists, mappings).
+        Settings.loadJSON();
 
         // Initialize API.
         API.creativeTab = new CreativeTab();
