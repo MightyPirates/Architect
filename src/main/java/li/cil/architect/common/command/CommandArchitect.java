@@ -24,6 +24,9 @@ public class CommandArchitect extends CommandBase {
         addSubCommand(new SubCommandAttachedBlock());
         addSubCommand(new SubCommandMapToBlock());
         addSubCommand(new SubCommandMapToItem());
+        addSubCommand(new SubCommandReload());
+        addSubCommand(new SubCommandCopy());
+        addSubCommand(new SubCommandPaste());
     }
 
     private void addSubCommand(final CommandBase command) {
@@ -32,6 +35,11 @@ public class CommandArchitect extends CommandBase {
 
     // --------------------------------------------------------------------- //
     // Command
+
+    @Override
+    public int getRequiredPermissionLevel() {
+        return 2;
+    }
 
     @Override
     public String getName() {

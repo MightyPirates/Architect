@@ -3,9 +3,9 @@ package li.cil.architect.common.command;
 import li.cil.architect.common.config.Constants;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -21,7 +21,7 @@ public abstract class AbstractSubCommand extends CommandBase {
     }
 
     @Nullable
-    static ResourceLocation getLookedAtResourceLocation(final ICommandSender sender) {
+    static ResourceLocation getLookedAtResourceLocation(final ICommandSender sender) throws CommandException {
         final IBlockState state = getLookedAtBlockState(sender);
         if (state == null) {
             return null;
@@ -31,7 +31,7 @@ public abstract class AbstractSubCommand extends CommandBase {
     }
 
     @Nullable
-    private static IBlockState getLookedAtBlockState(final ICommandSender sender) {
+    static IBlockState getLookedAtBlockState(final ICommandSender sender) throws CommandException {
         final BlockPos pos = getLookedAtBlockPos(sender);
         if (pos == null) {
             return null;
@@ -41,13 +41,8 @@ public abstract class AbstractSubCommand extends CommandBase {
     }
 
     @Nullable
-    private static BlockPos getLookedAtBlockPos(final ICommandSender sender) {
-        final Entity entity = sender.getCommandSenderEntity();
-        if (!(entity instanceof EntityPlayer)) {
-            return null;
-        }
-
-        final EntityPlayer player = (EntityPlayer) entity;
+    static BlockPos getLookedAtBlockPos(final ICommandSender sender) throws CommandException {
+        final EntityPlayerMP player = getCommandSenderAsPlayer(sender);
         final World world = player.getEntityWorld();
         final Vec3d origin = player.getPositionEyes(1);
         final Vec3d lookVec = player.getLookVec();

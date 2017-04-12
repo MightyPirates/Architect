@@ -78,6 +78,9 @@ public final class Constants {
     public static final String SUBCOMMAND_MAPPING_NO_MAPPING = "commands.architect.%s.nomapping";
     public static final String SUBCOMMAND_MAPPING_ADDED = "commands.architect.%s.added";
     public static final String SUBCOMMAND_MAPPING_REMOVED = "commands.architect.%s.removed";
+    public static final String SUBCOMMAND_COPY_SUCCESS = "commands.architect.copy.success";
+    public static final String SUBCOMMAND_PASTE_INVALID = "commands.architect.paste.invalid";
+    public static final String SUBCOMMAND_PASTE_SUCCESS = "commands.architect.paste.success";
 
     // --------------------------------------------------------------------- //
     // Key bindings
