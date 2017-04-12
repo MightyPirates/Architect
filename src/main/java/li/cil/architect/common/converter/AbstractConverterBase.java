@@ -1,7 +1,7 @@
 package li.cil.architect.common.converter;
 
 import li.cil.architect.api.prefab.converter.AbstractConverter;
-import li.cil.architect.common.config.Settings;
+import li.cil.architect.common.config.Jasons;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Items;
@@ -32,7 +32,7 @@ public abstract class AbstractConverterBase extends AbstractConverter {
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
         final Block block = getBlock(state);
-        return !Settings.isBlacklisted(block) && canSerialize(world, pos, state);
+        return !Jasons.isBlacklisted(block) && canSerialize(world, pos, state);
     }
 
     // --------------------------------------------------------------------- //
@@ -40,11 +40,11 @@ public abstract class AbstractConverterBase extends AbstractConverter {
 
     @Override
     protected Block getBlock(final IBlockState state) {
-        return Settings.mapBlockToBlock(super.getBlock(state));
+        return Jasons.mapBlockToBlock(super.getBlock(state));
     }
 
     @Override
     protected Item getItem(final Block block) {
-        return Settings.mapBlockToItem(block);
+        return Jasons.mapBlockToItem(block);
     }
 }

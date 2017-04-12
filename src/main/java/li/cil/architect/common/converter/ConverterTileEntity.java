@@ -1,7 +1,7 @@
 package li.cil.architect.common.converter;
 
 import li.cil.architect.common.config.Constants;
-import li.cil.architect.common.config.Settings;
+import li.cil.architect.common.config.Jasons;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Items;
@@ -16,6 +16,6 @@ public final class ConverterTileEntity extends AbstractConverterBase {
     @Override
     protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
         final Block block = getBlock(state);
-        return getItem(block) != Items.AIR && Settings.isWhitelisted(block);
+        return getItem(block) != Items.AIR && Jasons.isWhitelisted(block);
     }
 }

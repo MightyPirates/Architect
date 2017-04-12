@@ -1,7 +1,7 @@
 package li.cil.architect.common;
 
 import li.cil.architect.api.API;
-import li.cil.architect.common.common.CommandArchitect;
+import li.cil.architect.common.command.CommandArchitect;
 import li.cil.architect.common.config.Constants;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;

@@ -4,7 +4,7 @@ import li.cil.architect.api.API;
 import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.common.api.ConverterAPIImpl;
 import li.cil.architect.common.api.CreativeTab;
-import li.cil.architect.common.config.Settings;
+import li.cil.architect.common.config.Jasons;
 import li.cil.architect.common.converter.ConverterAttachedBlock;
 import li.cil.architect.common.converter.ConverterFallingBlock;
 import li.cil.architect.common.converter.ConverterSolidBlock;
@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 public class ProxyCommon {
     public void onPreInit(final FMLPreInitializationEvent event) {
         // Load additional JSON based settings (black/whitelists, mappings).
-        Settings.loadJSON();
+        Jasons.loadJSON();
 
         // Initialize API.
         API.creativeTab = new CreativeTab();

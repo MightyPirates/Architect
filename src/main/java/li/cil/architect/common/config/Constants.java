@@ -59,6 +59,27 @@ public final class Constants {
     public static final String CONFIG_ATTACHED = "config." + API.MOD_ID + ".attached";
 
     // --------------------------------------------------------------------- //
+    // Config files
+
+    public static final String BLACKLIST_FILENAME = "blacklist.json";
+    public static final String WHITELIST_FILENAME = "whitelist.json";
+    public static final String ATTACHED_BLOCKS_FILENAME = "attached.json";
+    public static final String BLOCK_MAPPING_FILENAME = "block_mapping.json";
+    public static final String ITEM_MAPPING_FILENAME = "item_mapping.json";
+
+    // --------------------------------------------------------------------- //
+    // Commands
+
+    public static final String COMMAND_USAGE = "commands.architect.usage";
+    public static final String SUBCOMMAND_USAGE = "commands.architect.%s.usage";
+    public static final String SUBCOMMAND_LIST_ADDED = "commands.architect.%s.added";
+    public static final String SUBCOMMAND_LIST_REMOVED = "commands.architect.%s.removed";
+    public static final String SUBCOMMAND_MAPPING_CURRENT = "commands.architect.%s.mapping";
+    public static final String SUBCOMMAND_MAPPING_NO_MAPPING = "commands.architect.%s.nomapping";
+    public static final String SUBCOMMAND_MAPPING_ADDED = "commands.architect.%s.added";
+    public static final String SUBCOMMAND_MAPPING_REMOVED = "commands.architect.%s.removed";
+
+    // --------------------------------------------------------------------- //
     // Key bindings
 
     public static final String KEY_BINDINGS_CATEGORY_NAME = API.MOD_ID + " (" + MOD_NAME + ")";

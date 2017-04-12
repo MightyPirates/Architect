@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package li.cil.architect.common.common;
+package li.cil.architect.common.command;
 
 import mcp.MethodsReturnNonnullByDefault;
 
