@@ -4,6 +4,7 @@ import li.cil.architect.api.converter.Converter;
 import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.converter.SortIndex;
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryHelper;
@@ -13,6 +14,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
@@ -31,6 +33,7 @@ public abstract class AbstractConverter implements Converter {
 
     private final UUID uuid;
     private final int sortIndex;
+    private static long lastPlaceSound;
 
     // NBT tag names.
     private static final String TAG_NAME = "name";
@@ -116,6 +119,12 @@ public abstract class AbstractConverter implements Converter {
         final IBlockState state = block.getStateFromMeta(metadata).withRotation(rotation);
 
         world.setBlockState(pos, state);
+
+        if (world.getTotalWorldTime() > lastPlaceSound + 3) {
+            lastPlaceSound = world.getTotalWorldTime();
+            final SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, null);
+            world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1f) / 2f, soundtype.getPitch() * 0.8f);
+        }
     }
 
     @Override
