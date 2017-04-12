@@ -1,6 +1,7 @@
 package li.cil.architect.common;
 
 import li.cil.architect.api.API;
+import li.cil.architect.common.common.CommandArchitect;
 import li.cil.architect.common.config.Constants;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -8,6 +9,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -40,6 +42,11 @@ public final class Architect {
     @EventHandler
     public void onPostInit(final FMLPostInitializationEvent event) {
         proxy.onPostInit(event);
+    }
+
+    @EventHandler
+    public void onServerStarting(final FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandArchitect());
     }
 
     // --------------------------------------------------------------------- //

@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.commons.io.FileUtils;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -82,33 +84,6 @@ public final class Settings {
 
     // --------------------------------------------------------------------- //
 
-    public static String[] getBlacklist() {
-        return toStringArray(blacklist);
-    }
-
-    public static void setBlacklist(final String[] values) {
-        blacklist.clear();
-        blacklist.addAll(toResourceLocationSet(values));
-    }
-
-    public static String[] getWhitelist() {
-        return toStringArray(whitelist);
-    }
-
-    public static void setWhitelist(final String[] values) {
-        whitelist.clear();
-        whitelist.addAll(toResourceLocationSet(values));
-    }
-
-    public static String[] getAttachedBlocks() {
-        return toStringArray(attachedBlocks);
-    }
-
-    public static void setAttachedBlocks(final String[] values) {
-        attachedBlocks.clear();
-        attachedBlocks.addAll(toResourceLocationSet(values));
-    }
-
     public static boolean isBlacklisted(final Block block) {
         final ResourceLocation location = block.getRegistryName();
         return location == null || blacklist.contains(location);
@@ -152,6 +127,127 @@ public final class Settings {
 
     // --------------------------------------------------------------------- //
 
+    public static String[] getBlacklist() {
+        return toStringArray(blacklist);
+    }
+
+    public static void setBlacklist(final String[] values) {
+        blacklist.clear();
+        blacklist.addAll(toResourceLocationSet(values));
+    }
+
+    public static boolean addToBlacklist(@Nullable final ResourceLocation location) {
+        if (blacklist.add(location)) {
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean removeFromBlacklist(@Nullable final ResourceLocation location) {
+        if (blacklist.remove(location)) {
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    public static String[] getWhitelist() {
+        return toStringArray(whitelist);
+    }
+
+    public static void setWhitelist(final String[] values) {
+        whitelist.clear();
+        whitelist.addAll(toResourceLocationSet(values));
+    }
+
+    public static boolean addToWhitelist(@Nullable final ResourceLocation location) {
+        if (whitelist.add(location)) {
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean removeFromWhitelist(@Nullable final ResourceLocation location) {
+        if (whitelist.remove(location)) {
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    public static String[] getAttachedBlocks() {
+        return toStringArray(attachedBlocks);
+    }
+
+    public static void setAttachedBlocks(final String[] values) {
+        attachedBlocks.clear();
+        attachedBlocks.addAll(toResourceLocationSet(values));
+    }
+
+    public static boolean addToAttachedBlockList(@Nullable final ResourceLocation location) {
+        if (attachedBlocks.add(location)) {
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean removeFromAttachedBlockList(@Nullable final ResourceLocation location) {
+        if (attachedBlocks.remove(location)) {
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    public static ResourceLocation mapBlockToBlock(final ResourceLocation location) {
+        return blockToBlockMapping.get(location);
+    }
+
+    public static boolean addBlockMapping(final ResourceLocation location, final ResourceLocation mapping) {
+        if (!Objects.equals(blockToBlockMapping.get(location), mapping)) {
+            blockToBlockMapping.put(location, mapping);
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean removeBlockMapping(final ResourceLocation location) {
+        if (blockToBlockMapping.remove(location) != null) {
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    public static ResourceLocation mapBlockToItem(final ResourceLocation location) {
+        return blockToItemMapping.get(location);
+    }
+
+    public static boolean addItemMapping(final ResourceLocation location, final ResourceLocation mapping) {
+        if (!Objects.equals(blockToItemMapping.get(location), mapping)) {
+            blockToItemMapping.put(location, mapping);
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean removeItemMapping(final ResourceLocation location) {
+        if (blockToItemMapping.remove(location) != null) {
+            saveJSON();
+            return true;
+        }
+        return false;
+    }
+
+    // --------------------------------------------------------------------- //
+
     public static void loadJSON() {
         final String configDirectory = Loader.instance().getConfigDir().getPath();
         final Gson gson = new GsonBuilder().
@@ -174,6 +270,8 @@ public final class Settings {
         saveJason(blacklist, "blacklist.json", configDirectory, gson);
         saveJason(whitelist, "whitelist.json", configDirectory, gson);
         saveJason(attachedBlocks, "attached.json", configDirectory, gson);
+        saveJason(blockToBlockMapping, "block_mapping.json", configDirectory, gson);
+        saveJason(blockToItemMapping, "item_mapping.json", configDirectory, gson);
     }
 
     // --------------------------------------------------------------------- //
