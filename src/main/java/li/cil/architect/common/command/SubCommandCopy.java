@@ -43,7 +43,7 @@ public final class SubCommandCopy extends AbstractSubCommand {
             CompressedStreamTools.write(nbt, output);
             final String value = Base64.getEncoder().encodeToString(bytes.toByteArray());
             Network.INSTANCE.getWrapper().sendTo(new MessageClipboard(value), player);
-            notifyCommandListener(sender, this, Constants.SUBCOMMAND_COPY_SUCCESS);
+            notifyCommandListener(sender, this, Constants.COMMAND_COPY_SUCCESS);
         } catch (final IOException e) {
             Architect.getLog().warn("Failed serializing blueprint to base64.", e);
         }

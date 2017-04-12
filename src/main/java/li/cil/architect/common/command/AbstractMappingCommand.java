@@ -27,21 +27,21 @@ abstract class AbstractMappingCommand extends AbstractSubCommand {
         if (args.length < 1) {
             final ResourceLocation mapping = getMapping(location);
             if (mapping != null) {
-                notifyCommandListener(sender, this, String.format(Constants.SUBCOMMAND_MAPPING_CURRENT, getName()), location, mapping);
+                notifyCommandListener(sender, this, String.format(Constants.COMMAND_MAPPING_CURRENT, getName()), location, mapping);
             } else {
-                notifyCommandListener(sender, this, String.format(Constants.SUBCOMMAND_MAPPING_NO_MAPPING, getName()), location);
+                notifyCommandListener(sender, this, String.format(Constants.COMMAND_MAPPING_NO_MAPPING, getName()), location);
             }
         } else if (args.length == 1) {
             if (COMMAND_CLEAR.equals(args[0])) {
                 if (removeMapping(location)) {
-                    notifyCommandListener(sender, this, String.format(Constants.SUBCOMMAND_MAPPING_REMOVED, getName()), location);
+                    notifyCommandListener(sender, this, String.format(Constants.COMMAND_MAPPING_REMOVED, getName()), location);
                 } else {
-                    notifyCommandListener(sender, this, String.format(Constants.SUBCOMMAND_MAPPING_NO_MAPPING, getName()), location);
+                    notifyCommandListener(sender, this, String.format(Constants.COMMAND_MAPPING_NO_MAPPING, getName()), location);
                 }
             } else {
                 final ResourceLocation mapping = new ResourceLocation(args[0]);
                 if (addMapping(location, mapping)) {
-                    notifyCommandListener(sender, this, String.format(Constants.SUBCOMMAND_MAPPING_ADDED, getName()), location, mapping);
+                    notifyCommandListener(sender, this, String.format(Constants.COMMAND_MAPPING_ADDED, getName()), location, mapping);
                 } else {
                     throw new WrongUsageException(getUsage(sender));
                 }

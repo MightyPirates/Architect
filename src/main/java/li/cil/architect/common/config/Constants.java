@@ -71,16 +71,20 @@ public final class Constants {
     // Commands
 
     public static final String COMMAND_USAGE = "commands.architect.usage";
-    public static final String SUBCOMMAND_USAGE = "commands.architect.%s.usage";
-    public static final String SUBCOMMAND_LIST_ADDED = "commands.architect.%s.added";
-    public static final String SUBCOMMAND_LIST_REMOVED = "commands.architect.%s.removed";
-    public static final String SUBCOMMAND_MAPPING_CURRENT = "commands.architect.%s.mapping";
-    public static final String SUBCOMMAND_MAPPING_NO_MAPPING = "commands.architect.%s.nomapping";
-    public static final String SUBCOMMAND_MAPPING_ADDED = "commands.architect.%s.added";
-    public static final String SUBCOMMAND_MAPPING_REMOVED = "commands.architect.%s.removed";
-    public static final String SUBCOMMAND_COPY_SUCCESS = "commands.architect.copy.success";
-    public static final String SUBCOMMAND_PASTE_INVALID = "commands.architect.paste.invalid";
-    public static final String SUBCOMMAND_PASTE_SUCCESS = "commands.architect.paste.success";
+    public static final String COMMAND_SUB_USAGE = "commands.architect.%s.usage";
+    public static final String COMMAND_LIST_ADDED = "commands.architect.%s.added";
+    public static final String COMMAND_LIST_REMOVED = "commands.architect.%s.removed";
+    public static final String COMMAND_MAPPING_CURRENT = "commands.architect.%s.mapping";
+    public static final String COMMAND_MAPPING_NO_MAPPING = "commands.architect.%s.nomapping";
+    public static final String COMMAND_MAPPING_ADDED = "commands.architect.%s.added";
+    public static final String COMMAND_MAPPING_REMOVED = "commands.architect.%s.removed";
+    public static final String COMMAND_COPY_SUCCESS = "commands.architect.copy.success";
+    public static final String COMMAND_PASTE_INVALID = "commands.architect.paste.invalid";
+    public static final String COMMAND_PASTE_SUCCESS = "commands.architect.paste.success";
+    public static final String COMMAND_NBT_INVALID_BLOCK = "commands.architect.nbt.invalid_block";
+    public static final String COMMAND_NBT_NO_TILE_ENTITY = "commands.architect.nbt.no_tile_entity";
+    public static final String COMMAND_NBT_ERROR = "commands.architect.nbt.error";
+    public static final String COMMAND_NBT_SUCCESS = "commands.architect.nbt.success";
 
     // --------------------------------------------------------------------- //
     // Key bindings

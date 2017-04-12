@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 public abstract class AbstractSubCommand extends CommandBase {
     @Override
     public String getUsage(final ICommandSender sender) {
-        return String.format(Constants.SUBCOMMAND_USAGE, getName());
+        return String.format(Constants.COMMAND_SUB_USAGE, getName());
     }
 
     @Nullable

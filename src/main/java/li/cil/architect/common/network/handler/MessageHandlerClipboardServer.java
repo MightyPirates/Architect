@@ -35,9 +35,9 @@ public final class MessageHandlerClipboardServer extends AbstractMessageHandler<
             final BlueprintData data = new BlueprintData();
             data.deserializeNBT(nbt);
             ItemBlueprint.setData(stack, data);
-            player.sendMessage(new TextComponentTranslation(Constants.SUBCOMMAND_PASTE_SUCCESS));
+            player.sendMessage(new TextComponentTranslation(Constants.COMMAND_PASTE_SUCCESS));
         } catch (final IOException e) {
-            player.sendMessage(new TextComponentTranslation(Constants.SUBCOMMAND_PASTE_INVALID));
+            player.sendMessage(new TextComponentTranslation(Constants.COMMAND_PASTE_INVALID));
         }
     }
 }

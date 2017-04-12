@@ -26,19 +26,19 @@ abstract class AbstractListCommand extends AbstractSubCommand {
 
         if (args.length < 1) {
             if (addToList(location)) {
-                notifyCommandListener(sender, this, String.format(Constants.SUBCOMMAND_LIST_ADDED, getName()), location);
+                notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_ADDED, getName()), location);
             } else {
                 removeFromList(location);
-                notifyCommandListener(sender, this, String.format(Constants.SUBCOMMAND_LIST_REMOVED, getName()), location);
+                notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_REMOVED, getName()), location);
             }
         } else if (args.length == 1) {
             if (COMMAND_ADD.equals(args[0])) {
                 if (addToList(location)) {
-                    notifyCommandListener(sender, this, String.format(Constants.SUBCOMMAND_LIST_ADDED, getName()), location);
+                    notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_ADDED, getName()), location);
                 }
             } else if (COMMAND_REMOVE.equals(args[0])) {
                 if (removeFromList(location)) {
-                    notifyCommandListener(sender, this, String.format(Constants.SUBCOMMAND_LIST_REMOVED, getName()), location);
+                    notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_REMOVED, getName()), location);
                 }
             } else {
                 throw new WrongUsageException(getUsage(sender));

@@ -37,6 +37,13 @@ commands.architect.mapToItem.mapping=Currently block %s is mapped to item %s.
 commands.architect.mapToItem.nomapping=Currently block %s is not mapped to any item.
 commands.architect.mapToItem.added=Now mapping block %s to item %s.
 commands.architect.mapToItem.removed=Removed mapping for block %s.
+commands.architect.copy.success=Blueprint copied to clipboard.
+commands.architect.paste.invalid=Invalid data in clipboard, pasting blueprint failed.
+commands.architect.paste.success=Blueprint pasted from clipboard.
+commands.architect.nbt.invalid_block=Invalid block, registry name could not be determined.
+commands.architect.nbt.no_tile_entity=Not a tile entity.
+commands.architect.nbt.error=Failed getting NBT data from tile entity.
+commands.architect.nbt.success=Filter data copied to clipboard.
 
 config.architect.maxBlueprintSize=Maximum Blueprint Size
 config.architect.maxProviderRadius=Maximum Provider Radius
