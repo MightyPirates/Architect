@@ -4,13 +4,16 @@ import li.cil.architect.api.converter.Converter;
 import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.detail.ConverterAPI;
 import li.cil.architect.common.Architect;
+import li.cil.architect.common.config.Jasons;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -58,12 +61,22 @@ public final class ConverterAPIImpl implements ConverterAPI {
         if (converter == null) {
             return null; // No converter for this block, ignore it.
         }
-        final UUID uuid = converter.getUUID();
-        final NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setLong(TAG_CONVERTER_LSB, uuid.getLeastSignificantBits());
-        nbt.setLong(TAG_CONVERTER_MSB, uuid.getMostSignificantBits());
-        nbt.setTag(TAG_DATA, converter.serialize(world, pos));
-        return nbt;
+        try {
+            final UUID uuid = converter.getUUID();
+            final NBTTagCompound nbt = new NBTTagCompound();
+            nbt.setLong(TAG_CONVERTER_LSB, uuid.getLeastSignificantBits());
+            nbt.setLong(TAG_CONVERTER_MSB, uuid.getMostSignificantBits());
+            nbt.setTag(TAG_DATA, converter.serialize(world, pos));
+            return nbt;
+        } catch (final Throwable e) {
+            final IBlockState state = world.getBlockState(pos);
+            final ResourceLocation location = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+            if (location != null) {
+                Jasons.addToBlacklist(location);
+            }
+            Architect.getLog().warn("Failed serializing block {}, blacklisting.", location);
+            return null;
+        }
     }
 
     @Override

@@ -1,66 +1,178 @@
 {
-  "minecraft:activator_rail": {"sortIndex": "attached"},
+  "minecraft:activator_rail": {
+    "sortIndex": "attached"
+  },
   "minecraft:beacon": {},
-  "minecraft:beetroots": {"sortIndex": "attached"},
+  "minecraft:beetroots": {
+    "sortIndex": "attached"
+  },
   "minecraft:black_shulker_box": {},
   "minecraft:blue_shulker_box": {},
   "minecraft:brewing_stand": {},
-  "minecraft:brown_mushroom": {"sortIndex": "attached"},
+  "minecraft:brown_mushroom": {
+    "sortIndex": "attached"
+  },
   "minecraft:brown_shulker_box": {},
-  "minecraft:cactus": {"sortIndex": "attached"},
-  "minecraft:cake": {"sortIndex": "attached"},
-  "minecraft:carrots": {"sortIndex": "attached"},
+  "minecraft:cactus": {
+    "sortIndex": "attached"
+  },
+  "minecraft:cake": {
+    "sortIndex": "attached"
+  },
+  "minecraft:carrots": {
+    "sortIndex": "attached"
+  },
+  "minecraft:chain_command_block": {
+    "nbt": {
+      "conditionMet": "BYTE",
+      "auto": "BYTE",
+      "CustomName": "STRING",
+      "powered": "BYTE",
+      "Command": "STRING",
+      "SuccessCount": "INT",
+      "TrackOutput": "BYTE"
+    }
+  },
   "minecraft:chest": {},
-  "minecraft:chorus_flower": {"sortIndex": "attached"},
-  "minecraft:chorus_plant": {"sortIndex": "attached"},
-  "minecraft:cocoa": {"sortIndex": "attached"},
+  "minecraft:chorus_flower": {
+    "sortIndex": "attached"
+  },
+  "minecraft:chorus_plant": {
+    "sortIndex": "attached"
+  },
+  "minecraft:cocoa": {
+    "sortIndex": "attached"
+  },
+  "minecraft:command_block": {
+    "nbt": {
+      "conditionMet": "BYTE",
+      "auto": "BYTE",
+      "CustomName": "STRING",
+      "powered": "BYTE",
+      "Command": "STRING",
+      "SuccessCount": "INT",
+      "TrackOutput": "BYTE"
+    }
+  },
   "minecraft:cyan_shulker_box": {},
   "minecraft:daylight_detector": {},
   "minecraft:daylight_detector_inverted": {},
-  "minecraft:deadbush": {"sortIndex": "attached"},
+  "minecraft:deadbush": {
+    "sortIndex": "attached"
+  },
+  "minecraft:detector_rail": {
+    "sortIndex": "attached"
+  },
   "minecraft:dispenser": {},
+  "minecraft:dropper": {},
   "minecraft:enchanting_table": {},
-  "minecraft:end_rod": {"sortIndex": "attached"},
+  "minecraft:end_rod": {
+    "sortIndex": "attached"
+  },
   "minecraft:flower_pot": {},
   "minecraft:furnace": {},
-  "minecraft:grass": {"sortIndex": "attached"},
+  "minecraft:golden_rail": {
+    "sortIndex": "attached"
+  },
+  "minecraft:grass": {
+    "sortIndex": "attached"
+  },
   "minecraft:gray_shulker_box": {},
   "minecraft:green_shulker_box": {},
-  "minecraft:heavy_weighted_pressure_plate": {"sortIndex": "attached"},
+  "minecraft:heavy_weighted_pressure_plate": {
+    "sortIndex": "attached"
+  },
   "minecraft:hopper": {},
   "minecraft:jukebox": {},
-  "minecraft:ladder": {"sortIndex": "attached"},
-  "minecraft:leaves": {"sortIndex": "attached"},
-  "minecraft:leaves2": {"sortIndex": "attached"},
-  "minecraft:lever": {"sortIndex": "attached"},
+  "minecraft:ladder": {
+    "sortIndex": "attached"
+  },
+  "minecraft:leaves": {
+    "sortIndex": "attached"
+  },
+  "minecraft:leaves2": {
+    "sortIndex": "attached"
+  },
+  "minecraft:lever": {
+    "sortIndex": "attached"
+  },
   "minecraft:light_blue_shulker_box": {},
-  "minecraft:light_weighted_pressure_plate": {"sortIndex": "attached"},
+  "minecraft:light_weighted_pressure_plate": {
+    "sortIndex": "attached"
+  },
   "minecraft:lime_shulker_box": {},
   "minecraft:lit_furnace": {},
   "minecraft:magenta_shulker_box": {},
-  "minecraft:melon_stem": {"sortIndex": "attached"},
-  "minecraft:nether_wart": {"sortIndex": "attached"},
-  "minecraft:noteblock": {},
+  "minecraft:melon_stem": {
+    "sortIndex": "attached"
+  },
+  "minecraft:nether_wart": {
+    "sortIndex": "attached"
+  },
+  "minecraft:noteblock": {
+    "nbt": {
+      "note": "BYTE"
+    }
+  },
   "minecraft:orange_shulker_box": {},
   "minecraft:pink_shulker_box": {},
   "minecraft:piston": {},
-  "minecraft:potatoes": {"sortIndex": "attached"},
-  "minecraft:powered_comparator": {"sortIndex": "attached"},
-  "minecraft:powered_repeater": {"sortIndex": "attached"},
-  "minecraft:pumpkin_stem": {"sortIndex": "attached"},
+  "minecraft:potatoes": {
+    "sortIndex": "attached"
+  },
+  "minecraft:powered_comparator": {
+    "sortIndex": "attached"
+  },
+  "minecraft:powered_repeater": {
+    "sortIndex": "attached"
+  },
+  "minecraft:pumpkin_stem": {
+    "sortIndex": "attached"
+  },
   "minecraft:purple_shulker_box": {},
-  "minecraft:rail": {"sortIndex": "attached"},
-  "minecraft:red_flower": {"sortIndex": "attached"},
-  "minecraft:red_mushroom": {"sortIndex": "attached"},
+  "minecraft:rail": {
+    "sortIndex": "attached"
+  },
+  "minecraft:red_flower": {
+    "sortIndex": "attached"
+  },
+  "minecraft:red_mushroom": {
+    "sortIndex": "attached"
+  },
   "minecraft:red_shulker_box": {},
-  "minecraft:redstone_torch": {"sortIndex": "attached"},
+  "minecraft:redstone_torch": {
+    "sortIndex": "attached"
+  },
   "minecraft:redstone_wire": {
     "sortIndex": "attached"
   },
-  "minecraft:reeds": {"sortIndex": "attached"},
-  "minecraft:sapling": {"sortIndex": "attached"},
+  "minecraft:reeds": {
+    "sortIndex": "attached"
+  },
+  "minecraft:repeating_command_block": {
+    "nbt": {
+      "conditionMet": "BYTE",
+      "auto": "BYTE",
+      "CustomName": "STRING",
+      "powered": "BYTE",
+      "Command": "STRING",
+      "SuccessCount": "INT",
+      "TrackOutput": "BYTE"
+    }
+  },
+  "minecraft:sapling": {
+    "sortIndex": "attached"
+  },
   "minecraft:silver_shulker_box": {},
-  "minecraft:snow_layer": {"sortIndex": "attached"},
+  "minecraft:skull": {
+    "nbt": {
+      "Rot": "BYTE",
+      "SkullType": "BYTE"
+    }
+  },
+  "minecraft:snow_layer": {
+    "sortIndex": "attached"
+  },
   "minecraft:standing_sign": {
     "sortIndex": "attached",
     "nbt": {
@@ -71,15 +183,56 @@
     }
   },
   "minecraft:sticky_piston": {},
-  "minecraft:stone_button": {"sortIndex": "attached"},
-  "minecraft:stone_pressure_plate": {"sortIndex": "attached"},
-  "minecraft:tallgrass": {"sortIndex": "attached"},
-  "minecraft:torch": {"sortIndex": "attached"},
-  "minecraft:tripwire": {"sortIndex": "attached"},
-  "minecraft:tripwire_hook": {"sortIndex": "attached"},
-  "minecraft:unpowered_comparator": {"sortIndex": "attached"},
-  "minecraft:unpowered_repeater": {"sortIndex": "attached"},
-  "minecraft:vine": {"sortIndex": "attached"},
+  "minecraft:stone_button": {
+    "sortIndex": "attached"
+  },
+  "minecraft:stone_pressure_plate": {
+    "sortIndex": "attached"
+  },
+  "minecraft:structure_block": {
+    "nbt": {
+      "metadata": "STRING",
+      "mirror": "STRING",
+      "ignoreEntities": "BYTE",
+      "powered": "BYTE",
+      "seed": "LONG",
+      "author": "STRING",
+      "rotation": "STRING",
+      "posX": "INT",
+      "mode": "STRING",
+      "posY": "INT",
+      "sizeX": "INT",
+      "posZ": "INT",
+      "integrity": "FLOAT",
+      "showair": "BYTE",
+      "name": "STRING",
+      "sizeY": "INT",
+      "sizeZ": "INT",
+      "showboundingbox": "BYTE"
+    }
+  },
+  "minecraft:tallgrass": {
+    "sortIndex": "attached"
+  },
+  "minecraft:torch": {
+    "sortIndex": "attached"
+  },
+  "minecraft:trapped_chest": {},
+  "minecraft:tripwire": {
+    "sortIndex": "attached"
+  },
+  "minecraft:tripwire_hook": {
+    "sortIndex": "attached"
+  },
+  "minecraft:unpowered_comparator": {
+    "sortIndex": "attached"
+  },
+  "minecraft:unpowered_repeater": {
+    "sortIndex": "attached"
+  },
+  "minecraft:vine": {
+    "sortIndex": "attached"
+  },
   "minecraft:wall_sign": {
     "sortIndex": "attached",
     "nbt": {
@@ -89,10 +242,18 @@
       "Text1": "STRING"
     }
   },
-  "minecraft:wheat": {"sortIndex": "attached"},
+  "minecraft:wheat": {
+    "sortIndex": "attached"
+  },
   "minecraft:white_shulker_box": {},
-  "minecraft:wooden_button": {"sortIndex": "attached"},
-  "minecraft:wooden_pressure_plate": {"sortIndex": "attached"},
-  "minecraft:yellow_flower": {"sortIndex": "attached"},
+  "minecraft:wooden_button": {
+    "sortIndex": "attached"
+  },
+  "minecraft:wooden_pressure_plate": {
+    "sortIndex": "attached"
+  },
+  "minecraft:yellow_flower": {
+    "sortIndex": "attached"
+  },
   "minecraft:yellow_shulker_box": {}
 }

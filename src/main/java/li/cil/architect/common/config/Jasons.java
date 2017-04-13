@@ -129,7 +129,7 @@ public final class Jasons {
         blacklist.addAll(toResourceLocationSet(values));
     }
 
-    public static boolean addToBlacklist(@Nullable final ResourceLocation location) {
+    public static boolean addToBlacklist(final ResourceLocation location) {
         if (blacklist.add(location)) {
             saveJSON();
             return true;
@@ -137,7 +137,7 @@ public final class Jasons {
         return false;
     }
 
-    public static boolean removeFromBlacklist(@Nullable final ResourceLocation location) {
+    public static boolean removeFromBlacklist(final ResourceLocation location) {
         if (blacklist.remove(location)) {
             saveJSON();
             return true;
@@ -145,7 +145,7 @@ public final class Jasons {
         return false;
     }
 
-    public static boolean addToWhitelist(@Nullable final ResourceLocation location, final int sortIndex) {
+    public static boolean addToWhitelist(final ResourceLocation location, final int sortIndex) {
         if (!whitelist.containsKey(location)) {
             whitelist.put(location, new ConverterFilter(sortIndex));
             saveJSON();
@@ -161,7 +161,7 @@ public final class Jasons {
         return false;
     }
 
-    public static boolean removeFromWhitelist(@Nullable final ResourceLocation location) {
+    public static boolean removeFromWhitelist(final ResourceLocation location) {
         if (whitelist.containsKey(location)) {
             whitelist.remove(location);
             saveJSON();

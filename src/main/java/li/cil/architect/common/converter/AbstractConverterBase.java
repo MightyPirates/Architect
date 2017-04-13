@@ -31,8 +31,7 @@ public abstract class AbstractConverterBase extends AbstractConverter {
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        final Block block = getBlock(state);
-        return !Jasons.isBlacklisted(block) && canSerialize(world, pos, state);
+        return !Jasons.isBlacklisted(state.getBlock()) && !Jasons.isBlacklisted(getBlock(state)) && canSerialize(world, pos, state);
     }
 
     // --------------------------------------------------------------------- //
