@@ -87,6 +87,11 @@ public final class Constants {
     public static final String COMMAND_NBT_SUCCESS = "commands.architect.nbt.success";
 
     // --------------------------------------------------------------------- //
+    // Messages
+
+    public static final String MESSAGE_PLACEMENT_CANCELED = "message." + API.MOD_ID + ".placement_canceled";
+
+    // --------------------------------------------------------------------- //
     // Key bindings
 
     public static final String KEY_BINDINGS_CATEGORY_NAME = API.MOD_ID + " (" + MOD_NAME + ")";

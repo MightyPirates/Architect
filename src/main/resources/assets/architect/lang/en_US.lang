@@ -45,6 +45,8 @@ commands.architect.nbt.no_tile_entity=Not a tile entity.
 commands.architect.nbt.error=Failed getting NBT data from tile entity.
 commands.architect.nbt.success=Filter data copied to clipboard.
 
+message.architect.placement_canceled=Some blocks were not placed due to lack of permissions.
+
 config.architect.maxBlueprintSize=Maximum Blueprint Size
 config.architect.maxProviderRadius=Maximum Provider Radius
 config.architect.maxChunkOperationsPerTick=Maximum Chunk Operations/t
