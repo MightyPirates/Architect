@@ -1,7 +1,5 @@
 package li.cil.architect.common.config;
 
-import li.cil.architect.api.API;
-
 import java.util.UUID;
 
 /**
@@ -53,6 +51,7 @@ public final class Constants {
     public static final String CONFIG_MAX_PROVIDER_RADIUS = "config.architect.maxProviderRadius";
     public static final String CONFIG_MAX_CHUNK_OPS_PER_TICK = "config.architect.maxChunkOperationsPerTick";
     public static final String CONFIG_MAX_WORLD_OPS_PER_TICK = "config.architect.maxWorldOperationsPerTick";
+    public static final String CONFIG_USE_ENERGY = "config.architect.use_energy";
     public static final String CONFIG_BLACKLIST = "config.architect.blacklist";
 
     // --------------------------------------------------------------------- //
@@ -86,13 +85,20 @@ public final class Constants {
     // --------------------------------------------------------------------- //
     // Messages
 
-    public static final String MESSAGE_PLACEMENT_CANCELED = "message.architect.placement_canceled";
+    public static final String MESSAGE_PLACEMENT_CANCELED = "message.architect.placement.canceled";
+    public static final String MESSAGE_PLACEMENT_NOT_ENOUGH_ENERGY = "message.architect.placement.not_enough_energy";
 
     // --------------------------------------------------------------------- //
     // Key bindings
 
     public static final String KEY_BINDINGS_CATEGORY_NAME = MOD_NAME;
     public static final String KEY_BINDINGS_BLUEPRINT_ROTATE = "key.architect.rotateBlueprint";
+
+    // --------------------------------------------------------------------- //
+    // Gameplay
+
+    public static final int ENERGY_PER_BLOCK = 10;
+    public static final float EXHAUSTION_PER_BLOCK = 0.005f;
 
     // --------------------------------------------------------------------- //
 

@@ -6,10 +6,12 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.common.config.Constants;
+import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.converter.MaterialSourceImpl;
 import li.cil.architect.common.inventory.CompoundItemHandler;
 import li.cil.architect.common.item.ItemProviderItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -18,6 +20,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.items.IItemHandler;
@@ -38,7 +42,7 @@ class JobBatch implements JobManager.JobConsumer {
     // --------------------------------------------------------------------- //
     // Computed data.
 
-    private final MaterialSourceImpl itemSource;
+    private final MaterialSourceImpl materialSource;
     private final EntityPlayer player;
     private final World world;
 
@@ -60,10 +64,59 @@ class JobBatch implements JobManager.JobConsumer {
         final List<IItemHandler> providers = ItemProviderItem.findProviders(player.getPositionVector(), inventory);
         providers.add(inventory);
         final IItemHandler compoundProvider = new CompoundItemHandler(providers.toArray(new IItemHandler[providers.size()]));
-        this.itemSource = new MaterialSourceImpl(player.isCreative(), compoundProvider);
+        this.materialSource = new MaterialSourceImpl(player.isCreative(), compoundProvider);
     }
 
     void finish(final JobManagerImpl manager) {
+        int blockCount = 0;
+        for (final List<BatchedJob> list : jobs.valueCollection()) {
+            blockCount += list.size();
+        }
+
+        if (Settings.useEnergy) {
+            final int energyRequired = Constants.ENERGY_PER_BLOCK * blockCount;
+            int energyReceived = 0;
+            final List<IEnergyStorage> energyStorages = new ArrayList<>();
+
+            // Find energy storages in the player's inventory until we found
+            // enough of them to cover the energy costs of the operation.
+            final int slotCount = player.inventory.getSizeInventory();
+            for (int slot = 0; slot < slotCount; slot++) {
+                final ItemStack stack = player.inventory.getStackInSlot(slot);
+                if (stack.isEmpty()) {
+                    continue;
+                }
+
+                final IEnergyStorage energyStorage = stack.getCapability(CapabilityEnergy.ENERGY, null);
+                if (energyStorage == null || !energyStorage.canExtract()) {
+                    continue;
+                }
+
+                energyReceived += energyStorage.extractEnergy(energyRequired - energyReceived, true);
+                energyStorages.add(energyStorage);
+                if (energyReceived >= energyRequired) {
+                    break;
+                }
+            }
+
+            // If we can't satisfy the energy usage, let the player know.
+            if (energyReceived < energyRequired) {
+                player.sendMessage(new TextComponentTranslation(Constants.MESSAGE_PLACEMENT_NOT_ENOUGH_ENERGY));
+                return;
+            }
+
+            // Actually extract the energy.
+            energyReceived = 0;
+            for (final IEnergyStorage energyStorage : energyStorages) {
+                energyReceived += energyStorage.extractEnergy(energyRequired - energyReceived, false);
+                if (Math.abs(energyRequired - energyReceived) < 1) {
+                    break;
+                }
+            }
+        } else {
+            player.addExhaustion(Constants.EXHAUSTION_PER_BLOCK * blockCount);
+        }
+
         if (anyCanceled) {
             player.sendMessage(new TextComponentTranslation(Constants.MESSAGE_PLACEMENT_CANCELED));
         }
@@ -110,7 +163,7 @@ class JobBatch implements JobManager.JobConsumer {
             return;
         }
 
-        if (!ConverterAPI.preDeserialize(itemSource, world, pos, rotation, nbt)) {
+        if (!ConverterAPI.preDeserialize(materialSource, world, pos, rotation, nbt)) {
             return;
         }
 

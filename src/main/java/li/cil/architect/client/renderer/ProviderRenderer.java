@@ -60,9 +60,8 @@ public enum ProviderRenderer {
         if (AbstractProvider.isBound(stack)) {
             if (AbstractProvider.getDimension(stack) == player.getEntityWorld().provider.getDimension()) {
                 final BlockPos pos = AbstractProvider.getPosition(stack);
-                if (player.getDistanceSq(pos) <= 64) {
+                if (player.getDistanceSq(pos) <= 64 * 64) {
                     final EnumFacing side = AbstractProvider.getSide(stack);
-
 
                     GlStateManager.color(0.2f, 0.9f, 0.4f, 0.4f);
                     renderCubePulsing(pos, dt);

@@ -28,6 +28,10 @@ public final class Settings {
     @Config.RangeInt(min = 1, max = 1000)
     public static int maxWorldOperationsPerTick = 16;
 
+    @Config.LangKey(Constants.CONFIG_USE_ENERGY)
+    @Config.Comment("Whether to use energy instead of exhausting the player (increasing their hunger). Note that this will require an energy storage implementing the Forge power capability to be present in the player's inventory.")
+    public static boolean useEnergy = false;
+
     // --------------------------------------------------------------------- //
 
     private Settings() {

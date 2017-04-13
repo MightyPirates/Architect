@@ -46,10 +46,12 @@ commands.architect.nbt.error=Failed getting NBT data from tile entity.
 commands.architect.nbt.success=Filter data copied to clipboard.
 commands.architect.reload.success=Converter settings reloaded.
 
-message.architect.placement_canceled=Some blocks were not placed due to lack of permissions.
+message.architect.placement.canceled=Some blocks were not placed due to lack of permissions.
+message.architect.placement.not_enough_energy=Placement failed: not enough energy available.
 
 config.architect.maxBlueprintSize=Maximum Blueprint Size
 config.architect.maxProviderRadius=Maximum Provider Radius
 config.architect.maxChunkOperationsPerTick=Maximum Chunk Operations/t
 config.architect.maxWorldOperationsPerTick=Maximum World Operations/t
+config.architect.use_energy=Use Energy
 config.architect.blacklist=Block Blacklist
