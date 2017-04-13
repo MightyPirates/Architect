@@ -43,7 +43,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
         if (converter == null) {
             return 0;
         }
-        return converter.getSortIndex(data);
+        return converter.getSortIndex(data.getTag(TAG_DATA));
     }
 
     @Override

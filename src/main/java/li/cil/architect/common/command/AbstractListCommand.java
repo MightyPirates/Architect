@@ -31,7 +31,7 @@ abstract class AbstractListCommand extends AbstractSubCommand {
                 removeFromList(location);
                 notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_REMOVED, getName()), location);
             }
-        } else if (args.length == 1) {
+        } else {
             if (COMMAND_ADD.equals(args[0])) {
                 if (addToList(location, getSubArgs(args))) {
                     notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_ADDED, getName()), location);
@@ -43,8 +43,6 @@ abstract class AbstractListCommand extends AbstractSubCommand {
             } else {
                 throw new WrongUsageException(getUsage(sender));
             }
-        } else {
-            throw new WrongUsageException(getUsage(sender));
         }
     }
 

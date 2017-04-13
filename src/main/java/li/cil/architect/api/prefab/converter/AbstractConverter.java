@@ -6,6 +6,7 @@ import li.cil.architect.api.converter.SortIndex;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
@@ -200,7 +201,8 @@ public abstract class AbstractConverter implements Converter {
         final NBTTagCompound nbt = (NBTTagCompound) data;
         final ResourceLocation name = new ResourceLocation(nbt.getString(TAG_NAME));
 
-        return ForgeRegistries.BLOCKS.getValue(name);
+        final Block block = ForgeRegistries.BLOCKS.getValue(name);
+        return block == Blocks.AIR ? null : block;
     }
 
     protected ItemStack getItem(final NBTBase data) {

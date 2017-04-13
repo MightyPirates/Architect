@@ -81,10 +81,10 @@ public final class SubCommandNbt extends AbstractSubCommand {
 
         // Add remaining filter data for easier pasting to whitelist.
         builder.setLength(0);
-        builder.append("  \"").append(escape(location.toString())).append("\": {\n");
+        builder.append(",\n  \"").append(escape(location.toString())).append("\": {\n");
         builder.append("    \"nbt\": ");
         indent(json, builder);
-        builder.append("  },\n");
+        builder.append("  }");
 
         // Send it to the client!
         Network.INSTANCE.getWrapper().sendTo(new MessageClipboard(builder.toString()), player);
@@ -123,7 +123,7 @@ public final class SubCommandNbt extends AbstractSubCommand {
                 builder.append(line).append('\n');
             }
             while ((line = buffer.readLine()) != null) {
-                builder.append("      ").append(line).append('\n');
+                builder.append("    ").append(line).append('\n');
             }
         } catch (final IOException e) {
             builder.append("IT BROKE, OOPS!");

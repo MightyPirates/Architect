@@ -72,6 +72,11 @@ public final class ConverterComplex extends AbstractConverterBase {
         // deserialize NBT they shouldn't be allowed to.
         final NBTTagCompound nbt = data.getCompoundTag(TAG_NBT);
         Jasons.filterNbt(getBlock(state), nbt);
-        tileEntity.readFromNBT(nbt);
+
+        // Merge the persisted values into the current state of the TE.
+        final NBTTagCompound currentNbt = new NBTTagCompound();
+        tileEntity.writeToNBT(currentNbt);
+        currentNbt.merge(nbt);
+        tileEntity.readFromNBT(currentNbt);
     }
 }

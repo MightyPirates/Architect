@@ -12,7 +12,7 @@ import li.cil.architect.common.config.ConverterFilter;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, JsonDeserializer<ConverterFilter> {
@@ -100,7 +100,7 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
             return Collections.emptyMap();
         }
         final JsonObject valueJson = value.getAsJsonObject();
-        final Map<String, Object> result = new HashMap<>();
+        final Map<String, Object> result = new LinkedHashMap<>();
         for (final Map.Entry<String, JsonElement> entry : valueJson.entrySet()) {
             if (entry.getValue().isJsonObject()) {
                 result.put(entry.getKey(), deserialize(entry.getValue()));

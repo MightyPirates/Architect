@@ -35,7 +35,7 @@ public final class ConverterFilter {
     }
 
     public void filter(final NBTTagCompound nbt) {
-        filter(nbt, this.nbtFilter);
+        filter(nbt, nbtFilter);
     }
 
     // --------------------------------------------------------------------- //

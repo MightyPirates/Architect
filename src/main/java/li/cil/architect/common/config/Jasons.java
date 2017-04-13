@@ -26,8 +26,8 @@ import java.lang.reflect.Type;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -40,23 +40,23 @@ public final class Jasons {
     /**
      * The list of blocks to ignore in built-in converters.
      */
-    private static final Set<ResourceLocation> blacklist = new HashSet<>();
+    private static final Set<ResourceLocation> blacklist = new LinkedHashSet<>();
 
     /**
      * The list of blocks with tile entities allowed to be converted by
      * built-in converters.
      */
-    private static final Map<ResourceLocation, ConverterFilter> whitelist = new HashMap<>();
+    private static final Map<ResourceLocation, ConverterFilter> whitelist = new LinkedHashMap<>();
 
     /**
      * The mappings of blocks to other blocks for replacements in blueprints.
      */
-    private static final Map<ResourceLocation, ResourceLocation> blockToBlockMapping = new HashMap<>();
+    private static final Map<ResourceLocation, ResourceLocation> blockToBlockMapping = new LinkedHashMap<>();
 
     /**
      * The mappings of blocks to items for lookup of items for blocks.
      */
-    private static final Map<ResourceLocation, ResourceLocation> blockToItemMapping = new HashMap<>();
+    private static final Map<ResourceLocation, ResourceLocation> blockToItemMapping = new LinkedHashMap<>();
 
     // --------------------------------------------------------------------- //
     // Converter accessors
@@ -234,7 +234,9 @@ public final class Jasons {
         final String configDirectory = Loader.instance().getConfigDir().getPath();
         final Gson gson = new GsonBuilder().
                 setPrettyPrinting().
-                registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).create();
+                registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).
+                registerTypeAdapter(ConverterFilter.class, new ConverterFilterAdapter()).
+                create();
 
         saveJason(blacklist, Constants.BLACKLIST_FILENAME, configDirectory, gson);
         saveJason(whitelist, Constants.WHITELIST_FILENAME, configDirectory, gson);
