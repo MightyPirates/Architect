@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -58,28 +59,54 @@ public final class Jasons {
      */
     private static final Map<ResourceLocation, ResourceLocation> blockToItemMapping = new LinkedHashMap<>();
 
+    /**
+     * Same as {@link #blacklist}, but never saved.
+     */
+    private static final Set<ResourceLocation> blacklistVolatile = new HashSet<>();
+
+    /**
+     * Same as {@link #whitelist}, but never saved.
+     */
+    private static final Map<ResourceLocation, ConverterFilter> whitelistVolatile = new LinkedHashMap<>();
+
+    /**
+     * Same as {@link #blockToBlockMapping}, but never saved.
+     */
+    private static final Map<ResourceLocation, ResourceLocation> blockToBlockMappingVolatile = new LinkedHashMap<>();
+
+    /**
+     * Same as {@link #blockToItemMapping}, but never saved.
+     */
+    private static final Map<ResourceLocation, ResourceLocation> blockToItemMappingVolatile = new LinkedHashMap<>();
+
     // --------------------------------------------------------------------- //
     // Converter accessors
 
     public static boolean isBlacklisted(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        return location == null || blacklist.contains(location);
+        return location == null || blacklist.contains(location) || blacklistVolatile.contains(location);
     }
 
     public static boolean isWhitelisted(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        return location != null && whitelist.containsKey(location);
+        return location != null && (whitelist.containsKey(location) || whitelistVolatile.containsKey(location));
     }
 
     public static boolean isNbtAllowed(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        final ConverterFilter filter = whitelist.get(location);
+        ConverterFilter filter = whitelist.get(location);
+        if (filter == null) {
+            filter = whitelistVolatile.get(location);
+        }
         return filter != null && !filter.getNbtFilter().isEmpty();
     }
 
     public static void filterNbt(final Block block, final NBTTagCompound nbt) {
         final ResourceLocation location = block.getRegistryName();
-        final ConverterFilter filter = whitelist.get(location);
+        ConverterFilter filter = whitelist.get(location);
+        if (filter == null) {
+            filter = whitelistVolatile.get(location);
+        }
         if (filter != null) {
             filter.filter(nbt);
         }
@@ -87,7 +114,10 @@ public final class Jasons {
 
     public static int getSortIndex(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        final ConverterFilter filter = whitelist.get(location);
+        ConverterFilter filter = whitelist.get(location);
+        if (filter == null) {
+            filter = whitelistVolatile.get(location);
+        }
         return filter == null ? 0 : filter.getSortIndex();
     }
 
@@ -96,7 +126,10 @@ public final class Jasons {
         if (blockLocation == null) {
             return block;
         }
-        final ResourceLocation mappedLocation = blockToBlockMapping.get(blockLocation);
+        ResourceLocation mappedLocation = blockToBlockMapping.get(blockLocation);
+        if (mappedLocation == null) {
+            mappedLocation = blockToBlockMappingVolatile.get(blockLocation);
+        }
         if (mappedLocation == null) {
             return block;
         }
@@ -109,12 +142,34 @@ public final class Jasons {
         if (blockLocation == null) {
             return Item.getItemFromBlock(block);
         }
-        final ResourceLocation itemLocation = blockToItemMapping.get(blockLocation);
+        ResourceLocation itemLocation = blockToItemMapping.get(blockLocation);
+        if (itemLocation == null) {
+            itemLocation = blockToItemMappingVolatile.get(blockLocation);
+        }
         if (itemLocation == null) {
             return Item.getItemFromBlock(block);
         }
         final Item item = ForgeRegistries.ITEMS.getValue(itemLocation);
         return item == null ? Item.getItemFromBlock(block) : item;
+    }
+
+    // --------------------------------------------------------------------- //
+    // IMC accessors
+
+    public static void addToVolatileBlacklist(final ResourceLocation location) {
+        blacklistVolatile.add(location);
+    }
+
+    public static void addToVolatileWhitelist(final ResourceLocation location, final ConverterFilter filter) {
+        whitelistVolatile.put(location, filter);
+    }
+
+    public static void addVolatileBlockMapping(final ResourceLocation location, final ResourceLocation mapping) {
+        blockToBlockMappingVolatile.put(location, mapping);
+    }
+
+    public static void addVolatileItemMapping(final ResourceLocation location, final ResourceLocation mapping) {
+        blockToItemMapping.put(location, mapping);
     }
 
     // --------------------------------------------------------------------- //

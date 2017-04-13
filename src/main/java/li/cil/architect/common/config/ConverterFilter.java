@@ -4,6 +4,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -20,6 +21,10 @@ public final class ConverterFilter {
 
     public ConverterFilter(final int sortIndex) {
         this(Collections.emptyMap(), sortIndex);
+    }
+
+    public ConverterFilter(final NBTTagCompound nbtFilter, final int sortIndex) {
+        this(convertToMap(nbtFilter), sortIndex);
     }
 
     public int getSortIndex() {
@@ -54,5 +59,18 @@ public final class ConverterFilter {
                 iterator.remove();
             }
         }
+    }
+
+    private static Map<String, Object> convertToMap(final NBTTagCompound nbt) {
+        final Map<String, Object> result = new HashMap<>();
+        for (final String key : nbt.getKeySet()) {
+            final NBTBase value = nbt.getTag(key);
+            if (value instanceof NBTTagCompound) {
+                result.put(key, convertToMap((NBTTagCompound) value));
+            } else {
+                result.put(key, value.toString());
+            }
+        }
+        return result;
     }
 }
