@@ -205,6 +205,7 @@ public abstract class AbstractConverter implements Converter {
         return block == Blocks.AIR ? null : block;
     }
 
+    @SuppressWarnings("deprecation")
     protected ItemStack getItem(final NBTBase data) {
         final Block block = getBlock(data);
         if (block == null) {
@@ -216,6 +217,9 @@ public abstract class AbstractConverter implements Converter {
             return ItemStack.EMPTY;
         }
 
-        return new ItemStack(item);
+        final NBTTagCompound nbt = (NBTTagCompound) data;
+        final int metadata = nbt.getByte(TAG_METADATA) & 0xFF;
+        final IBlockState state = block.getStateFromMeta(metadata);
+        return new ItemStack(item, 1, block.damageDropped(state));
     }
 }
