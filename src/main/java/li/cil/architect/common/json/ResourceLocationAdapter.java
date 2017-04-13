@@ -12,10 +12,16 @@ import net.minecraft.util.ResourceLocation;
 import java.lang.reflect.Type;
 
 public final class ResourceLocationAdapter implements JsonSerializer<ResourceLocation>, JsonDeserializer<ResourceLocation> {
+    // --------------------------------------------------------------------- //
+    // JsonSerializer
+
     @Override
     public JsonElement serialize(final ResourceLocation src, final Type typeOfSrc, final JsonSerializationContext context) {
         return new JsonPrimitive(src.toString());
     }
+
+    // --------------------------------------------------------------------- //
+    // JsonDeserializer
 
     @Override
     public ResourceLocation deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {

@@ -15,13 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CommandArchitect extends CommandBase {
+public class CommandArchitect extends AbstractCommand {
     private final Map<String, CommandBase> subCommands = new HashMap<>();
 
     public CommandArchitect() {
         addSubCommand(new SubCommandBlacklist());
         addSubCommand(new SubCommandWhitelist());
-        addSubCommand(new SubCommandAttachedBlock());
         addSubCommand(new SubCommandMapToBlock());
         addSubCommand(new SubCommandMapToItem());
         addSubCommand(new SubCommandReload());
@@ -82,13 +81,5 @@ public class CommandArchitect extends CommandBase {
         }
 
         return Collections.emptyList();
-    }
-
-    // --------------------------------------------------------------------- //
-
-    private String[] getSubArgs(final String[] args) {
-        final String[] subArgs = new String[args.length - 1];
-        System.arraycopy(args, 1, subArgs, 0, subArgs.length);
-        return subArgs;
     }
 }

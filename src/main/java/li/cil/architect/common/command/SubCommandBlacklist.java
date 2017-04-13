@@ -18,7 +18,7 @@ final class SubCommandBlacklist extends AbstractListCommand {
     }
 
     @Override
-    protected boolean addToList(final ResourceLocation location) {
+    protected boolean addToList(final ResourceLocation location, final String[] args) {
         return Jasons.addToBlacklist(location);
     }
 

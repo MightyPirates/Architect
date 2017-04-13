@@ -25,7 +25,7 @@ abstract class AbstractListCommand extends AbstractSubCommand {
         }
 
         if (args.length < 1) {
-            if (addToList(location)) {
+            if (addToList(location, getSubArgs(args))) {
                 notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_ADDED, getName()), location);
             } else {
                 removeFromList(location);
@@ -33,7 +33,7 @@ abstract class AbstractListCommand extends AbstractSubCommand {
             }
         } else if (args.length == 1) {
             if (COMMAND_ADD.equals(args[0])) {
-                if (addToList(location)) {
+                if (addToList(location, getSubArgs(args))) {
                     notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_ADDED, getName()), location);
                 }
             } else if (COMMAND_REMOVE.equals(args[0])) {
@@ -59,7 +59,7 @@ abstract class AbstractListCommand extends AbstractSubCommand {
 
     // --------------------------------------------------------------------- //
 
-    protected abstract boolean addToList(final ResourceLocation location);
+    protected abstract boolean addToList(final ResourceLocation location, final String[] args) throws CommandException;
 
     protected abstract boolean removeFromList(final ResourceLocation location);
 }

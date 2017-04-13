@@ -2,7 +2,6 @@ package li.cil.architect.common.command;
 
 import li.cil.architect.common.config.Constants;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -14,7 +13,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public abstract class AbstractSubCommand extends CommandBase {
+public abstract class AbstractSubCommand extends AbstractCommand {
     @Override
     public String getUsage(final ICommandSender sender) {
         return String.format(Constants.COMMAND_SUB_USAGE, getName());

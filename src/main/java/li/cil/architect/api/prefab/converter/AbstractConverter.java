@@ -90,6 +90,9 @@ public abstract class AbstractConverter implements Converter {
         final NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString(TAG_NAME, name.toString());
         nbt.setByte(TAG_METADATA, (byte) metadata);
+
+        postSerialize(world, pos, state, nbt);
+
         return nbt;
     }
 
@@ -120,6 +123,8 @@ public abstract class AbstractConverter implements Converter {
 
         world.setBlockState(pos, state);
 
+        postDeserialize(world, pos, state, nbt);
+
         if (world.getTotalWorldTime() > lastPlaceSound + 3) {
             lastPlaceSound = world.getTotalWorldTime();
             final SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, null);
@@ -136,6 +141,35 @@ public abstract class AbstractConverter implements Converter {
     }
 
     // --------------------------------------------------------------------- //
+
+    /**
+     * Allows hooking into the serialization process, adding additional NBT
+     * data to the tag compound returned from the basic serialization.
+     * <p>
+     * Note that the tags <code>name</code> and <code>meta</code> will already
+     * be set in the passed {@link NBTTagCompound}, and should usually not be
+     * overwritten.
+     *
+     * @param world the world the block to serialize lives in.
+     * @param pos   the position of the block to serialize.
+     * @param state the block state of the block to serialize.
+     * @param data  the tag generated from the serialization process so far.
+     */
+    protected void postSerialize(final World world, final BlockPos pos, final IBlockState state, final NBTTagCompound data) {
+    }
+
+    /**
+     * Allows hooking into the deserialization process, applying further changes
+     * to the deserialized block. This is called after the block has already
+     * been created in the world.
+     *
+     * @param world the world the block is being deserialized into.
+     * @param pos   the position the block is being deserialized at.
+     * @param state the block state of the deserialized block.
+     * @param data  the serialized representation of the block to
+     */
+    protected void postDeserialize(final World world, final BlockPos pos, final IBlockState state, final NBTTagCompound data) {
+    }
 
     /**
      * Allows hooking into block lookup logic. This is used in Architect to

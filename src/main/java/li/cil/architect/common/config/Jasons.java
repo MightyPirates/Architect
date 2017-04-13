@@ -2,12 +2,15 @@ package li.cil.architect.common.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import li.cil.architect.api.API;
 import li.cil.architect.common.Architect;
+import li.cil.architect.common.json.ConverterFilterAdapter;
 import li.cil.architect.common.json.ResourceLocationAdapter;
 import li.cil.architect.common.json.Types;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -43,12 +46,7 @@ public final class Jasons {
      * The list of blocks with tile entities allowed to be converted by
      * built-in converters.
      */
-    private static final Set<ResourceLocation> whitelist = new HashSet<>();
-
-    /**
-     * The list of blocks to convert using the attached block sorting index.
-     */
-    private static final Set<ResourceLocation> attachedBlocks = new HashSet<>();
+    private static final Map<ResourceLocation, ConverterFilter> whitelist = new HashMap<>();
 
     /**
      * The mappings of blocks to other blocks for replacements in blueprints.
@@ -70,12 +68,27 @@ public final class Jasons {
 
     public static boolean isWhitelisted(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        return location != null && whitelist.contains(location);
+        return location != null && whitelist.containsKey(location);
     }
 
-    public static boolean isAttachedBlock(final Block block) {
+    public static boolean isNbtAllowed(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        return location != null && attachedBlocks.contains(location);
+        final ConverterFilter filter = whitelist.get(location);
+        return filter != null && !filter.getNbtFilter().isEmpty();
+    }
+
+    public static void filterNbt(final Block block, final NBTTagCompound nbt) {
+        final ResourceLocation location = block.getRegistryName();
+        final ConverterFilter filter = whitelist.get(location);
+        if (filter != null) {
+            filter.filter(nbt);
+        }
+    }
+
+    public static int getSortIndex(final Block block) {
+        final ResourceLocation location = block.getRegistryName();
+        final ConverterFilter filter = whitelist.get(location);
+        return filter == null ? 0 : filter.getSortIndex();
     }
 
     public static Block mapBlockToBlock(final Block block) {
@@ -132,50 +145,25 @@ public final class Jasons {
         return false;
     }
 
-    public static String[] getWhitelist() {
-        return toStringArray(whitelist);
-    }
-
-    public static void setWhitelist(final String[] values) {
-        whitelist.clear();
-        whitelist.addAll(toResourceLocationSet(values));
-    }
-
-    public static boolean addToWhitelist(@Nullable final ResourceLocation location) {
-        if (whitelist.add(location)) {
+    public static boolean addToWhitelist(@Nullable final ResourceLocation location, final int sortIndex) {
+        if (!whitelist.containsKey(location)) {
+            whitelist.put(location, new ConverterFilter(sortIndex));
             saveJSON();
             return true;
+        } else {
+            final ConverterFilter filter = whitelist.get(location);
+            if (filter.getSortIndex() != sortIndex) {
+                filter.setSortIndex(sortIndex);
+                saveJSON();
+                return true;
+            }
         }
         return false;
     }
 
     public static boolean removeFromWhitelist(@Nullable final ResourceLocation location) {
-        if (whitelist.remove(location)) {
-            saveJSON();
-            return true;
-        }
-        return false;
-    }
-
-    public static String[] getAttachedBlocks() {
-        return toStringArray(attachedBlocks);
-    }
-
-    public static void setAttachedBlocks(final String[] values) {
-        attachedBlocks.clear();
-        attachedBlocks.addAll(toResourceLocationSet(values));
-    }
-
-    public static boolean addToAttachedBlockList(@Nullable final ResourceLocation location) {
-        if (attachedBlocks.add(location)) {
-            saveJSON();
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean removeFromAttachedBlockList(@Nullable final ResourceLocation location) {
-        if (attachedBlocks.remove(location)) {
+        if (whitelist.containsKey(location)) {
+            whitelist.remove(location);
             saveJSON();
             return true;
         }
@@ -232,13 +220,14 @@ public final class Jasons {
         final String configDirectory = Loader.instance().getConfigDir().getPath();
         final Gson gson = new GsonBuilder().
                 setPrettyPrinting().
-                registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).create();
+                registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).
+                registerTypeAdapter(ConverterFilter.class, new ConverterFilterAdapter()).
+                create();
 
-        loadJason(blacklist, Constants.BLACKLIST_FILENAME, configDirectory, gson);
-        loadJason(whitelist, Constants.WHITELIST_FILENAME, configDirectory, gson);
-        loadJason(attachedBlocks, Constants.ATTACHED_BLOCKS_FILENAME, configDirectory, gson);
-        loadJason(blockToBlockMapping, Constants.BLOCK_MAPPING_FILENAME, configDirectory, gson);
-        loadJason(blockToItemMapping, Constants.ITEM_MAPPING_FILENAME, configDirectory, gson);
+        loadJasonBlacklist(blacklist, Constants.BLACKLIST_FILENAME, configDirectory, gson);
+        loadJasonWhitelist(whitelist, Constants.WHITELIST_FILENAME, configDirectory, gson);
+        loadJasonMapping(blockToBlockMapping, Constants.BLOCK_MAPPING_FILENAME, configDirectory, gson);
+        loadJasonMapping(blockToItemMapping, Constants.ITEM_MAPPING_FILENAME, configDirectory, gson);
     }
 
     public static void saveJSON() {
@@ -249,7 +238,6 @@ public final class Jasons {
 
         saveJason(blacklist, Constants.BLACKLIST_FILENAME, configDirectory, gson);
         saveJason(whitelist, Constants.WHITELIST_FILENAME, configDirectory, gson);
-        saveJason(attachedBlocks, Constants.ATTACHED_BLOCKS_FILENAME, configDirectory, gson);
         saveJason(blockToBlockMapping, Constants.BLOCK_MAPPING_FILENAME, configDirectory, gson);
         saveJason(blockToItemMapping, Constants.ITEM_MAPPING_FILENAME, configDirectory, gson);
     }
@@ -264,7 +252,7 @@ public final class Jasons {
         return Arrays.stream(values).map(ResourceLocation::new).collect(Collectors.toSet());
     }
 
-    private static void loadJason(final Set<ResourceLocation> set, final String fileName, final String basePath, final Gson gson) {
+    private static void loadJasonBlacklist(final Set<ResourceLocation> set, final String fileName, final String basePath, final Gson gson) {
         final Set<ResourceLocation> result = loadJason(set, fileName, Types.SET_RESOURCE_LOCATION, basePath, gson);
         if (result != set) {
             set.clear();
@@ -272,7 +260,15 @@ public final class Jasons {
         }
     }
 
-    private static void loadJason(final Map<ResourceLocation, ResourceLocation> map, final String fileName, final String basePath, final Gson gson) {
+    private static void loadJasonWhitelist(final Map<ResourceLocation, ConverterFilter> map, final String fileName, final String basePath, final Gson gson) {
+        final Map<ResourceLocation, ConverterFilter> result = loadJason(map, fileName, Types.MAP_CONVERTER_FILTER, basePath, gson);
+        if (result != map) {
+            map.clear();
+            map.putAll(result);
+        }
+    }
+
+    private static void loadJasonMapping(final Map<ResourceLocation, ResourceLocation> map, final String fileName, final String basePath, final Gson gson) {
         final Map<ResourceLocation, ResourceLocation> result = loadJason(map, fileName, Types.MAP_RESOURCE_LOCATION, basePath, gson);
         if (result != map) {
             map.clear();
@@ -282,31 +278,29 @@ public final class Jasons {
 
     private static <T> T loadJason(T value, final String fileName, final Type type, final String basePath, final Gson gson) {
         final File path = Paths.get(basePath, API.MOD_ID, fileName).toFile();
-        if (path.exists()) {
-            value = loadJason(value, path, type, gson);
-        } else {
-            value = loadDefaultJason(value, fileName, type, gson);
-        }
-        saveJason(value, path, gson);
-        return value;
-    }
-
-    private static <T> T loadJason(T value, final File path, final Type type, final Gson gson) {
-        try (final InputStream stream = new FileInputStream(path)) {
-            value = gson.fromJson(new InputStreamReader(stream), type);
-        } catch (IOException e) {
+        try {
+            if (path.exists()) {
+                value = loadJason(path, type, gson);
+            } else {
+                value = loadDefaultJason(fileName, type, gson);
+            }
+            saveJason(value, path, gson);
+        } catch (final IOException | JsonSyntaxException e) {
             Architect.getLog().warn("Failed reading " + path.toString() + ".", e);
         }
         return value;
     }
 
-    private static <T> T loadDefaultJason(T value, final String fileName, final Type type, final Gson gson) {
-        try (final InputStream stream = Settings.class.getResourceAsStream("/assets/" + API.MOD_ID + "/config/" + fileName)) {
-            value = gson.fromJson(new InputStreamReader(stream), type);
-        } catch (IOException e) {
-            Architect.getLog().warn("Failed loading defaults for " + fileName + ".", e);
+    private static <T> T loadJason(final File path, final Type type, final Gson gson) throws IOException, JsonSyntaxException {
+        try (final InputStream stream = new FileInputStream(path)) {
+            return gson.fromJson(new InputStreamReader(stream), type);
         }
-        return value;
+    }
+
+    private static <T> T loadDefaultJason(final String fileName, final Type type, final Gson gson) throws IOException, JsonSyntaxException {
+        try (final InputStream stream = Settings.class.getResourceAsStream("/assets/" + API.MOD_ID + "/config/" + fileName)) {
+            return gson.fromJson(new InputStreamReader(stream), type);
+        }
     }
 
     private static void saveJason(final Object value, final String fileName, final String basePath, final Gson gson) {

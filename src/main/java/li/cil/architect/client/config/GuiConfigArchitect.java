@@ -17,8 +17,6 @@ import java.util.List;
 
 class GuiConfigArchitect extends GuiConfig {
     private static Property blacklist;
-    private static Property whitelist;
-    private static Property attachedBlocks;
 
     GuiConfigArchitect(final GuiScreen parentScreen) {
         super(parentScreen, collectConfigElements(ConfigManager.getModConfigClasses(API.MOD_ID)), API.MOD_ID, null, false, false, Constants.MOD_NAME, null);
@@ -39,14 +37,6 @@ class GuiConfigArchitect extends GuiConfig {
         blacklist.setComment("Blacklisted blocks will never be handled by the built-in converters.");
         blacklist.setDefaultValues(new String[0]);
         toReturn.add(new ConfigElement(blacklist));
-        whitelist = new Property("whitelist", Jasons.getWhitelist(), Property.Type.STRING, Constants.CONFIG_WHITELIST);
-        whitelist.setComment("Whitelisted blocks may be handled by the built-in converters even if they have a tile entity.");
-        whitelist.setDefaultValues(new String[0]);
-        toReturn.add(new ConfigElement(whitelist));
-        attachedBlocks = new Property("attached", Jasons.getAttachedBlocks(), Property.Type.STRING, Constants.CONFIG_ATTACHED);
-        attachedBlocks.setComment("Attached blocks are reported by the built-in converters as having to be placed after solid blocks.");
-        attachedBlocks.setDefaultValues(new String[0]);
-        toReturn.add(new ConfigElement(attachedBlocks));
 
         toReturn.sort(Comparator.comparing(e -> I18n.format(e.getLanguageKey())));
         return toReturn;
@@ -57,13 +47,7 @@ class GuiConfigArchitect extends GuiConfig {
         if (blacklist.hasChanged()) {
             Jasons.setBlacklist(blacklist.getStringList());
         }
-        if (whitelist.hasChanged()) {
-            Jasons.setWhitelist(whitelist.getStringList());
-        }
-        if (attachedBlocks.hasChanged()) {
-            Jasons.setAttachedBlocks(attachedBlocks.getStringList());
-        }
-        if (blacklist.hasChanged() || whitelist.hasChanged() || attachedBlocks.hasChanged()) {
+        if (blacklist.hasChanged()) {
             Jasons.saveJSON();
         }
         super.onGuiClosed();

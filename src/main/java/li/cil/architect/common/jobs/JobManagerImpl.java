@@ -74,7 +74,7 @@ public final class JobManagerImpl extends WorldSavedData {
             chunkOps = 0;
 
             final ChunkPos chunkPos = ChunkUtils.longToChunkPos(key);
-            while (!storage.isEmpty() && isSortOrderSatisfied(storage.getSortOrder(), chunkPos)) {
+            while (!storage.isEmpty() && isSortIndexSatisfied(storage.getSortIndex(), chunkPos)) {
                 final Job job = storage.popJob();
                 final BlockPos pos = job.getPos(chunkPos);
                 Architect.getLog().debug("Process Job at {}: @{}", pos, job.dataReference);
@@ -158,16 +158,16 @@ public final class JobManagerImpl extends WorldSavedData {
         return entry.data;
     }
 
-    private boolean isSortOrderSatisfied(final int sortOrder, final ChunkPos chunkPos) {
-        return isSortOrderSatisfied(sortOrder, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos - 1, chunkPos.chunkZPos))) &&
-               isSortOrderSatisfied(sortOrder, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos + 1, chunkPos.chunkZPos))) &&
-               isSortOrderSatisfied(sortOrder, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos, chunkPos.chunkZPos - 1))) &&
-               isSortOrderSatisfied(sortOrder, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos, chunkPos.chunkZPos + 1)));
+    private boolean isSortIndexSatisfied(final int sortIndex, final ChunkPos chunkPos) {
+        return isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos - 1, chunkPos.chunkZPos))) &&
+               isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos + 1, chunkPos.chunkZPos))) &&
+               isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos, chunkPos.chunkZPos - 1))) &&
+               isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos, chunkPos.chunkZPos + 1)));
     }
 
-    private boolean isSortOrderSatisfied(final int sortOrder, final long key) {
+    private boolean isSortIndexSatisfied(final int sortIndex, final long key) {
         final JobChunkStorage storage = chunkData.get(key);
-        return storage == null || storage.getSortOrder() >= sortOrder;
+        return storage == null || storage.getSortIndex() >= sortIndex;
     }
 
     // --------------------------------------------------------------------- //

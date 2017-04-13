@@ -28,7 +28,6 @@ public final class Constants {
 
     public static final UUID UUID_CONVERTER_SOLID_BLOCKS = UUID.fromString("20a9cafc-d21c-49cd-9a40-f8ea34c91984");
     public static final UUID UUID_CONVERTER_FALLING_BLOCKS = UUID.fromString("74365f58-01c6-4b85-b069-e73656e57064");
-    public static final UUID UUID_CONVERTER_ATTACHED_BLOCKS = UUID.fromString("856e187b-adc2-43be-8d4a-9120ce61f709");
     public static final UUID UUID_CONVERTER_TILE_ENTITY = UUID.fromString("daf02728-b4b7-4530-84ba-2fb50dcdc8b1");
 
     // --------------------------------------------------------------------- //
@@ -55,15 +54,12 @@ public final class Constants {
     public static final String CONFIG_MAX_CHUNK_OPS_PER_TICK = "config." + API.MOD_ID + ".maxChunkOperationsPerTick";
     public static final String CONFIG_MAX_WORLD_OPS_PER_TICK = "config." + API.MOD_ID + ".maxWorldOperationsPerTick";
     public static final String CONFIG_BLACKLIST = "config." + API.MOD_ID + ".blacklist";
-    public static final String CONFIG_WHITELIST = "config." + API.MOD_ID + ".whitelist";
-    public static final String CONFIG_ATTACHED = "config." + API.MOD_ID + ".attached";
 
     // --------------------------------------------------------------------- //
     // Config files
 
     public static final String BLACKLIST_FILENAME = "blacklist.json";
     public static final String WHITELIST_FILENAME = "whitelist.json";
-    public static final String ATTACHED_BLOCKS_FILENAME = "attached.json";
     public static final String BLOCK_MAPPING_FILENAME = "block_mapping.json";
     public static final String ITEM_MAPPING_FILENAME = "item_mapping.json";
 

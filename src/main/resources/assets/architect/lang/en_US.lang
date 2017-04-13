@@ -52,5 +52,3 @@ config.architect.maxProviderRadius=Maximum Provider Radius
 config.architect.maxChunkOperationsPerTick=Maximum Chunk Operations/t
 config.architect.maxWorldOperationsPerTick=Maximum World Operations/t
 config.architect.blacklist=Block Blacklist
-config.architect.whitelist=Block Whitelist
-config.architect.attached=Attached Block

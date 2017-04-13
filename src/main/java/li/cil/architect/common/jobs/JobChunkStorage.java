@@ -20,44 +20,44 @@ final class JobChunkStorage {
     // Persisted data.
 
     // NBT tag names.
-    private static final String TAG_SORT_ORDER = "sortOrder";
+    private static final String TAG_SORT_INDEX = "sortOrder";
     private static final String TAG_LIST = "list";
 
-    private final TIntObjectMap<LinkedList<Job>> jobsBySortOrder = new TIntObjectHashMap<>();
-    private int lowestSortOrder = Integer.MAX_VALUE;
+    private final TIntObjectMap<LinkedList<Job>> jobsBySortIndex = new TIntObjectHashMap<>();
+    private int lowestSortIndex = Integer.MAX_VALUE;
 
     // --------------------------------------------------------------------- //
 
     boolean isEmpty() {
-        return jobsBySortOrder.isEmpty();
+        return jobsBySortIndex.isEmpty();
     }
 
-    int getSortOrder() {
-        return lowestSortOrder;
+    int getSortIndex() {
+        return lowestSortIndex;
     }
 
-    void pushJob(final int sortOrder, final Job job) {
-        if (sortOrder < lowestSortOrder || isEmpty()) {
-            lowestSortOrder = sortOrder;
+    void pushJob(final int sortIndex, final Job job) {
+        if (sortIndex < lowestSortIndex || isEmpty()) {
+            lowestSortIndex = sortIndex;
         }
 
         final LinkedList<Job> jobs;
-        if (jobsBySortOrder.containsKey(sortOrder)) {
-            jobs = jobsBySortOrder.get(sortOrder);
+        if (jobsBySortIndex.containsKey(sortIndex)) {
+            jobs = jobsBySortIndex.get(sortIndex);
         } else {
             jobs = new LinkedList<>();
-            jobsBySortOrder.put(sortOrder, jobs);
+            jobsBySortIndex.put(sortIndex, jobs);
         }
 
         jobs.addLast(job);
     }
 
     Job popJob() {
-        final LinkedList<Job> jobs = jobsBySortOrder.get(lowestSortOrder);
+        final LinkedList<Job> jobs = jobsBySortIndex.get(lowestSortIndex);
         final Job result = jobs.removeFirst();
         if (jobs.isEmpty()) {
-            jobsBySortOrder.remove(lowestSortOrder);
-            lowestSortOrder = findLowestSortOrder();
+            jobsBySortIndex.remove(lowestSortIndex);
+            lowestSortIndex = findLowestSortIndex();
         }
         return result;
     }
@@ -66,9 +66,9 @@ final class JobChunkStorage {
 
     NBTTagList serializeNBT() {
         final NBTTagList nbt = new NBTTagList();
-        jobsBySortOrder.forEachEntry((sortOrder, jobs) -> {
+        jobsBySortIndex.forEachEntry((sortIndex, jobs) -> {
             final NBTTagCompound jobsNbt = new NBTTagCompound();
-            jobsNbt.setInteger(TAG_SORT_ORDER, sortOrder);
+            jobsNbt.setInteger(TAG_SORT_INDEX, sortIndex);
             final NBTTagList jobListNbt = new NBTTagList();
             for (final Job job : jobs) {
                 jobListNbt.appendTag(job.serializeNBT());
@@ -81,13 +81,13 @@ final class JobChunkStorage {
     }
 
     void deserializeNBT(final NBTTagList nbt) {
-        jobsBySortOrder.clear();
-        lowestSortOrder = Integer.MAX_VALUE;
+        jobsBySortIndex.clear();
+        lowestSortIndex = Integer.MAX_VALUE;
         for (int tagIndex = 0; tagIndex < nbt.tagCount(); tagIndex++) {
             final NBTTagCompound jobsNbt = nbt.getCompoundTagAt(tagIndex);
-            final int sortOrder = jobsNbt.getInteger(TAG_SORT_ORDER);
-            if (sortOrder < lowestSortOrder) {
-                lowestSortOrder = sortOrder;
+            final int sortIndex = jobsNbt.getInteger(TAG_SORT_INDEX);
+            if (sortIndex < lowestSortIndex) {
+                lowestSortIndex = sortIndex;
             }
             final LinkedList<Job> jobList = new LinkedList<>();
             final NBTTagList jobListNbt = jobsNbt.getTagList(TAG_LIST, NBT.TAG_COMPOUND);
@@ -96,24 +96,24 @@ final class JobChunkStorage {
                 job.deserializeNBT(jobListNbt.getCompoundTagAt(jobTagIndex));
                 jobList.addLast(job);
             }
-            jobsBySortOrder.put(sortOrder, jobList);
+            jobsBySortIndex.put(sortIndex, jobList);
         }
     }
 
     // --------------------------------------------------------------------- //
 
-    private int findLowestSortOrder() {
+    private int findLowestSortIndex() {
         if (isEmpty()) {
             return Integer.MAX_VALUE;
         }
-        final int[] sortOrders = jobsBySortOrder.keys();
-        int minSortOrder = sortOrders[0];
-        for (int i = 1; i < sortOrders.length; i++) {
-            final int sortOrder = sortOrders[i];
-            if (sortOrder < minSortOrder) {
-                minSortOrder = sortOrder;
+        final int[] sortIndices = jobsBySortIndex.keys();
+        int minSortIndex = sortIndices[0];
+        for (int i = 1; i < sortIndices.length; i++) {
+            final int sortIndex = sortIndices[i];
+            if (sortIndex < minSortIndex) {
+                minSortIndex = sortIndex;
             }
         }
-        return minSortOrder;
+        return minSortIndex;
     }
 }
