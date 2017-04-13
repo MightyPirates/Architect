@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -37,8 +36,8 @@ public enum BlueprintRenderer {
         final EntityPlayer player = mc.player;
         final World world = mc.world;
 
-        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (!Items.isBlueprint(stack)) {
+        final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
+        if (stack.isEmpty()) {
             return;
         }
 

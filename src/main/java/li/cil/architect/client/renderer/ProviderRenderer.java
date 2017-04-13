@@ -11,7 +11,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -32,8 +31,8 @@ public enum ProviderRenderer {
         final Minecraft mc = Minecraft.getMinecraft();
         final EntityPlayer player = mc.player;
 
-        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (!Items.isProvider(stack)) {
+        final ItemStack stack = Items.getHeldItem(player, Items::isProvider);
+        if (stack.isEmpty()) {
             return;
         }
 

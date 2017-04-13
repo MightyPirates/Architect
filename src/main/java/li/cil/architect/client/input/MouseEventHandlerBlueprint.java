@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -26,8 +25,8 @@ public enum MouseEventHandlerBlueprint {
             return;
         }
 
-        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (!Items.isBlueprint(stack)) {
+        final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
+        if (stack.isEmpty()) {
             return;
         }
 

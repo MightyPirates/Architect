@@ -9,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
@@ -22,8 +21,8 @@ public final class MessageHandlerClipboardServer extends AbstractMessageHandler<
     @Override
     protected void onMessageSynchronized(final MessageClipboard message, final MessageContext context) {
         final EntityPlayerMP player = context.getServerHandler().player;
-        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (!Items.isBlueprint(stack)) {
+        final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
+        if (stack.isEmpty()) {
             return;
         }
 

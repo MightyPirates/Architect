@@ -5,7 +5,6 @@ import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -23,8 +22,8 @@ public enum MouseEventHandlerSketch {
             return;
         }
 
-        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (!Items.isSketch(stack)) {
+        final ItemStack stack = Items.getHeldItem(player, Items::isSketch);
+        if (stack.isEmpty()) {
             return;
         }
 

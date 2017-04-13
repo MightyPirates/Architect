@@ -9,7 +9,6 @@ import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.EnumHand;
 
 public final class SubCommandPaste extends AbstractSubCommand {
     @Override
@@ -20,8 +19,8 @@ public final class SubCommandPaste extends AbstractSubCommand {
     @Override
     public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) throws CommandException {
         final EntityPlayerMP player = getCommandSenderAsPlayer(sender);
-        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (!Items.isBlueprint(stack)) {
+        final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
+        if (stack.isEmpty()) {
             throw new WrongUsageException(getUsage(sender));
         }
 

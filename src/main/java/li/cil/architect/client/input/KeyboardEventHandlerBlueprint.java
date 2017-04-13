@@ -7,7 +7,6 @@ import li.cil.architect.common.network.message.MessageBlueprintRotate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -22,8 +21,8 @@ public enum KeyboardEventHandlerBlueprint {
         }
 
         final EntityPlayer player = Minecraft.getMinecraft().player;
-        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (!Items.isBlueprint(stack)) {
+        final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
+        if (stack.isEmpty()) {
             return;
         }
 

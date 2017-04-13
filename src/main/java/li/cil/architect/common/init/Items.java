@@ -5,12 +5,16 @@ import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.item.ItemBlueprint;
 import li.cil.architect.common.item.ItemProviderItem;
 import li.cil.architect.common.item.ItemSketch;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
+
+import java.util.function.Predicate;
 
 /**
  * Manages setup, registration and lookup of items.
@@ -32,6 +36,18 @@ public final class Items {
 
     public static boolean isProvider(final ItemStack stack) {
         return isItem(stack, providerItem);
+    }
+
+    public static ItemStack getHeldItem(final EntityPlayer player, final Predicate<ItemStack> filter) {
+        ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+        if (filter.test(stack)) {
+            return stack;
+        }
+        stack = player.getHeldItem(EnumHand.OFF_HAND);
+        if (filter.test(stack)) {
+            return stack;
+        }
+        return ItemStack.EMPTY;
     }
 
     // --------------------------------------------------------------------- //

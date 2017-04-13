@@ -14,7 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.EnumHand;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
@@ -31,8 +30,8 @@ public final class SubCommandCopy extends AbstractSubCommand {
     @Override
     public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) throws CommandException {
         final EntityPlayerMP player = getCommandSenderAsPlayer(sender);
-        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (!Items.isBlueprint(stack)) {
+        final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
+        if (stack.isEmpty()) {
             throw new WrongUsageException(getUsage(sender));
         }
 

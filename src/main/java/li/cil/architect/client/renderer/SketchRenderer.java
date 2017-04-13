@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -35,14 +34,14 @@ public enum SketchRenderer {
         final Minecraft mc = Minecraft.getMinecraft();
         final EntityPlayer player = mc.player;
 
-        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (!Items.isSketch(stack)) {
+        final ItemStack stack = Items.getHeldItem(player, Items::isSketch);
+        if (stack.isEmpty()) {
             return;
         }
 
         final SketchData data = ItemSketch.getData(stack);
         //noinspection ConstantConditions !isEmpty guarantees non-null.
-        if (!data.isEmpty() && player.getDistanceSq(data.getOrigin()) > 64*64) {
+        if (!data.isEmpty() && player.getDistanceSq(data.getOrigin()) > 64 * 64) {
             return;
         }
 
