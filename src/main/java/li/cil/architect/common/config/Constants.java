@@ -35,25 +35,25 @@ public final class Constants {
 
     public static final int MAX_TOOLTIP_WIDTH = 200;
 
-    public static final String TOOLTIP_SKETCH_BOUNDS = "tooltip." + API.MOD_ID + ".sketch.bounds";
-    public static final String TOOLTIP_SKETCH_CONVERT = "tooltip." + API.MOD_ID + ".sketch.convert";
-    public static final String TOOLTIP_SKETCH_EMPTY = "tooltip." + API.MOD_ID + ".sketch.empty";
-    public static final String TOOLTIP_BLUEPRINT = "tooltip." + API.MOD_ID + ".blueprint";
-    public static final String TOOLTIP_BLUEPRINT_COSTS_HINT = "" + API.MOD_ID + ".tooltip.blueprint.costs.hint";
-    public static final String TOOLTIP_BLUEPRINT_COSTS_TITLE = "tooltip." + API.MOD_ID + ".blueprint.costs.title";
-    public static final String TOOLTIP_BLUEPRINT_COSTS_LINE = "tooltip." + API.MOD_ID + ".blueprint.costs.line";
-    public static final String TOOLTIP_BLUEPRINT_COSTS_UNKNOWN = "tooltip." + API.MOD_ID + ".blueprint.costs.unknown";
-    public static final String TOOLTIP_PROVIDER_ITEM = "tooltip." + API.MOD_ID + ".provider.item";
-    public static final String TOOLTIP_PROVIDER_TARGET = "tooltip." + API.MOD_ID + ".provider.target";
+    public static final String TOOLTIP_SKETCH_BOUNDS = "tooltip.architect.sketch.bounds";
+    public static final String TOOLTIP_SKETCH_CONVERT = "tooltip.architect.sketch.convert";
+    public static final String TOOLTIP_SKETCH_EMPTY = "tooltip.architect.sketch.empty";
+    public static final String TOOLTIP_BLUEPRINT = "tooltip.architect.blueprint";
+    public static final String TOOLTIP_BLUEPRINT_COSTS_HINT = "architect.tooltip.blueprint.costs.hint";
+    public static final String TOOLTIP_BLUEPRINT_COSTS_TITLE = "tooltip.architect.blueprint.costs.title";
+    public static final String TOOLTIP_BLUEPRINT_COSTS_LINE = "tooltip.architect.blueprint.costs.line";
+    public static final String TOOLTIP_BLUEPRINT_COSTS_UNKNOWN = "tooltip.architect.blueprint.costs.unknown";
+    public static final String TOOLTIP_PROVIDER_ITEM = "tooltip.architect.provider.item";
+    public static final String TOOLTIP_PROVIDER_TARGET = "tooltip.architect.provider.target";
 
     // --------------------------------------------------------------------- //
     // Config
 
-    public static final String CONFIG_MAX_BLUEPRINT_SIZE = "config." + API.MOD_ID + ".maxBlueprintSize";
-    public static final String CONFIG_MAX_PROVIDER_RADIUS = "config." + API.MOD_ID + ".maxProviderRadius";
-    public static final String CONFIG_MAX_CHUNK_OPS_PER_TICK = "config." + API.MOD_ID + ".maxChunkOperationsPerTick";
-    public static final String CONFIG_MAX_WORLD_OPS_PER_TICK = "config." + API.MOD_ID + ".maxWorldOperationsPerTick";
-    public static final String CONFIG_BLACKLIST = "config." + API.MOD_ID + ".blacklist";
+    public static final String CONFIG_MAX_BLUEPRINT_SIZE = "config.architect.maxBlueprintSize";
+    public static final String CONFIG_MAX_PROVIDER_RADIUS = "config.architect.maxProviderRadius";
+    public static final String CONFIG_MAX_CHUNK_OPS_PER_TICK = "config.architect.maxChunkOperationsPerTick";
+    public static final String CONFIG_MAX_WORLD_OPS_PER_TICK = "config.architect.maxWorldOperationsPerTick";
+    public static final String CONFIG_BLACKLIST = "config.architect.blacklist";
 
     // --------------------------------------------------------------------- //
     // Config files
@@ -81,17 +81,18 @@ public final class Constants {
     public static final String COMMAND_NBT_NO_TILE_ENTITY = "commands.architect.nbt.no_tile_entity";
     public static final String COMMAND_NBT_ERROR = "commands.architect.nbt.error";
     public static final String COMMAND_NBT_SUCCESS = "commands.architect.nbt.success";
+    public static final String COMMAND_RELOAD_SUCCESS = "commands.architect.reload.success";
 
     // --------------------------------------------------------------------- //
     // Messages
 
-    public static final String MESSAGE_PLACEMENT_CANCELED = "message." + API.MOD_ID + ".placement_canceled";
+    public static final String MESSAGE_PLACEMENT_CANCELED = "message.architect.placement_canceled";
 
     // --------------------------------------------------------------------- //
     // Key bindings
 
-    public static final String KEY_BINDINGS_CATEGORY_NAME = API.MOD_ID + " (" + MOD_NAME + ")";
-    public static final String KEY_BINDINGS_BLUEPRINT_ROTATE = "key." + API.MOD_ID + ".rotateBlueprint";
+    public static final String KEY_BINDINGS_CATEGORY_NAME = MOD_NAME;
+    public static final String KEY_BINDINGS_BLUEPRINT_ROTATE = "key.architect.rotateBlueprint";
 
     // --------------------------------------------------------------------- //
 

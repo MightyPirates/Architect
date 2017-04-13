@@ -44,6 +44,7 @@ commands.architect.nbt.invalid_block=Invalid block, registry name could not be d
 commands.architect.nbt.no_tile_entity=Not a tile entity.
 commands.architect.nbt.error=Failed getting NBT data from tile entity.
 commands.architect.nbt.success=Filter data copied to clipboard.
+commands.architect.reload.success=Converter settings reloaded.
 
 message.architect.placement_canceled=Some blocks were not placed due to lack of permissions.
 
