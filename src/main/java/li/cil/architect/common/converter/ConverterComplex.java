@@ -1,14 +1,16 @@
 package li.cil.architect.common.converter;
 
+import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Jasons;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Items;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -23,7 +25,7 @@ public final class ConverterComplex extends AbstractConverterBase {
     @Override
     public int getSortIndex(final NBTBase data) {
         final Block block = getBlock(data);
-        if (block == null) {
+        if (block == Blocks.AIR) {
             return SortIndex.SOLID_BLOCK;
         }
 
@@ -32,15 +34,22 @@ public final class ConverterComplex extends AbstractConverterBase {
 
     @Override
     protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
-        final Block block = getBlock(state);
-        return getItem(block) != Items.AIR && Jasons.isWhitelisted(block);
+        final Block block = ConverterAPI.mapToBlock(state);
+        return Jasons.isWhitelisted(block);
+    }
+
+    @Override
+    public void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
+        super.deserialize(world, pos, rotation, data);
+
+        world.neighborChanged(pos, world.getBlockState(pos).getBlock(), pos);
     }
 
     @Override
     protected void postSerialize(final World world, final BlockPos pos, final IBlockState state, final NBTTagCompound data) {
         super.postSerialize(world, pos, state, data);
-        final Block block = getBlock(state);
-        if (!Jasons.isNbtAllowed(block)) {
+        final Block block = ConverterAPI.mapToBlock(state);
+        if (!Jasons.hasNbtFilter(block)) {
             return;
         }
 
@@ -71,7 +80,7 @@ public final class ConverterComplex extends AbstractConverterBase {
         // the meantime, so we don't allow players with an old blueprint to
         // deserialize NBT they shouldn't be allowed to.
         final NBTTagCompound nbt = data.getCompoundTag(TAG_NBT);
-        Jasons.filterNbt(getBlock(state), nbt);
+        Jasons.filterNbt(ConverterAPI.mapToBlock(state), nbt);
 
         // Merge the persisted values into the current state of the TE.
         final NBTTagCompound currentNbt = new NBTTagCompound();

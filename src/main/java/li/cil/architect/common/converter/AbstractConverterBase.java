@@ -1,7 +1,7 @@
 package li.cil.architect.common.converter;
 
+import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.api.prefab.converter.AbstractConverter;
-import li.cil.architect.common.config.Jasons;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Items;
@@ -21,8 +21,8 @@ public abstract class AbstractConverterBase extends AbstractConverter {
     }
 
     protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
-        final Block block = getBlock(state);
-        return getItem(block) != Items.AIR && !block.hasTileEntity(state);
+        final Block block = ConverterAPI.mapToBlock(state);
+        return !block.hasTileEntity(state);
     }
 
     // --------------------------------------------------------------------- //
@@ -31,19 +31,7 @@ public abstract class AbstractConverterBase extends AbstractConverter {
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        return !Jasons.isBlacklisted(state.getBlock()) && !Jasons.isBlacklisted(getBlock(state)) && canSerialize(world, pos, state);
-    }
-
-    // --------------------------------------------------------------------- //
-    // AbstractConverter
-
-    @Override
-    protected Block getBlock(final IBlockState state) {
-        return Jasons.mapBlockToBlock(super.getBlock(state));
-    }
-
-    @Override
-    protected Item getItem(final Block block) {
-        return Jasons.mapBlockToItem(block);
+        final Item item = ConverterAPI.mapToItem(state.getBlock());
+        return item != Items.AIR && canSerialize(world, pos, state);
     }
 }

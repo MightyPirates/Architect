@@ -94,7 +94,7 @@ public final class Jasons {
         return location != null && (whitelist.containsKey(location) || whitelistVolatile.containsKey(location));
     }
 
-    public static boolean isNbtAllowed(final Block block) {
+    public static boolean hasNbtFilter(final Block block) {
         final ResourceLocation location = block.getRegistryName();
         ConverterFilter filter = whitelist.get(location);
         if (filter == null) {

@@ -3,6 +3,11 @@ package li.cil.architect.api;
 import li.cil.architect.api.converter.Converter;
 import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.converter.SortIndex;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,56 +42,54 @@ public final class ConverterAPI {
         }
     }
 
-    /**
-     * A sort index used to control in which order blocks are deserialized.
-     * <p>
-     * Blocks being deserialized using converters that provide lower numbers
-     * here will be processed first.
-     * <p>
-     * This allows deserialization of solid blocks (e.g. cobble) before non-
-     * solid blocks (e.g. levers, water).
-     *
-     * @param data the serialized representation of the block in question.
-     * @return the sort index of the specified data.
-     * @see SortIndex
-     */
-    public static int getSortIndex(final NBTTagCompound data) {
-        if (API.converterAPI != null) {
-            return API.converterAPI.getSortIndex(data);
-        }
-        return 0;
-    }
+    // --------------------------------------------------------------------- //
 
     /**
-     * Checks if the block at the specified world position can be serialized.
+     * Test if the specified block is blacklisted for conversion.
      *
-     * @param world the world containing the block to serialize.
-     * @param pos   the position of the block to serialize.
-     * @return <code>true</code> if the block can be serialized;
+     * @param block the block to test for.
+     * @return <code>true</code> if the block is blacklisted;
      * <code>false</code> otherwise.
      */
-    public static boolean canSerialize(final World world, final BlockPos pos) {
+    public static boolean isBlacklisted(final Block block) {
         if (API.converterAPI != null) {
-            return API.converterAPI.canSerialize(world, pos);
+            return API.converterAPI.isBlacklisted(block);
         }
         return false;
     }
 
     /**
-     * Creates a serialized representation of the block at the specified world
-     * position.
+     * Map a block to a potential replacement, based on current mapping
+     * configuration. Generally used to replace state-dependent representations
+     * with their default one, e.g. <code>lit_furnace</code> to
+     * <code>furnace</code>.
      *
-     * @param world the world containing the block to serialize.
-     * @param pos   the position of the block to serialize.
-     * @return a serialized representation of the block.
+     * @param state the block state to resolve the mapping for.
+     * @return the mapped representation of the block.
      */
-    @Nullable
-    public static NBTTagCompound serialize(final World world, final BlockPos pos) {
+    public static Block mapToBlock(final IBlockState state) {
         if (API.converterAPI != null) {
-            return API.converterAPI.serialize(world, pos);
+            return API.converterAPI.mapToBlock(state);
         }
-        return null;
+        return Blocks.AIR;
     }
+
+    /**
+     * Get the item associated with the specified block. Takes into account
+     * custom registered mappings, falls back to built-in item from block
+     * lookup via the {@link Item#getItemFromBlock(Block)}.
+     *
+     * @param block the block to get the item for.
+     * @return the item for that block.
+     */
+    public static Item mapToItem(final Block block) {
+        if (API.converterAPI != null) {
+            return API.converterAPI.mapToItem(block);
+        }
+        return Items.AIR;
+    }
+
+    // --------------------------------------------------------------------- //
 
     /**
      * Get a list of materials required to deserialize the block described by
@@ -132,6 +135,59 @@ public final class ConverterAPI {
             return API.converterAPI.getFluidCosts(data);
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * A sort index used to control in which order blocks are deserialized.
+     * <p>
+     * Blocks being deserialized using converters that provide lower numbers
+     * here will be processed first.
+     * <p>
+     * This allows deserialization of solid blocks (e.g. cobble) before non-
+     * solid blocks (e.g. levers, water).
+     *
+     * @param data the serialized representation of the block in question.
+     * @return the sort index of the specified data.
+     * @see SortIndex
+     */
+    public static int getSortIndex(final NBTTagCompound data) {
+        if (API.converterAPI != null) {
+            return API.converterAPI.getSortIndex(data);
+        }
+        return 0;
+    }
+
+    // --------------------------------------------------------------------- //
+
+    /**
+     * Checks if the block at the specified world position can be serialized.
+     *
+     * @param world the world containing the block to serialize.
+     * @param pos   the position of the block to serialize.
+     * @return <code>true</code> if the block can be serialized;
+     * <code>false</code> otherwise.
+     */
+    public static boolean canSerialize(final World world, final BlockPos pos) {
+        if (API.converterAPI != null) {
+            return API.converterAPI.canSerialize(world, pos);
+        }
+        return false;
+    }
+
+    /**
+     * Creates a serialized representation of the block at the specified world
+     * position.
+     *
+     * @param world the world containing the block to serialize.
+     * @param pos   the position of the block to serialize.
+     * @return a serialized representation of the block.
+     */
+    @Nullable
+    public static NBTTagCompound serialize(final World world, final BlockPos pos) {
+        if (API.converterAPI != null) {
+            return API.converterAPI.serialize(world, pos);
+        }
+        return null;
     }
 
     /**

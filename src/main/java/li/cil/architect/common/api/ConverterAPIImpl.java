@@ -5,11 +5,15 @@ import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.detail.ConverterAPI;
 import li.cil.architect.common.Architect;
 import li.cil.architect.common.config.Jasons;
+import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
@@ -30,6 +34,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
 
     private final List<Converter> converters = new ArrayList<>();
     private final Map<UUID, Converter> uuidToConverter = new HashMap<>();
+    private long lastPlaceSound;
 
     @Override
     public void addConverter(final Converter converter) {
@@ -38,6 +43,41 @@ public final class ConverterAPIImpl implements ConverterAPI {
             uuidToConverter.put(uuid, converter);
             converters.add(converter);
         }
+    }
+
+    @Override
+    public boolean isBlacklisted(final Block block) {
+        return Jasons.isBlacklisted(block);
+    }
+
+    @Override
+    public Block mapToBlock(final IBlockState state) {
+        return Jasons.mapBlockToBlock(state.getBlock());
+    }
+
+    @Override
+    public Item mapToItem(final Block block) {
+        return Jasons.mapBlockToItem(block);
+    }
+
+    @Override
+    public Iterable<ItemStack> getItemCosts(final NBTTagCompound data) {
+        final Converter converter = findConverter(data);
+        if (converter == null) {
+            return Collections.emptyList();
+        }
+
+        return converter.getItemCosts(data.getTag(TAG_DATA));
+    }
+
+    @Override
+    public Iterable<FluidStack> getFluidCosts(final NBTTagCompound data) {
+        final Converter converter = findConverter(data);
+        if (converter == null) {
+            return Collections.emptyList();
+        }
+
+        return converter.getFluidCosts(data.getTag(TAG_DATA));
     }
 
     @Override
@@ -80,26 +120,6 @@ public final class ConverterAPIImpl implements ConverterAPI {
     }
 
     @Override
-    public Iterable<ItemStack> getItemCosts(final NBTTagCompound data) {
-        final Converter converter = findConverter(data);
-        if (converter == null) {
-            return Collections.emptyList();
-        }
-
-        return converter.getItemCosts(data.getTag(TAG_DATA));
-    }
-
-    @Override
-    public Iterable<FluidStack> getFluidCosts(final NBTTagCompound data) {
-        final Converter converter = findConverter(data);
-        if (converter == null) {
-            return Collections.emptyList();
-        }
-
-        return converter.getFluidCosts(data.getTag(TAG_DATA));
-    }
-
-    @Override
     public boolean preDeserialize(final MaterialSource materialSource, final World world, final BlockPos pos, final Rotation rotation, final NBTTagCompound data) {
         if (!isValidPosition(world, pos)) {
             return false;
@@ -127,6 +147,13 @@ public final class ConverterAPIImpl implements ConverterAPI {
         } else {
             converter.deserialize(world, pos, rotation, data.getTag(TAG_DATA));
         }
+
+        final IBlockState state = world.getBlockState(pos);
+        if (world.getTotalWorldTime() > lastPlaceSound + 3) {
+            lastPlaceSound = world.getTotalWorldTime();
+            final SoundType soundtype = state.getBlock().getSoundType(state, world, pos, null);
+            world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1f) / 2f, soundtype.getPitch() * 0.8f);
+        }
     }
 
     private static boolean isValidPosition(final World world, final BlockPos pos) {
@@ -142,6 +169,15 @@ public final class ConverterAPIImpl implements ConverterAPI {
 
     @Nullable
     private Converter findConverter(final World world, final BlockPos pos) {
+        if (!world.isBlockLoaded(pos)) {
+            return null;
+        }
+
+        final IBlockState state = world.getBlockState(pos);
+        if (Jasons.isBlacklisted(state.getBlock())) {
+            return null;
+        }
+
         for (int i = converters.size() - 1; i >= 0; i--) {
             final Converter converter = converters.get(i);
             if (converter.canSerialize(world, pos)) {

@@ -3,6 +3,9 @@ package li.cil.architect.api.detail;
 import li.cil.architect.api.converter.Converter;
 import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.converter.SortIndex;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,41 +31,39 @@ public interface ConverterAPI {
      */
     void addConverter(Converter converter);
 
-    /**
-     * A sort index used to control in which order blocks are deserialized.
-     * <p>
-     * Blocks being deserialized using converters that provide lower numbers
-     * here will be processed first.
-     * <p>
-     * This allows deserialization of solid blocks (e.g. cobble) before non-
-     * solid blocks (e.g. levers, water).
-     *
-     * @param data the serialized representation of the block in question.
-     * @return the sort index of the specified data.
-     * @see SortIndex
-     */
-    int getSortIndex(final NBTTagCompound data);
+    // --------------------------------------------------------------------- //
 
     /**
-     * Checks if the block at the specified world position can be serialized.
+     * Test if the specified block is blacklisted for conversion.
      *
-     * @param world the world containing the block to serialize.
-     * @param pos   the position of the block to serialize.
-     * @return <code>true</code> if the block can be serialized;
+     * @param block the block to test for.
+     * @return <code>true</code> if the block is blacklisted;
      * <code>false</code> otherwise.
      */
-    boolean canSerialize(final World world, final BlockPos pos);
+    boolean isBlacklisted(final Block block);
 
     /**
-     * Creates a serialized representation of the block at the specified world
-     * position.
+     * Map a block to a potential replacement, based on current mapping
+     * configuration. Generally used to replace state-dependent representations
+     * with their default one, e.g. <code>lit_furnace</code> to
+     * <code>furnace</code>.
      *
-     * @param world the world containing the block to serialize.
-     * @param pos   the position of the block to serialize.
-     * @return a serialized representation of the block.
+     * @param state the block state to resolve the mapping for.
+     * @return the mapped representation of the block.
      */
-    @Nullable
-    NBTTagCompound serialize(final World world, final BlockPos pos);
+    Block mapToBlock(final IBlockState state);
+
+    /**
+     * Get the item associated with the specified block. Takes into account
+     * custom registered mappings, falls back to built-in item from block
+     * lookup via the {@link Item#getItemFromBlock(Block)}.
+     *
+     * @param block the block to get the item for.
+     * @return the item for that block.
+     */
+    Item mapToItem(final Block block);
+
+    // --------------------------------------------------------------------- //
 
     /**
      * Get a list of materials required to deserialize the block described by
@@ -99,6 +100,44 @@ public interface ConverterAPI {
      * @return the list of materials required.
      */
     Iterable<FluidStack> getFluidCosts(final NBTTagCompound data);
+
+    /**
+     * A sort index used to control in which order blocks are deserialized.
+     * <p>
+     * Blocks being deserialized using converters that provide lower numbers
+     * here will be processed first.
+     * <p>
+     * This allows deserialization of solid blocks (e.g. cobble) before non-
+     * solid blocks (e.g. levers, water).
+     *
+     * @param data the serialized representation of the block in question.
+     * @return the sort index of the specified data.
+     * @see SortIndex
+     */
+    int getSortIndex(final NBTTagCompound data);
+
+    // --------------------------------------------------------------------- //
+
+    /**
+     * Checks if the block at the specified world position can be serialized.
+     *
+     * @param world the world containing the block to serialize.
+     * @param pos   the position of the block to serialize.
+     * @return <code>true</code> if the block can be serialized;
+     * <code>false</code> otherwise.
+     */
+    boolean canSerialize(final World world, final BlockPos pos);
+
+    /**
+     * Creates a serialized representation of the block at the specified world
+     * position.
+     *
+     * @param world the world containing the block to serialize.
+     * @param pos   the position of the block to serialize.
+     * @return a serialized representation of the block.
+     */
+    @Nullable
+    NBTTagCompound serialize(final World world, final BlockPos pos);
 
     /**
      * Called when a job for deserialization should be created.

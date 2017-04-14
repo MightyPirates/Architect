@@ -1,5 +1,6 @@
 package li.cil.architect.common.converter;
 
+import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.common.config.Constants;
 import net.minecraft.block.BlockFalling;
@@ -16,7 +17,7 @@ public final class ConverterFallingBlock extends AbstractConverterBase {
 
     @Override
     protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
-        return getBlock(state) instanceof BlockFalling && super.canSerialize(world, pos, state);
+        return ConverterAPI.mapToBlock(state) instanceof BlockFalling && super.canSerialize(world, pos, state);
     }
 
     @Override

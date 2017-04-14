@@ -1,10 +1,10 @@
 package li.cil.architect.api.prefab.converter;
 
+import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.api.converter.Converter;
 import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.converter.SortIndex;
 import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -15,13 +15,11 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -34,7 +32,6 @@ public abstract class AbstractConverter implements Converter {
 
     private final UUID uuid;
     private final int sortIndex;
-    private static long lastPlaceSound;
 
     // NBT tag names.
     private static final String TAG_NAME = "name";
@@ -61,7 +58,7 @@ public abstract class AbstractConverter implements Converter {
 
     @Override
     public Iterable<ItemStack> getItemCosts(final NBTBase data) {
-        final ItemStack wantStack = getItem(data);
+        final ItemStack wantStack = getItemStack(data);
         if (wantStack.isEmpty()) {
             return Collections.emptyList();
         }
@@ -81,12 +78,14 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public NBTBase serialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        final Block block = getBlock(state);
+        final Block block = ConverterAPI.mapToBlock(state);
 
         final ResourceLocation name = block.getRegistryName();
-        final int metadata = block.getMetaFromState(state);
+        assert name != null : "canSerialize implementation allowed invalid block";
 
-        assert name != null;
+        // When mapping blocks, only keep metadata if class stays the same,
+        // otherwise we can't rely on the meta conversion to work correctly.
+        final int metadata = block.getClass() == state.getBlock().getClass() ? block.getMetaFromState(state) : 0;
 
         final NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString(TAG_NAME, name.toString());
@@ -99,7 +98,7 @@ public abstract class AbstractConverter implements Converter {
 
     @Override
     public boolean preDeserialize(final MaterialSource materialSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
-        final ItemStack wantStack = getItem(data);
+        final ItemStack wantStack = getItemStack(data);
         if (wantStack.isEmpty()) {
             return true;
         }
@@ -117,7 +116,10 @@ public abstract class AbstractConverter implements Converter {
 
         final Block block = ForgeRegistries.BLOCKS.getValue(name);
         if (block == null) {
-            return; // Block type does not exist in this Minecraft instance.
+            // Block type does not exist in this Minecraft instance even though
+            // an item exists? Weird. Drop what we consumed then.
+            cancelDeserialization(world, pos, rotation, data);
+            return;
         }
 
         final IBlockState state = block.getStateFromMeta(metadata).withRotation(rotation);
@@ -125,17 +127,11 @@ public abstract class AbstractConverter implements Converter {
         world.setBlockState(pos, state);
 
         postDeserialize(world, pos, state, nbt);
-
-        if (world.getTotalWorldTime() > lastPlaceSound + 3) {
-            lastPlaceSound = world.getTotalWorldTime();
-            final SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, null);
-            world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1f) / 2f, soundtype.getPitch() * 0.8f);
-        }
     }
 
     @Override
     public void cancelDeserialization(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
-        final ItemStack wantStack = getItem(data);
+        final ItemStack wantStack = getItemStack(data);
         if (!wantStack.isEmpty()) {
             InventoryHelper.spawnItemStack(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, wantStack);
         }
@@ -173,46 +169,36 @@ public abstract class AbstractConverter implements Converter {
     }
 
     /**
-     * Allows hooking into block lookup logic. This is used in Architect to
-     * apply block mappings for example (lit furnace to furnace, read from the
-     * <code>block_mappings.json</code> file).
+     * Get the block serialized in the specified data.
      *
-     * @param state the state to get the block from.
-     * @return the block, possibly mapped to an alias value.
+     * @param data the serialized representation of the block.
+     * @return the block stored in the specified data.
      */
-    protected Block getBlock(final IBlockState state) {
-        return state.getBlock();
-    }
-
-    /**
-     * Allows hooking into item lookup logic. This is used in Architect to
-     * apply item mappings for example (redstone wire to redstone, read from the
-     * <code>item_mappings.json</code> file).
-     *
-     * @param block the block to get the item representation for.
-     * @return the item representing the block.
-     */
-    protected Item getItem(final Block block) {
-        return Item.getItemFromBlock(block);
-    }
-
-    @Nullable
     protected Block getBlock(final NBTBase data) {
         final NBTTagCompound nbt = (NBTTagCompound) data;
         final ResourceLocation name = new ResourceLocation(nbt.getString(TAG_NAME));
 
+        // Note: in practice this will never return null, but let's honor the
+        // annotations in case someone decides this has to change somewhen...
         final Block block = ForgeRegistries.BLOCKS.getValue(name);
-        return block == Blocks.AIR ? null : block;
+        return block == null ? Blocks.AIR : block;
     }
 
+    /**
+     * Get the item stack required as materials to deserialize the block
+     * stored in the specified data.
+     *
+     * @param data the serialized representation of the block.
+     * @return the material cost for the block.
+     */
     @SuppressWarnings("deprecation")
-    protected ItemStack getItem(final NBTBase data) {
+    protected ItemStack getItemStack(final NBTBase data) {
         final Block block = getBlock(data);
-        if (block == null) {
+        if (block == Blocks.AIR) {
             return ItemStack.EMPTY;
         }
 
-        final Item item = getItem(block);
+        final Item item = ConverterAPI.mapToItem(block);
         if (item == Items.AIR) {
             return ItemStack.EMPTY;
         }
@@ -220,6 +206,20 @@ public abstract class AbstractConverter implements Converter {
         final NBTTagCompound nbt = (NBTTagCompound) data;
         final int metadata = nbt.getByte(TAG_METADATA) & 0xFF;
         final IBlockState state = block.getStateFromMeta(metadata);
-        return new ItemStack(item, 1, block.damageDropped(state));
+
+        return getItemStack(item, state, data);
+    }
+
+    /**
+     * Resolve an item to an actual item stack. Override this in case this is
+     * not correct in your converter (e.g. dropped item is NBT dependent).
+     *
+     * @param item  the item to create an item stack for.
+     * @param state the block state based on which to create the item.
+     * @param data  the serialized representation of the block.
+     * @return the item stack representing the costs of the block.
+     */
+    protected ItemStack getItemStack(final Item item, final IBlockState state, final NBTBase data) {
+        return new ItemStack(item, 1, state.getBlock().damageDropped(state));
     }
 }
