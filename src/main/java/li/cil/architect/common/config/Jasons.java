@@ -9,6 +9,8 @@ import li.cil.architect.common.json.ConverterFilterAdapter;
 import li.cil.architect.common.json.ResourceLocationAdapter;
 import li.cil.architect.common.json.Types;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -134,7 +136,7 @@ public final class Jasons {
             return block;
         }
         final Block mappedBlock = ForgeRegistries.BLOCKS.getValue(mappedLocation);
-        return mappedBlock == null ? block : mappedBlock;
+        return (mappedBlock == null || mappedBlock == Blocks.AIR) ? block : mappedBlock;
     }
 
     public static Item mapBlockToItem(final Block block) {
@@ -150,7 +152,7 @@ public final class Jasons {
             return Item.getItemFromBlock(block);
         }
         final Item item = ForgeRegistries.ITEMS.getValue(itemLocation);
-        return item == null ? Item.getItemFromBlock(block) : item;
+        return (item == null || item == Items.AIR) ? Item.getItemFromBlock(block) : item;
     }
 
     // --------------------------------------------------------------------- //
@@ -169,7 +171,7 @@ public final class Jasons {
     }
 
     public static void addVolatileItemMapping(final ResourceLocation location, final ResourceLocation mapping) {
-        blockToItemMapping.put(location, mapping);
+        blockToItemMappingVolatile.put(location, mapping);
     }
 
     // --------------------------------------------------------------------- //
