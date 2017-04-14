@@ -16,8 +16,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
@@ -38,8 +36,7 @@ public final class SubCommandCopy extends AbstractSubCommand {
         try {
             final NBTTagCompound nbt = ItemBlueprint.getData(stack).serializeNBT();
             final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            final DataOutput output = new DataOutputStream(bytes);
-            CompressedStreamTools.write(nbt, output);
+            CompressedStreamTools.writeCompressed(nbt, bytes);
             final String value = Base64.getEncoder().encodeToString(bytes.toByteArray());
             Network.INSTANCE.getWrapper().sendTo(new MessageClipboard(value), player);
             notifyCommandListener(sender, this, Constants.COMMAND_COPY_SUCCESS);

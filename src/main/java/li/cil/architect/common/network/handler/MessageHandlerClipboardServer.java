@@ -28,9 +28,16 @@ public final class MessageHandlerClipboardServer extends AbstractMessageHandler<
 
         try {
             final byte[] value = Base64.getDecoder().decode(message.getValue());
-            final ByteArrayInputStream bytes = new ByteArrayInputStream(value);
-            final DataInputStream input = new DataInputStream(bytes);
-            final NBTTagCompound nbt = CompressedStreamTools.read(input);
+            NBTTagCompound nbt;
+            try {
+                final ByteArrayInputStream bytes = new ByteArrayInputStream(value);
+                nbt = CompressedStreamTools.readCompressed(bytes);
+            } catch (final Throwable e) {
+                // Compat with old, uncompressed format.
+                final ByteArrayInputStream bytes = new ByteArrayInputStream(value);
+                final DataInputStream input = new DataInputStream(bytes);
+                nbt = CompressedStreamTools.read(input);
+            }
             final BlueprintData data = new BlueprintData();
             data.deserializeNBT(nbt);
             ItemBlueprint.setData(stack, data);
