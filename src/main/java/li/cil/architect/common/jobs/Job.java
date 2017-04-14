@@ -26,7 +26,7 @@ final class Job {
     // Persisted data.
 
     long dataReference;
-    private short compressedPos; // 0xZYYX
+    short compressedPos; // 0xZYYX
     private byte rotation;
 
     // --------------------------------------------------------------------- //

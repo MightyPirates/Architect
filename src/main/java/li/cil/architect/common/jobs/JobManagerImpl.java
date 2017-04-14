@@ -68,6 +68,11 @@ public final class JobManagerImpl extends WorldSavedData {
         storage.pushJob(sortIndex, job);
     }
 
+    boolean hasJob(final BlockPos pos) {
+        final JobChunkStorage storage = getChunkStorage(new ChunkPos(pos));
+        return storage.contains(pos);
+    }
+
     void updateJobs(final World world) {
         totalOps = 0;
         chunkData.forEachEntry((key, storage) -> {

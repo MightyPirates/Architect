@@ -45,6 +45,7 @@ class JobBatch implements JobManager.JobConsumer {
     private final MaterialSourceImpl materialSource;
     private final EntityPlayer player;
     private final World world;
+    private final JobManager.JobTester jobTester;
 
     // Re-use NBTs to allow GC to collect duplicates while adding large batches.
     private final TObjectIntMap<NBTTagCompound> nbtToId = new TObjectIntHashMap<>();
@@ -60,6 +61,7 @@ class JobBatch implements JobManager.JobConsumer {
     JobBatch(final EntityPlayer player) {
         this.player = player;
         this.world = player.getEntityWorld();
+        this.jobTester = JobManager.INSTANCE.getJobTester(world);
         final IItemHandler inventory = new InvWrapper(player.inventory);
         final List<IItemHandler> providers = ItemProviderItem.findProviders(player.getPositionVector(), inventory);
         providers.add(inventory);
@@ -99,6 +101,17 @@ class JobBatch implements JobManager.JobConsumer {
 
     @Override
     public void accept(final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt) {
+        // Don't venture into unloaded territory... this should never really
+        // happen anyway, because the player would have to be nearby.
+        if (!world.isBlockLoaded(pos)) {
+            return;
+        }
+
+        // Don't allow multiple jobs at one position, to avoid item rains.
+        if (jobTester.hasJob(pos)) {
+            return;
+        }
+
         // Respect spawn protection and world border.
         if (!world.provider.canMineBlock(player, pos)) {
             anyCanceled = true;

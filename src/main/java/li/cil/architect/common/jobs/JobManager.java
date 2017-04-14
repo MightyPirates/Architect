@@ -38,6 +38,13 @@ public enum JobManager {
         void get(final JobConsumer consumer);
     }
 
+    /**
+     * Utility interface for {@link #getJobTester(World)}.
+     */
+    public interface JobTester {
+        boolean hasJob(final BlockPos pos);
+    }
+
     // --------------------------------------------------------------------- //
 
     /**
@@ -58,6 +65,21 @@ public enum JobManager {
 
         final JobManagerImpl manager = getInstance(player.getEntityWorld());
         batch.finish(manager);
+    }
+
+    /**
+     * Get an object for the specified world that can be used to test for the
+     * presence of jobs at some position in that world.
+     * <p>
+     * This is used as a performance shortcut when batch-adding jobs, as it
+     * saves us the manager lookup for each potentially added job.
+     *
+     * @param world the world to get the tester for.
+     * @return the tester for presence of jobs.
+     */
+    public JobTester getJobTester(final World world) {
+        final JobManagerImpl manager = getInstance(world);
+        return manager::hasJob;
     }
 
     // --------------------------------------------------------------------- //

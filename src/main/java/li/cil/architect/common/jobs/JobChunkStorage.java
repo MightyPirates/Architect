@@ -2,10 +2,13 @@ package li.cil.architect.common.jobs;
 
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import li.cil.architect.util.ChunkUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants.NBT;
 
+import java.util.BitSet;
 import java.util.LinkedList;
 
 /**
@@ -23,6 +26,7 @@ final class JobChunkStorage {
     private static final String TAG_SORT_INDEX = "sortOrder";
     private static final String TAG_LIST = "list";
 
+    private final BitSet positions = new BitSet(16 * 16 * 256);
     private final TIntObjectMap<LinkedList<Job>> jobsBySortIndex = new TIntObjectHashMap<>();
     private int lowestSortIndex = Integer.MAX_VALUE;
 
@@ -32,11 +36,20 @@ final class JobChunkStorage {
         return jobsBySortIndex.isEmpty();
     }
 
+    boolean contains(final BlockPos pos) {
+        return positions.get(ChunkUtils.posToShort(pos) & 0xFFFF);
+    }
+
     int getSortIndex() {
         return lowestSortIndex;
     }
 
     void pushJob(final int sortIndex, final Job job) {
+        if (contains(job)) {
+            throw new IllegalArgumentException();
+        }
+        add(job);
+
         if (sortIndex < lowestSortIndex || isEmpty()) {
             lowestSortIndex = sortIndex;
         }
@@ -54,12 +67,13 @@ final class JobChunkStorage {
 
     Job popJob() {
         final LinkedList<Job> jobs = jobsBySortIndex.get(lowestSortIndex);
-        final Job result = jobs.removeFirst();
+        final Job job = jobs.removeFirst();
+        remove(job);
         if (jobs.isEmpty()) {
             jobsBySortIndex.remove(lowestSortIndex);
             lowestSortIndex = findLowestSortIndex();
         }
-        return result;
+        return job;
     }
 
     // --------------------------------------------------------------------- //
@@ -81,6 +95,7 @@ final class JobChunkStorage {
     }
 
     void deserializeNBT(final NBTTagList nbt) {
+        positions.clear();
         jobsBySortIndex.clear();
         lowestSortIndex = Integer.MAX_VALUE;
         for (int tagIndex = 0; tagIndex < nbt.tagCount(); tagIndex++) {
@@ -94,6 +109,14 @@ final class JobChunkStorage {
             for (int jobTagIndex = 0; jobTagIndex < jobListNbt.tagCount(); jobTagIndex++) {
                 final Job job = new Job();
                 job.deserializeNBT(jobListNbt.getCompoundTagAt(jobTagIndex));
+
+                if (contains(job)) {
+                    // Should never have happened. Someone must have meddled
+                    // with our NBT, so just dump duplicates.
+                    continue;
+                }
+                add(job);
+
                 jobList.addLast(job);
             }
             jobsBySortIndex.put(sortIndex, jobList);
@@ -101,6 +124,18 @@ final class JobChunkStorage {
     }
 
     // --------------------------------------------------------------------- //
+
+    private void add(final Job job) {
+        positions.set(job.compressedPos & 0xFFFF);
+    }
+
+    private void remove(final Job job) {
+        positions.clear(job.compressedPos & 0xFFFF);
+    }
+
+    private boolean contains(final Job job) {
+        return positions.get(job.compressedPos & 0xFFFF);
+    }
 
     private int findLowestSortIndex() {
         if (isEmpty()) {
