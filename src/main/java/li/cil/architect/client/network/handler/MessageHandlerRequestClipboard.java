@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 public final class MessageHandlerRequestClipboard extends AbstractMessageHandler<MessageRequestBlueprintData> {
     @Override
     protected void onMessageSynchronized(final MessageRequestBlueprintData message, final MessageContext context) {
-        final String value = GuiScreen.getClipboardString();
+        final String value = GuiScreen.getClipboardString().trim();
         if (Strings.isNullOrEmpty(value)) {
             return;
         }
