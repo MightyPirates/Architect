@@ -11,6 +11,7 @@ import li.cil.architect.common.converter.ConverterFallingBlock;
 import li.cil.architect.common.converter.ConverterSolidBlock;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.integration.Integration;
+import li.cil.architect.common.integration.minecraft.ConverterDoor;
 import li.cil.architect.common.jobs.JobManager;
 import li.cil.architect.common.network.Network;
 import net.minecraft.item.Item;
@@ -59,6 +60,7 @@ public class ProxyCommon {
         ConverterAPI.addConverter(new ConverterSolidBlock());
         ConverterAPI.addConverter(new ConverterFallingBlock());
         ConverterAPI.addConverter(new ConverterComplex());
+        ConverterAPI.addConverter(new ConverterDoor());
 
         // Mod integration.
         Integration.init(event);

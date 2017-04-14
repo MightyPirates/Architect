@@ -6,7 +6,6 @@ import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Jasons;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -24,12 +23,12 @@ public final class ConverterComplex extends AbstractConverterBase {
 
     @Override
     public int getSortIndex(final NBTBase data) {
-        final Block block = getBlock(data);
-        if (block == Blocks.AIR) {
+        final IBlockState state = getBlockState(data);
+        if (state == null) {
             return SortIndex.SOLID_BLOCK;
         }
 
-        return Jasons.getSortIndex(block);
+        return Jasons.getSortIndex(state.getBlock());
     }
 
     @Override

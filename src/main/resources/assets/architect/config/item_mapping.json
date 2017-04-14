@@ -1,12 +1,19 @@
 {
+  "minecraft:acacia_door": "minecraft:acacia_door",
+  "minecraft:birch_door": "minecraft:birch_door",
   "minecraft:brewing_stand": "minecraft:brewing_stand",
   "minecraft:cauldron": "minecraft:cauldron",
+  "minecraft:dark_oak_door": "minecraft:dark_oak_door",
   "minecraft:daylight_detector_inverted": "minecraft:daylight_detector",
   "minecraft:flower_pot": "minecraft:flower_pot",
+  "minecraft:iron_door": "minecraft:iron_door",
+  "minecraft:jungle_door": "minecraft:jungle_door",
   "minecraft:redstone_wire": "minecraft:redstone",
   "minecraft:skull": "minecraft:skull",
+  "minecraft:spruce_door": "minecraft:spruce_door",
   "minecraft:standing_sign": "minecraft:sign",
   "minecraft:unpowered_comparator": "minecraft:comparator",
   "minecraft:unpowered_repeater": "minecraft:repeater",
-  "minecraft:wall_sign": "minecraft:sign"
+  "minecraft:wall_sign": "minecraft:sign",
+  "minecraft:wooden_door": "minecraft:wooden_door"
 }

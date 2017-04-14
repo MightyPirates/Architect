@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -169,19 +170,25 @@ public abstract class AbstractConverter implements Converter {
     }
 
     /**
-     * Get the block serialized in the specified data.
+     * Get the block state serialized in the specified data.
      *
      * @param data the serialized representation of the block.
-     * @return the block stored in the specified data.
+     * @return the block state stored in the specified data.
      */
-    protected Block getBlock(final NBTBase data) {
+    @SuppressWarnings("deprecation")
+    @Nullable
+    protected IBlockState getBlockState(final NBTBase data) {
         final NBTTagCompound nbt = (NBTTagCompound) data;
         final ResourceLocation name = new ResourceLocation(nbt.getString(TAG_NAME));
+        final int metadata = nbt.getByte(TAG_METADATA) & 0xFF;
 
         // Note: in practice this will never return null, but let's honor the
         // annotations in case someone decides this has to change somewhen...
         final Block block = ForgeRegistries.BLOCKS.getValue(name);
-        return block == null ? Blocks.AIR : block;
+        if (block == null || block == Blocks.AIR) {
+            return null;
+        }
+        return block.getStateFromMeta(metadata);
     }
 
     /**
@@ -191,21 +198,16 @@ public abstract class AbstractConverter implements Converter {
      * @param data the serialized representation of the block.
      * @return the material cost for the block.
      */
-    @SuppressWarnings("deprecation")
     protected ItemStack getItemStack(final NBTBase data) {
-        final Block block = getBlock(data);
-        if (block == Blocks.AIR) {
+        final IBlockState state = getBlockState(data);
+        if (state == null) {
             return ItemStack.EMPTY;
         }
 
-        final Item item = ConverterAPI.mapToItem(block);
+        final Item item = ConverterAPI.mapToItem(state.getBlock());
         if (item == Items.AIR) {
             return ItemStack.EMPTY;
         }
-
-        final NBTTagCompound nbt = (NBTTagCompound) data;
-        final int metadata = nbt.getByte(TAG_METADATA) & 0xFF;
-        final IBlockState state = block.getStateFromMeta(metadata);
 
         return getItemStack(item, state, data);
     }
