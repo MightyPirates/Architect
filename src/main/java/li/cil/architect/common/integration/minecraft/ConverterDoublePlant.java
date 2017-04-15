@@ -32,13 +32,13 @@ public class ConverterDoublePlant extends AbstractMultiBlockConverter {
         return super.getItemStack(item, state, data);
     }
 
-    // --------------------------------------------------------------------- //
-    // AbstractMultiBlockConverter
-
     @Override
     protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
         return state.getBlock() instanceof BlockDoublePlant;
     }
+
+    // --------------------------------------------------------------------- //
+    // AbstractMultiBlockConverter
 
     @Override
     protected boolean isSecondaryState(final IBlockState state) {

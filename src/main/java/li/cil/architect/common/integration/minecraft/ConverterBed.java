@@ -13,12 +13,15 @@ public class ConverterBed extends AbstractMultiBlockConverter {
     }
 
     // --------------------------------------------------------------------- //
-    // AbstractMultiBlockConverter
+    // AbstractConverter
 
     @Override
     protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
         return state.getBlock() instanceof BlockBed;
     }
+
+    // --------------------------------------------------------------------- //
+    // AbstractMultiBlockConverter
 
     @Override
     protected boolean isSecondaryState(final IBlockState state) {
