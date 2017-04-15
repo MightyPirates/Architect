@@ -1,4 +1,5 @@
 {
+  "minecraft:farmland": "minecraft:dirt",
   "minecraft:lit_furnace": "minecraft:furnace",
   "minecraft:lit_redstone_lamp": "minecraft:redstone_lamp",
   "minecraft:lit_redstone_ore": "minecraft:redstone_ore",

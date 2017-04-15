@@ -33,7 +33,6 @@ public abstract class AbstractConverter implements Converter {
     // Computed data
 
     private final UUID uuid;
-    private final int sortIndex;
 
     // NBT tag names.
     private static final String TAG_NAME = "name";
@@ -41,13 +40,8 @@ public abstract class AbstractConverter implements Converter {
 
     // --------------------------------------------------------------------- //
 
-    protected AbstractConverter(final UUID uuid, final int sortIndex) {
-        this.uuid = uuid;
-        this.sortIndex = sortIndex;
-    }
-
     protected AbstractConverter(final UUID uuid) {
-        this(uuid, SortIndex.SOLID_BLOCK);
+        this.uuid = uuid;
     }
 
     // --------------------------------------------------------------------- //
@@ -78,7 +72,12 @@ public abstract class AbstractConverter implements Converter {
 
     @Override
     public int getSortIndex(final NBTBase data) {
-        return sortIndex;
+        final IBlockState state = getBlockState(data);
+        if (state == null || state.isFullBlock() || state.isFullCube()) {
+            return SortIndex.SOLID_BLOCK;
+        } else {
+            return SortIndex.ATTACHED_BLOCK;
+        }
     }
 
     @Override

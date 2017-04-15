@@ -21,10 +21,6 @@ import java.util.UUID;
  * only require the block item as a material once for both parts.
  */
 public abstract class AbstractMultiBlockConverter extends AbstractConverter {
-    public AbstractMultiBlockConverter(final UUID uuid, final int sortIndex) {
-        super(uuid, sortIndex);
-    }
-
     public AbstractMultiBlockConverter(final UUID uuid) {
         super(uuid);
     }

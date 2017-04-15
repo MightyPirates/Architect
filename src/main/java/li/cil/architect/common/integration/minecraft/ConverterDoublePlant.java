@@ -1,6 +1,5 @@
 package li.cil.architect.common.integration.minecraft;
 
-import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.api.prefab.converter.AbstractMultiBlockConverter;
 import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.BlockTallGrass;
@@ -14,7 +13,7 @@ import net.minecraft.world.World;
 
 public class ConverterDoublePlant extends AbstractMultiBlockConverter {
     ConverterDoublePlant() {
-        super(ProxyMinecraft.UUID_CONVERTER_MINECRAFT_DOUBLE_PLANT, SortIndex.ATTACHED_BLOCK);
+        super(ProxyMinecraft.UUID_CONVERTER_MINECRAFT_DOUBLE_PLANT);
     }
 
     // --------------------------------------------------------------------- //

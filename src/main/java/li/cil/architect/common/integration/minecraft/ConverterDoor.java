@@ -1,6 +1,5 @@
 package li.cil.architect.common.integration.minecraft;
 
-import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.api.prefab.converter.AbstractMultiBlockConverter;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
@@ -9,7 +8,7 @@ import net.minecraft.world.World;
 
 public class ConverterDoor extends AbstractMultiBlockConverter {
     ConverterDoor() {
-        super(ProxyMinecraft.UUID_CONVERTER_MINECRAFT_DOOR, SortIndex.ATTACHED_BLOCK);
+        super(ProxyMinecraft.UUID_CONVERTER_MINECRAFT_DOOR);
     }
 
     // --------------------------------------------------------------------- //
