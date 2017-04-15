@@ -140,7 +140,9 @@ public abstract class AbstractConverter implements Converter {
 
         postDeserialize(world, pos, state, nbt);
 
-        if (block.hasTileEntity(state)) {
+        // Rotate the tile entity, if there is a tile entity and we have a
+        // rotation (avoid the lookup costs if we can).
+        if (block.hasTileEntity(state) && rotation != Rotation.NONE) {
             final TileEntity tileEntity = world.getTileEntity(pos);
             if (tileEntity != null) {
                 tileEntity.rotate(rotation);
