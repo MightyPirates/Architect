@@ -37,8 +37,9 @@ public final class Constants {
     public static final String TOOLTIP_SKETCH_CONVERT = "tooltip.architect.sketch.convert";
     public static final String TOOLTIP_SKETCH_EMPTY = "tooltip.architect.sketch.empty";
     public static final String TOOLTIP_BLUEPRINT = "tooltip.architect.blueprint";
-    public static final String TOOLTIP_BLUEPRINT_COSTS_HINT = "architect.tooltip.blueprint.costs.hint";
+    public static final String TOOLTIP_BLUEPRINT_COSTS_HINT = "tooltip.architect.blueprint.costs.hint";
     public static final String TOOLTIP_BLUEPRINT_COSTS_TITLE = "tooltip.architect.blueprint.costs.title";
+    public static final String TOOLTIP_BLUEPRINT_COSTS_TITLE_PAGED = "tooltip.architect.blueprint.costs.title.paged";
     public static final String TOOLTIP_BLUEPRINT_COSTS_LINE = "tooltip.architect.blueprint.costs.line";
     public static final String TOOLTIP_BLUEPRINT_COSTS_UNKNOWN = "tooltip.architect.blueprint.costs.unknown";
     public static final String TOOLTIP_PROVIDER_ITEM = "tooltip.architect.provider.item";

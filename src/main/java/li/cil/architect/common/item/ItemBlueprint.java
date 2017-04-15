@@ -18,6 +18,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -25,12 +26,18 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
+import java.lang.ref.WeakReference;
 import java.util.Comparator;
 import java.util.List;
 
 public final class ItemBlueprint extends AbstractItem {
     // --------------------------------------------------------------------- //
     // Computed data.
+
+    private static final int COSTS_PER_PAGE = 10;
+    private static WeakReference<ItemStack> tooltipStack;
+    private static long tooltipStart;
+    private static long tooltipLast;
 
     // NBT tag names.
     private static final String TAG_BLUEPRINT = "blueprint";
@@ -74,16 +81,7 @@ public final class ItemBlueprint extends AbstractItem {
 
         final KeyBinding keyBind = Minecraft.getMinecraft().gameSettings.keyBindSneak;
         if (Keyboard.isKeyDown(keyBind.getKeyCode())) {
-            final List<ItemStack> costs = data.getCosts();
-            costs.sort(Comparator.comparing(ItemStack::getDisplayName));
-            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_TITLE));
-            if (!costs.isEmpty()) {
-                for (final ItemStack cost : costs) {
-                    tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_LINE, cost.getCount(), cost.getDisplayName()));
-                }
-            } else {
-                tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_UNKNOWN));
-            }
+            addCosts(stack, tooltip, data);
         } else {
             tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_HINT, Keyboard.getKeyName(keyBind.getKeyCode())));
         }
@@ -139,6 +137,45 @@ public final class ItemBlueprint extends AbstractItem {
     }
 
     // --------------------------------------------------------------------- //
+
+    @SideOnly(Side.CLIENT)
+    private void addCosts(final ItemStack stack, final List<String> tooltip, final BlueprintData data) {
+        final List<ItemStack> costs = data.getCosts();
+        if (costs.isEmpty()) {
+            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_UNKNOWN));
+            return;
+        }
+
+        costs.sort(Comparator.comparing(ItemStack::getDisplayName));
+
+        final int pages = MathHelper.ceil(costs.size() / (float) COSTS_PER_PAGE);
+
+        // Rewind to first page if we're showing a tooltip for a different stack
+        // or didn't show a tooltip in a while -- avoids page changes soon after
+        // starting to show a tooltip, which feels unpolished.
+        if (pages > 1) {
+            final ItemStack previousStack = tooltipStack != null ? tooltipStack.get() : null;
+            if ((System.currentTimeMillis() - tooltipLast) > 100 || previousStack != stack) {
+                tooltipStack = new WeakReference<>(stack);
+                tooltipStart = System.currentTimeMillis();
+            }
+            tooltipLast = System.currentTimeMillis();
+        }
+
+        final int page = ((int) (System.currentTimeMillis() - tooltipStart) / 2500) % pages;
+
+        if (pages > 1) {
+            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_TITLE_PAGED, page + 1, pages));
+        } else {
+            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_TITLE));
+        }
+
+        final int offset = page * COSTS_PER_PAGE;
+        for (int i = offset, end = Math.min(costs.size(), offset + COSTS_PER_PAGE); i < end; i++) {
+            final ItemStack cost = costs.get(i);
+            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_LINE, cost.getCount(), cost.getDisplayName()));
+        }
+    }
 
     private void handleInput(final EntityPlayer player, final EnumHand hand, final BlockPos pos) {
         if (isUseDisabled()) {

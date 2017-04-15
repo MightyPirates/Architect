@@ -178,7 +178,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
         }
 
         final IBlockState state = world.getBlockState(pos);
-        if (Jasons.isBlacklisted(state.getBlock())) {
+        if (isBlacklisted(state.getBlock())) {
             return null;
         }
 
