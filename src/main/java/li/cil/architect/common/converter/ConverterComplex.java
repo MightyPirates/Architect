@@ -2,6 +2,7 @@ package li.cil.architect.common.converter;
 
 import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.api.converter.SortIndex;
+import li.cil.architect.api.prefab.converter.AbstractConverter;
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Jasons;
 import net.minecraft.block.Block;
@@ -9,12 +10,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public final class ConverterComplex extends AbstractConverterBase {
+public final class ConverterComplex extends AbstractConverter {
     private static final String TAG_NBT = "nbt";
 
     public ConverterComplex() {
@@ -35,13 +35,6 @@ public final class ConverterComplex extends AbstractConverterBase {
     protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
         final Block block = ConverterAPI.mapToBlock(state);
         return Jasons.isWhitelisted(block);
-    }
-
-    @Override
-    public void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
-        super.deserialize(world, pos, rotation, data);
-
-        world.neighborChanged(pos, world.getBlockState(pos).getBlock(), pos);
     }
 
     @Override

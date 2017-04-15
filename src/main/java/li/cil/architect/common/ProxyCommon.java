@@ -8,7 +8,7 @@ import li.cil.architect.common.config.ConverterFilter;
 import li.cil.architect.common.config.Jasons;
 import li.cil.architect.common.converter.ConverterComplex;
 import li.cil.architect.common.converter.ConverterFallingBlock;
-import li.cil.architect.common.converter.ConverterSolidBlock;
+import li.cil.architect.common.converter.ConverterSimpleBlock;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.integration.Integration;
 import li.cil.architect.common.jobs.JobManager;
@@ -56,7 +56,7 @@ public class ProxyCommon {
         MinecraftForge.EVENT_BUS.register(JobManager.INSTANCE);
 
         // Register built-in dynamic converter.
-        ConverterAPI.addConverter(new ConverterSolidBlock());
+        ConverterAPI.addConverter(new ConverterSimpleBlock());
         ConverterAPI.addConverter(new ConverterFallingBlock());
         ConverterAPI.addConverter(new ConverterComplex());
 

@@ -1,9 +1,11 @@
 package li.cil.architect.common.integration.minecraft;
 
 import li.cil.architect.api.converter.SortIndex;
+import li.cil.architect.api.prefab.converter.AbstractMultiBlockConverter;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class ConverterDoor extends AbstractMultiBlockConverter {
     ConverterDoor() {
@@ -14,7 +16,7 @@ public class ConverterDoor extends AbstractMultiBlockConverter {
     // AbstractMultiBlockConverter
 
     @Override
-    protected boolean canSerialize(final IBlockState state) {
+    protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
         return state.getBlock() instanceof BlockDoor;
     }
 

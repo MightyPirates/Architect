@@ -50,6 +50,10 @@ public abstract class AbstractConverter implements Converter {
     }
 
     // --------------------------------------------------------------------- //
+
+    protected abstract boolean canSerialize(final World world, final BlockPos pos, final IBlockState state);
+
+    // --------------------------------------------------------------------- //
     // Converter
 
     @Override
@@ -74,6 +78,12 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public int getSortIndex(final NBTBase data) {
         return sortIndex;
+    }
+
+    @Override
+    public boolean canSerialize(final World world, final BlockPos pos) {
+        final IBlockState state = world.getBlockState(pos);
+        return ConverterAPI.mapToItem(state.getBlock()) != Items.AIR && canSerialize(world, pos, state);
     }
 
     @Override
@@ -128,6 +138,16 @@ public abstract class AbstractConverter implements Converter {
         world.setBlockState(pos, state);
 
         postDeserialize(world, pos, state, nbt);
+
+        // Force a block update after deserializing non-static blocks to avoid
+        // them hanging around in invalid states.
+        switch (getSortIndex(data)) {
+            case SortIndex.ATTACHED_BLOCK:
+            case SortIndex.FALLING_BLOCK:
+            case SortIndex.FLUID_BLOCK:
+                world.neighborChanged(pos, world.getBlockState(pos).getBlock(), pos);
+                break;
+        }
     }
 
     @Override
