@@ -1,9 +1,11 @@
 package li.cil.architect.common.integration.minecraft;
 
+import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.prefab.converter.AbstractConverter;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,7 +32,7 @@ public class ConverterBed extends AbstractConverter {
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        return state.getBlock() instanceof BlockBed;
+        return state.getBlock() instanceof BlockBed && ConverterAPI.mapToItem(state.getBlock()) != Items.AIR;
     }
 
     @Override

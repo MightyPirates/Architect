@@ -1,10 +1,12 @@
 package li.cil.architect.common.integration.minecraft;
 
+import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.api.prefab.converter.AbstractConverter;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,7 +32,7 @@ public class ConverterDoor extends AbstractConverter {
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        return state.getBlock() instanceof BlockDoor;
+        return state.getBlock() instanceof BlockDoor && ConverterAPI.mapToItem(state.getBlock()) != Items.AIR;
     }
 
     @Override
