@@ -15,7 +15,7 @@ public final class SubCommandReload extends AbstractSubCommand {
 
     @Override
     public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) throws CommandException {
-        Jasons.loadJSON();
+        Jasons.loadJSON(false);
         notifyCommandListener(sender, this, Constants.COMMAND_RELOAD_SUCCESS);
     }
 }

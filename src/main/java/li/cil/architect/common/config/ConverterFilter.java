@@ -10,21 +10,23 @@ import java.util.Map;
 
 public final class ConverterFilter {
     private final Map<String, Object> nbtFilter;
+    private final Map<String, Object> nbtStripper;
     private int sortIndex;
 
     // --------------------------------------------------------------------- //
 
-    public ConverterFilter(final Map<String, Object> nbtFilter, final int sortIndex) {
+    public ConverterFilter(final Map<String, Object> nbtFilter, final Map<String, Object> nbtStripper, final int sortIndex) {
         this.sortIndex = sortIndex;
         this.nbtFilter = nbtFilter;
+        this.nbtStripper = nbtStripper;
     }
 
     public ConverterFilter(final int sortIndex) {
-        this(Collections.emptyMap(), sortIndex);
+        this(Collections.emptyMap(), Collections.emptyMap(), sortIndex);
     }
 
-    public ConverterFilter(final NBTTagCompound nbtFilter, final int sortIndex) {
-        this(convertToMap(nbtFilter), sortIndex);
+    public ConverterFilter(final NBTTagCompound nbtFilter, final NBTTagCompound nbtStripper, final int sortIndex) {
+        this(convertToMap(nbtFilter), convertToMap(nbtStripper), sortIndex);
     }
 
     public int getSortIndex() {
@@ -39,8 +41,16 @@ public final class ConverterFilter {
         return nbtFilter;
     }
 
+    public Map<String, Object> getNbtStripper() {
+        return nbtStripper;
+    }
+
     public void filter(final NBTTagCompound nbt) {
         filter(nbt, nbtFilter);
+    }
+
+    public void strip(final NBTTagCompound nbt) {
+        strip(nbt, nbtStripper);
     }
 
     // --------------------------------------------------------------------- //
@@ -55,6 +65,23 @@ public final class ConverterFilter {
                 if (filterValue instanceof Map && value instanceof NBTTagCompound) {
                     filter((NBTTagCompound) value, (Map<String, Object>) filterValue);
                 }
+            } else {
+                iterator.remove();
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void strip(final NBTTagCompound nbt, final Map<String, Object> filter) {
+        for (final Iterator<String> iterator = nbt.getKeySet().iterator(); iterator.hasNext(); ) {
+            final String key = iterator.next();
+            if (!filter.containsKey(key)) {
+                continue;
+            }
+            final NBTBase value = nbt.getTag(key);
+            final Object filterValue = filter.get(key);
+            if (filterValue instanceof Map && value instanceof NBTTagCompound) {
+                strip((NBTTagCompound) value, (Map<String, Object>) filterValue);
             } else {
                 iterator.remove();
             }

@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 public class ProxyCommon {
     public void onPreInit(final FMLPreInitializationEvent event) {
         // Load additional JSON based settings (black/whitelists, mappings).
-        Jasons.loadJSON();
+        Jasons.loadJSON(true);
 
         // Initialize API.
         API.creativeTab = new CreativeTab();
@@ -74,7 +74,7 @@ public class ProxyCommon {
             switch (message.key) {
                 case API.IMC_BLACKLIST: {
                     if (message.isResourceLocationMessage()) {
-                        Jasons.addToVolatileBlacklist(message.getResourceLocationValue());
+                        Jasons.addToIMCBlacklist(message.getResourceLocationValue());
                         Architect.getLog().info("Mod {} added {} to the blacklist.", message.getSender(), message.getResourceLocationValue());
                     } else {
                         Architect.getLog().warn("Mod {} tried to add something to the blacklist but the value is not a ResourceLocation.", message.getSender());
@@ -86,7 +86,8 @@ public class ProxyCommon {
                         final ResourceLocation name = new ResourceLocation(message.getNBTValue().getString("name"));
                         final int sortIndex = message.getNBTValue().getInteger("sortIndex");
                         final NBTTagCompound nbtFilter = message.getNBTValue().getCompoundTag("nbtFilter");
-                        Jasons.addToVolatileWhitelist(name, new ConverterFilter(nbtFilter, sortIndex));
+                        final NBTTagCompound nbtStripper = message.getNBTValue().getCompoundTag("nbtStripper");
+                        Jasons.addToIMCWhitelist(name, new ConverterFilter(nbtFilter, nbtStripper, sortIndex));
                     } else {
                         Architect.getLog().warn("Mod {} tried to add something to the whitelist but the value is not a tag compound.", message.getSender());
                     }
@@ -96,7 +97,7 @@ public class ProxyCommon {
                     if (message.isNBTMessage()) {
                         final ResourceLocation from = new ResourceLocation(message.getNBTValue().getString("from"));
                         final ResourceLocation to = new ResourceLocation(message.getNBTValue().getString("to"));
-                        Jasons.addVolatileBlockMapping(from, to);
+                        Jasons.addIMCBlockMapping(from, to);
                         Architect.getLog().info("Mod {} added a mapping from block {} to block {}.", message.getSender(), from, to);
                     } else {
                         Architect.getLog().warn("Mod {} tried to add a block mapping but the value is not a tag compound.", message.getSender());
@@ -107,7 +108,7 @@ public class ProxyCommon {
                     if (message.isNBTMessage()) {
                         final ResourceLocation from = new ResourceLocation(message.getNBTValue().getString("from"));
                         final ResourceLocation to = new ResourceLocation(message.getNBTValue().getString("to"));
-                        Jasons.addVolatileItemMapping(from, to);
+                        Jasons.addIMCItemMapping(from, to);
                         Architect.getLog().info("Mod {} added a mapping from block {} to item {}.", message.getSender(), from, to);
                     } else {
                         Architect.getLog().warn("Mod {} tried to add an item mapping but the value is not a tag compound.", message.getSender());

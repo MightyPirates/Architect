@@ -17,7 +17,9 @@ import java.util.Map;
 
 public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, JsonDeserializer<ConverterFilter> {
     private static final String KEY_SORT_INDEX = "sortIndex";
-    private static final String KEY_NBT_FILTER = "nbt";
+    private static final String KEY_NBT_FILTER = "filter";
+    private static final String KEY_NBT_FILTER_LEGACY = "nbt";
+    private static final String KEY_NBT_STRIP = "strip";
     private static final String SORT_INDEX_SOLID = "solid";
     private static final String SORT_INDEX_FALLING = "falling";
     private static final String SORT_INDEX_ATTACHED = "attached";
@@ -29,6 +31,7 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
     @Override
     public JsonElement serialize(final ConverterFilter src, final Type typeOfSrc, final JsonSerializationContext context) {
         final JsonObject converterJson = new JsonObject();
+
         final int sortIndex = src.getSortIndex();
         if (sortIndex == SortIndex.SOLID_BLOCK) {
             // Default, don't need to save.
@@ -41,9 +44,15 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
         } else {
             converterJson.addProperty(KEY_SORT_INDEX, src.getSortIndex());
         }
+
         if (!src.getNbtFilter().isEmpty()) {
             converterJson.add(KEY_NBT_FILTER, serialize(src.getNbtFilter()));
         }
+
+        if (!src.getNbtStripper().isEmpty()) {
+            converterJson.add(KEY_NBT_STRIP, serialize(src.getNbtStripper()));
+        }
+
         return converterJson;
     }
 
@@ -53,9 +62,10 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
     @Override
     public ConverterFilter deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
         if (!json.isJsonObject()) {
-            return new ConverterFilter(Collections.emptyMap(), 0);
+            throw new JsonParseException("Filter entry is not a JSON object.");
         }
         final JsonObject converterJson = json.getAsJsonObject();
+
         final JsonElement sortIndexJson = converterJson.get(KEY_SORT_INDEX);
         final int sortIndex;
         if (sortIndexJson == null || SORT_INDEX_SOLID.equals(sortIndexJson.getAsString())) {
@@ -69,14 +79,27 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
         } else {
             sortIndex = sortIndexJson.getAsInt();
         }
-        final JsonElement nbtJson = converterJson.get(KEY_NBT_FILTER);
+
+        JsonElement filterJson = converterJson.get(KEY_NBT_FILTER);
+        if (filterJson == null) {
+            filterJson = converterJson.get(KEY_NBT_FILTER_LEGACY);
+        }
         final Map<String, Object> nbtFilter;
-        if (nbtJson != null) {
-            nbtFilter = deserialize(nbtJson);
+        if (filterJson != null) {
+            nbtFilter = deserialize(filterJson);
         } else {
             nbtFilter = Collections.emptyMap();
         }
-        return new ConverterFilter(nbtFilter, sortIndex);
+
+        final JsonElement stripperJson = converterJson.get(KEY_NBT_STRIP);
+        final Map<String, Object> nbtStripper;
+        if (stripperJson != null) {
+            nbtStripper = deserialize(stripperJson);
+        } else {
+            nbtStripper = Collections.emptyMap();
+        }
+
+        return new ConverterFilter(nbtFilter, nbtStripper, sortIndex);
     }
 
     // --------------------------------------------------------------------- //
