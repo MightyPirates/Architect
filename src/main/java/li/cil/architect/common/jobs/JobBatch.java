@@ -10,6 +10,7 @@ import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.converter.MaterialSourceImpl;
 import li.cil.architect.common.inventory.CompoundItemHandler;
 import li.cil.architect.common.item.ItemProviderItem;
+import li.cil.architect.util.ItemStackUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -173,7 +174,7 @@ class JobBatch implements JobManager.JobConsumer {
             final int slotCount = player.inventory.getSizeInventory();
             for (int slot = 0; slot < slotCount; slot++) {
                 final ItemStack stack = player.inventory.getStackInSlot(slot);
-                if (stack.isEmpty()) {
+                if (ItemStackUtils.isEmpty(stack)) {
                     continue;
                 }
 

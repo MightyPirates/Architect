@@ -107,14 +107,14 @@ public enum JobManager {
     public void onChunkLoad(final ChunkDataEvent.Load event) {
         assert !event.getWorld().isRemote;
         final JobManagerImpl manager = getInstance(event.getWorld());
-        manager.loadChunk(event.getChunk().getPos(), event.getData());
+        manager.loadChunk(event.getChunk().getChunkCoordIntPair(), event.getData());
     }
 
     @SubscribeEvent
     public void onChunkSave(final ChunkDataEvent.Save event) {
         assert !event.getWorld().isRemote;
         final JobManagerImpl manager = getInstance(event.getWorld());
-        manager.saveChunk(event.getChunk().getPos(), event.getData());
+        manager.saveChunk(event.getChunk().getChunkCoordIntPair(), event.getData());
     }
 
     @SubscribeEvent
@@ -123,7 +123,7 @@ public enum JobManager {
             return;
         }
         final JobManagerImpl manager = getInstance(event.getWorld());
-        manager.unloadChunk(event.getChunk().getPos());
+        manager.unloadChunk(event.getChunk().getChunkCoordIntPair());
     }
 
     // --------------------------------------------------------------------- //

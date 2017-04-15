@@ -3,6 +3,7 @@ package li.cil.architect.client.input;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.network.Network;
 import li.cil.architect.common.network.message.MessageBlueprintShift;
+import li.cil.architect.util.ItemStackUtils;
 import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,7 +27,7 @@ public enum MouseEventHandlerBlueprint {
         }
 
         final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
-        if (stack.isEmpty()) {
+        if (ItemStackUtils.isEmpty(stack)) {
             return;
         }
 

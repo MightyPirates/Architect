@@ -44,6 +44,7 @@ public interface MaterialSource {
      * @param stack the type of item to look for.
      * @return the extracted item stack.
      */
+    @Nullable
     ItemStack extractItem(final ItemStack stack);
 
     /**

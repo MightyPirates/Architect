@@ -69,7 +69,7 @@ public final class ItemBlueprint extends AbstractItem {
     @Override
     public void addInformation(final ItemStack stack, final EntityPlayer playerIn, final List<String> tooltip, final boolean advanced) {
         super.addInformation(stack, playerIn, tooltip, advanced);
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
 
         final BlueprintData data = getData(stack);
         final String info = I18n.format(Constants.TOOLTIP_BLUEPRINT);
@@ -88,17 +88,17 @@ public final class ItemBlueprint extends AbstractItem {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
+    public ActionResult<ItemStack> onItemRightClick(final ItemStack stack, final World world, final EntityPlayer player, final EnumHand hand) {
         if (player.isSneaking()) {
             player.setActiveHand(hand);
         } else if (!world.isRemote) {
             handleInput(player, hand, PlayerUtils.getLookAtPos(player));
         }
-        return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
-    public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
+    public EnumActionResult onItemUse(final ItemStack stack, final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
         if (!world.isRemote) {
             handleInput(player, hand, pos);
         }
@@ -173,7 +173,7 @@ public final class ItemBlueprint extends AbstractItem {
         final int offset = page * COSTS_PER_PAGE;
         for (int i = offset, end = Math.min(costs.size(), offset + COSTS_PER_PAGE); i < end; i++) {
             final ItemStack cost = costs.get(i);
-            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_LINE, cost.getCount(), cost.getDisplayName()));
+            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_LINE, cost.stackSize, cost.getDisplayName()));
         }
     }
 
@@ -183,6 +183,7 @@ public final class ItemBlueprint extends AbstractItem {
         }
 
         final ItemStack stack = player.getHeldItem(hand);
+        assert stack != null;
         final BlueprintData data = getData(stack);
         data.createJobs(player, pos);
     }

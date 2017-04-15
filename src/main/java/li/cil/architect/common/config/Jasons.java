@@ -10,7 +10,6 @@ import li.cil.architect.common.json.ResourceLocationAdapter;
 import li.cil.architect.common.json.Types;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -139,6 +138,7 @@ public final class Jasons {
         return (mappedBlock == null || mappedBlock == Blocks.AIR) ? block : mappedBlock;
     }
 
+    @Nullable
     public static Item mapBlockToItem(final Block block) {
         final ResourceLocation blockLocation = block.getRegistryName();
         if (blockLocation == null) {
@@ -152,7 +152,7 @@ public final class Jasons {
             return Item.getItemFromBlock(block);
         }
         final Item item = ForgeRegistries.ITEMS.getValue(itemLocation);
-        return (item == null || item == Items.AIR) ? Item.getItemFromBlock(block) : item;
+        return item == null ? Item.getItemFromBlock(block) : item;
     }
 
     // --------------------------------------------------------------------- //

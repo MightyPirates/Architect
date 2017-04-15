@@ -86,7 +86,7 @@ public final class ItemSketch extends AbstractItem {
     @Override
     public void addInformation(final ItemStack stack, final EntityPlayer playerIn, final List<String> tooltip, final boolean advanced) {
         super.addInformation(stack, playerIn, tooltip, advanced);
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
 
         final SketchData data = getData(stack);
         if (!data.isEmpty()) {
@@ -103,18 +103,17 @@ public final class ItemSketch extends AbstractItem {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
-        final ItemStack stack = player.getHeldItem(hand);
+    public ActionResult<ItemStack> onItemRightClick(final ItemStack stack, final World world, final EntityPlayer player, final EnumHand hand) {
         if (!player.isSneaking() && !hasRangeSelection(stack) && !getData(stack).isEmpty()) {
             player.setActiveHand(hand);
         } else if (!world.isRemote) {
             handleInput(player, hand, PlayerUtils.getLookAtPos(player), false);
         }
-        return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
-    public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
+    public EnumActionResult onItemUse(final ItemStack stack, final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
         if (!world.isRemote) {
             handleInput(player, hand, pos, true);
         }
@@ -208,6 +207,7 @@ public final class ItemSketch extends AbstractItem {
 
         final World world = player.getEntityWorld();
         final ItemStack stack = player.getHeldItem(hand);
+        assert stack != null;
         if (hasRangeSelection(stack)) {
             final AxisAlignedBB range = getRangeSelection(stack, pos);
             if (range == null) {

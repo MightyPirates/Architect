@@ -82,11 +82,12 @@ public final class ConverterAPI {
      * @param block the block to get the item for.
      * @return the item for that block.
      */
+    @Nullable
     public static Item mapToItem(final Block block) {
         if (API.converterAPI != null) {
             return API.converterAPI.mapToItem(block);
         }
-        return Items.AIR;
+        return null;
     }
 
     // --------------------------------------------------------------------- //

@@ -95,7 +95,7 @@ public abstract class AbstractProvider extends AbstractItem {
     public void addInformation(final ItemStack stack, final EntityPlayer player, final List<String> tooltip, final boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         final String info = I18n.format(getTooltip());
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
         tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
 
         if (isBound(stack)) {
@@ -105,11 +105,10 @@ public abstract class AbstractProvider extends AbstractItem {
     }
 
     @Override
-    public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing side, final float hitX, final float hitY, final float hitZ) {
+    public EnumActionResult onItemUse(final ItemStack stack, final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing side, final float hitX, final float hitY, final float hitZ) {
         final TileEntity tileEntity = world.getTileEntity(pos);
         if (tileEntity != null && isValidTarget(tileEntity, side)) {
             if (player.isSneaking() && !world.isRemote) {
-                final ItemStack stack = player.getHeldItem(hand);
                 final NBTTagCompound dataNbt = getDataTag(stack);
                 dataNbt.setInteger(TAG_DIMENSION, world.provider.getDimension());
                 dataNbt.setLong(TAG_POSITION, pos.toLong());
@@ -122,8 +121,7 @@ public abstract class AbstractProvider extends AbstractItem {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
-        final ItemStack stack = player.getHeldItem(hand);
+    public ActionResult<ItemStack> onItemRightClick(final ItemStack stack, final World world, final EntityPlayer player, final EnumHand hand) {
         if (player.isSneaking()) {
             if (!world.isRemote) {
                 final NBTTagCompound dataNbt = getDataTag(stack);

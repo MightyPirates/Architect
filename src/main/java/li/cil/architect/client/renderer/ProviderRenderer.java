@@ -2,6 +2,7 @@ package li.cil.architect.client.renderer;
 
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.AbstractProvider;
+import li.cil.architect.util.ItemStackUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -32,7 +33,7 @@ public enum ProviderRenderer {
         final EntityPlayer player = mc.player;
 
         final ItemStack stack = Items.getHeldItem(player, Items::isProvider);
-        if (stack.isEmpty()) {
+        if (ItemStackUtils.isEmpty(stack)) {
             return;
         }
 

@@ -3,6 +3,7 @@ package li.cil.architect.client.renderer;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.ItemBlueprint;
 import li.cil.architect.common.item.data.BlueprintData;
+import li.cil.architect.util.ItemStackUtils;
 import li.cil.architect.util.PlayerUtils;
 import li.cil.architect.util.WorldUtils;
 import net.minecraft.client.Minecraft;
@@ -37,7 +38,7 @@ public enum BlueprintRenderer {
         final World world = mc.world;
 
         final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
-        if (stack.isEmpty()) {
+        if (ItemStackUtils.isEmpty(stack)) {
             return;
         }
 

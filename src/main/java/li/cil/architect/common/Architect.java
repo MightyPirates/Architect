@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
  * Entry point for FML.
  */
 @Mod(modid = API.MOD_ID, version = API.MOD_VERSION, name = Constants.MOD_NAME,
-     guiFactory = Constants.GUI_FACTORY, useMetadata = true)
+     useMetadata = true)
 public final class Architect {
 
     // --------------------------------------------------------------------- //

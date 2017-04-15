@@ -1,6 +1,7 @@
 package li.cil.architect.common.converter;
 
 import li.cil.architect.api.converter.MaterialSource;
+import li.cil.architect.util.ItemStackUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -28,6 +29,7 @@ public final class MaterialSourceImpl implements MaterialSource {
         return handler;
     }
 
+    @Nullable
     @Override
     public ItemStack extractItem(final ItemStack wantStack) {
         if (isCreative) {
@@ -39,13 +41,13 @@ public final class MaterialSourceImpl implements MaterialSource {
             if (haveStack.isItemEqual(wantStack)) {
                 final ItemStack extractedStack = handler.extractItem(slot, 1, false);
                 assert extractedStack.isItemEqual(wantStack);
-                if (!extractedStack.isEmpty()) {
+                if (!ItemStackUtils.isEmpty(extractedStack)) {
                     return extractedStack;
                 }
             }
         }
 
-        return ItemStack.EMPTY;
+        return null;
     }
 
     @Override

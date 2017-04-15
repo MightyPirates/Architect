@@ -61,6 +61,7 @@ public interface ConverterAPI {
      * @param block the block to get the item for.
      * @return the item for that block.
      */
+    @Nullable
     Item mapToItem(final Block block);
 
     // --------------------------------------------------------------------- //

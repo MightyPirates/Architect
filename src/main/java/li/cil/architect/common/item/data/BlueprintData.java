@@ -228,11 +228,11 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
             final NBTTagCompound data = blockData.get(i);
             final Iterable<ItemStack> costs = ConverterAPI.getItemCosts(data);
             for (final ItemStack cost : costs) {
-                cost.setCount(cost.getCount() * counts[i]);
+                cost.stackSize = cost.stackSize * counts[i];
                 boolean found = false;
                 for (final ItemStack knownCost : knownCosts) {
                     if (ItemStack.areItemsEqual(cost, knownCost) && ItemStack.areItemStackTagsEqual(cost, knownCost)) {
-                        knownCost.grow(cost.getCount());
+                        knownCost.stackSize += cost.stackSize;
                         found = true;
                         break;
                     }

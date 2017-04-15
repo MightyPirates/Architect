@@ -7,7 +7,6 @@ import li.cil.architect.api.converter.SortIndex;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -59,7 +58,7 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public Iterable<ItemStack> getItemCosts(final NBTBase data) {
         final ItemStack wantStack = getItemStack(data);
-        if (wantStack.isEmpty()) {
+        if (isEmpty(wantStack)) {
             return Collections.emptyList();
         }
         return Collections.singleton(wantStack);
@@ -83,7 +82,7 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        return ConverterAPI.mapToItem(state.getBlock()) != Items.AIR && canSerialize(world, pos, state);
+        return ConverterAPI.mapToItem(state.getBlock()) != null && canSerialize(world, pos, state);
     }
 
     @Override
@@ -110,12 +109,12 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public boolean preDeserialize(final MaterialSource materialSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
         final ItemStack wantStack = getItemStack(data);
-        if (wantStack.isEmpty()) {
+        if (isEmpty(wantStack)) {
             return true;
         }
 
         final ItemStack haveStack = materialSource.extractItem(wantStack);
-        return !haveStack.isEmpty();
+        return !isEmpty(haveStack);
     }
 
     @SuppressWarnings("deprecation")
@@ -154,7 +153,7 @@ public abstract class AbstractConverter implements Converter {
             case SortIndex.ATTACHED_BLOCK:
             case SortIndex.FALLING_BLOCK:
             case SortIndex.FLUID_BLOCK:
-                world.neighborChanged(pos, world.getBlockState(pos).getBlock(), pos);
+                world.notifyBlockOfStateChange(pos, world.getBlockState(pos).getBlock());
                 break;
         }
     }
@@ -162,7 +161,7 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public void cancelDeserialization(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
         final ItemStack wantStack = getItemStack(data);
-        if (!wantStack.isEmpty()) {
+        if (!isEmpty(wantStack)) {
             InventoryHelper.spawnItemStack(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, wantStack);
         }
     }
@@ -227,15 +226,16 @@ public abstract class AbstractConverter implements Converter {
      * @param data the serialized representation of the block.
      * @return the material cost for the block.
      */
+    @Nullable
     protected ItemStack getItemStack(final NBTBase data) {
         final IBlockState state = getBlockState(data);
         if (state == null) {
-            return ItemStack.EMPTY;
+            return null;
         }
 
         final Item item = ConverterAPI.mapToItem(state.getBlock());
-        if (item == Items.AIR) {
-            return ItemStack.EMPTY;
+        if (item == null) {
+            return null;
         }
 
         return getItemStack(item, state, data);
@@ -252,5 +252,11 @@ public abstract class AbstractConverter implements Converter {
      */
     protected ItemStack getItemStack(final Item item, final IBlockState state, final NBTBase data) {
         return new ItemStack(item, 1, state.getBlock().damageDropped(state));
+    }
+
+    // --------------------------------------------------------------------- //
+
+    private static boolean isEmpty(@Nullable final ItemStack stack) {
+        return stack == null || stack.getItem() == null || stack.stackSize <= 0;
     }
 }

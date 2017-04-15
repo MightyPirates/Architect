@@ -55,6 +55,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
         return Jasons.mapBlockToBlock(state.getBlock());
     }
 
+    @Nullable
     @Override
     public Item mapToItem(final Block block) {
         return Jasons.mapBlockToItem(block);

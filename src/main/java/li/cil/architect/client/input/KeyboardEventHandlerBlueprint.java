@@ -4,6 +4,7 @@ import li.cil.architect.client.KeyBindings;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.network.Network;
 import li.cil.architect.common.network.message.MessageBlueprintRotate;
+import li.cil.architect.util.ItemStackUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -22,7 +23,7 @@ public enum KeyboardEventHandlerBlueprint {
 
         final EntityPlayer player = Minecraft.getMinecraft().player;
         final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
-        if (stack.isEmpty()) {
+        if (ItemStackUtils.isEmpty(stack)) {
             return;
         }
 

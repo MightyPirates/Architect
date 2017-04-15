@@ -1,6 +1,7 @@
 package li.cil.architect.client.input;
 
 import li.cil.architect.common.init.Items;
+import li.cil.architect.util.ItemStackUtils;
 import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,7 +24,7 @@ public enum MouseEventHandlerSketch {
         }
 
         final ItemStack stack = Items.getHeldItem(player, Items::isSketch);
-        if (stack.isEmpty()) {
+        if (ItemStackUtils.isEmpty(stack)) {
             return;
         }
 

@@ -54,14 +54,6 @@ public final class CompoundItemHandler implements IItemHandler {
         return handler.extractItem(localSlot, amount, simulate);
     }
 
-    @Override
-    public int getSlotLimit(final int slot) {
-        final int index = getIndexForSlot(slot);
-        final IItemHandler handler = getHandlerFromIndex(index);
-        final int localSlot = getLocalSlotFromIndex(slot, index);
-        return handler.getSlotLimit(localSlot);
-    }
-
     // --------------------------------------------------------------------- //
 
     private int getIndexForSlot(final int slot) {

@@ -4,6 +4,7 @@ import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.ItemSketch;
 import li.cil.architect.common.item.data.SketchData;
+import li.cil.architect.util.ItemStackUtils;
 import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -35,7 +36,7 @@ public enum SketchRenderer {
         final EntityPlayer player = mc.player;
 
         final ItemStack stack = Items.getHeldItem(player, Items::isSketch);
-        if (stack.isEmpty()) {
+        if (ItemStackUtils.isEmpty(stack)) {
             return;
         }
 

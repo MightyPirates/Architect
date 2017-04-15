@@ -5,6 +5,7 @@ import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.ItemBlueprint;
 import li.cil.architect.common.item.data.BlueprintData;
 import li.cil.architect.common.network.message.MessageClipboard;
+import li.cil.architect.util.ItemStackUtils;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -20,9 +21,9 @@ import java.util.Base64;
 public final class MessageHandlerClipboardServer extends AbstractMessageHandler<MessageClipboard> {
     @Override
     protected void onMessageSynchronized(final MessageClipboard message, final MessageContext context) {
-        final EntityPlayerMP player = context.getServerHandler().player;
+        final EntityPlayerMP player = context.getServerHandler().playerEntity;
         final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
-        if (stack.isEmpty()) {
+        if (ItemStackUtils.isEmpty(stack)) {
             return;
         }
 

@@ -5,6 +5,7 @@ import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.item.ItemBlueprint;
 import li.cil.architect.common.item.ItemProviderItem;
 import li.cil.architect.common.item.ItemSketch;
+import li.cil.architect.util.ItemStackUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -13,6 +14,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
+import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
 /**
@@ -25,18 +27,19 @@ public final class Items {
 
     // --------------------------------------------------------------------- //
 
-    public static boolean isSketch(final ItemStack stack) {
+    public static boolean isSketch(@Nullable final ItemStack stack) {
         return isItem(stack, sketch);
     }
 
-    public static boolean isBlueprint(final ItemStack stack) {
+    public static boolean isBlueprint(@Nullable final ItemStack stack) {
         return isItem(stack, blueprint);
     }
 
-    public static boolean isProvider(final ItemStack stack) {
+    public static boolean isProvider(@Nullable final ItemStack stack) {
         return isItem(stack, providerItem);
     }
 
+    @Nullable
     public static ItemStack getHeldItem(final EntityPlayer player, final Predicate<ItemStack> filter) {
         ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
         if (filter.test(stack)) {
@@ -46,7 +49,7 @@ public final class Items {
         if (filter.test(stack)) {
             return stack;
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
     // --------------------------------------------------------------------- //
@@ -81,8 +84,8 @@ public final class Items {
 
     // --------------------------------------------------------------------- //
 
-    private static boolean isItem(final ItemStack stack, final Item item) {
-        return !stack.isEmpty() && stack.getItem() == item;
+    private static boolean isItem(@Nullable final ItemStack stack, final Item item) {
+        return !ItemStackUtils.isEmpty(stack) && stack.getItem() == item;
     }
 
     // --------------------------------------------------------------------- //
