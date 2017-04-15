@@ -27,7 +27,6 @@ public final class Constants {
     public static final UUID UUID_CONVERTER_SOLID_BLOCKS = UUID.fromString("20a9cafc-d21c-49cd-9a40-f8ea34c91984");
     public static final UUID UUID_CONVERTER_FALLING_BLOCKS = UUID.fromString("74365f58-01c6-4b85-b069-e73656e57064");
     public static final UUID UUID_CONVERTER_TILE_ENTITY = UUID.fromString("daf02728-b4b7-4530-84ba-2fb50dcdc8b1");
-    public static final UUID UUID_CONVERTER_MINECRAFT_DOOR = UUID.fromString("b73a07f1-d551-4f0a-b464-5cd08432dab0");
 
     // --------------------------------------------------------------------- //
     // Tooltips

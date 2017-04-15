@@ -142,10 +142,14 @@ public final class ConverterAPIImpl implements ConverterAPI {
             return;
         }
 
-        if (!isValidPosition(world, pos)) {
-            converter.cancelDeserialization(world, pos, rotation, data.getTag(TAG_DATA));
-        } else {
-            converter.deserialize(world, pos, rotation, data.getTag(TAG_DATA));
+        try {
+            if (!isValidPosition(world, pos)) {
+                converter.cancelDeserialization(world, pos, rotation, data.getTag(TAG_DATA));
+            } else {
+                converter.deserialize(world, pos, rotation, data.getTag(TAG_DATA));
+            }
+        } catch (final Throwable e) {
+            Architect.getLog().warn("Converter threw up while deserializing.", e);
         }
 
         final IBlockState state = world.getBlockState(pos);
