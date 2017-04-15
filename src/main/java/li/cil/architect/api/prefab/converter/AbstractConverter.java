@@ -13,6 +13,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -138,6 +139,13 @@ public abstract class AbstractConverter implements Converter {
         world.setBlockState(pos, state);
 
         postDeserialize(world, pos, state, nbt);
+
+        if (block.hasTileEntity(state)) {
+            final TileEntity tileEntity = world.getTileEntity(pos);
+            if (tileEntity != null) {
+                tileEntity.rotate(rotation);
+            }
+        }
 
         // Force a block update after deserializing non-static blocks to avoid
         // them hanging around in invalid states.
