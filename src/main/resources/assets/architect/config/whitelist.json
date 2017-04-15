@@ -5,7 +5,7 @@
   "minecraft:brewing_stand": {},
   "minecraft:brown_shulker_box": {},
   "minecraft:chain_command_block": {
-    "nbt": {
+    "filter": {
       "conditionMet": "BYTE",
       "auto": "BYTE",
       "CustomName": "STRING",
@@ -17,7 +17,7 @@
   },
   "minecraft:chest": {},
   "minecraft:command_block": {
-    "nbt": {
+    "filter": {
       "conditionMet": "BYTE",
       "auto": "BYTE",
       "CustomName": "STRING",
@@ -44,7 +44,7 @@
   "minecraft:lit_furnace": {},
   "minecraft:magenta_shulker_box": {},
   "minecraft:noteblock": {
-    "nbt": {
+    "filter": {
       "note": "BYTE"
     }
   },
@@ -54,7 +54,7 @@
   "minecraft:purple_shulker_box": {},
   "minecraft:red_shulker_box": {},
   "minecraft:repeating_command_block": {
-    "nbt": {
+    "filter": {
       "conditionMet": "BYTE",
       "auto": "BYTE",
       "CustomName": "STRING",
@@ -66,14 +66,14 @@
   },
   "minecraft:silver_shulker_box": {},
   "minecraft:skull": {
-    "nbt": {
+    "filter": {
       "Rot": "BYTE",
       "SkullType": "BYTE"
     }
   },
   "minecraft:standing_sign": {
     "sortIndex": "attached",
-    "nbt": {
+    "filter": {
       "Text4": "STRING",
       "Text3": "STRING",
       "Text2": "STRING",
@@ -82,7 +82,7 @@
   },
   "minecraft:sticky_piston": {},
   "minecraft:structure_block": {
-    "nbt": {
+    "filter": {
       "metadata": "STRING",
       "mirror": "STRING",
       "ignoreEntities": "BYTE",
@@ -109,7 +109,7 @@
   },
   "minecraft:wall_sign": {
     "sortIndex": "attached",
-    "nbt": {
+    "filter": {
       "Text4": "STRING",
       "Text3": "STRING",
       "Text2": "STRING",

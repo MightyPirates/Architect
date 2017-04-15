@@ -41,15 +41,35 @@ import java.util.stream.Collectors;
  */
 public final class Jasons {
     /**
-     * The list of blocks to ignore in built-in converters.
+     * The list of blocks to ignore in built-in converters, user configurable.
      */
     private static final Set<ResourceLocation> blacklist = new LinkedHashSet<>();
 
     /**
+     * Same as {@link #blacklist}, but never saved, filled via IMCs.
+     */
+    private static final Set<ResourceLocation> blacklistIMC = new HashSet<>();
+
+    /**
+     * Same as {@link #blacklist}, but never saved, built-in defaults.
+     */
+    private static final Set<ResourceLocation> blacklistDefaults = new HashSet<>();
+
+    /**
      * The list of blocks with tile entities allowed to be converted by
-     * built-in converters.
+     * built-in converters, user configurable.
      */
     private static final Map<ResourceLocation, ConverterFilter> whitelist = new LinkedHashMap<>();
+
+    /**
+     * Same as {@link #whitelist}, but never saved, filled via IMCs.
+     */
+    private static final Map<ResourceLocation, ConverterFilter> whitelistIMC = new LinkedHashMap<>();
+
+    /**
+     * Same as {@link #whitelist}, but never saved, built-in defaults.
+     */
+    private static final Map<ResourceLocation, ConverterFilter> whitelistDefaults = new LinkedHashMap<>();
 
     /**
      * The mappings of blocks to other blocks for replacements in blueprints.
@@ -57,48 +77,68 @@ public final class Jasons {
     private static final Map<ResourceLocation, ResourceLocation> blockToBlockMapping = new LinkedHashMap<>();
 
     /**
+     * Same as {@link #blockToBlockMapping}, but never saved, filled via IMCs.
+     */
+    private static final Map<ResourceLocation, ResourceLocation> blockToBlockMappingIMC = new LinkedHashMap<>();
+
+    /**
+     * Same as {@link #blockToBlockMapping}, but never saved, built-in defaults.
+     */
+    private static final Map<ResourceLocation, ResourceLocation> blockToBlockMappingDefaults = new LinkedHashMap<>();
+
+    /**
      * The mappings of blocks to items for lookup of items for blocks.
      */
     private static final Map<ResourceLocation, ResourceLocation> blockToItemMapping = new LinkedHashMap<>();
 
     /**
-     * Same as {@link #blacklist}, but never saved.
+     * Same as {@link #blockToItemMapping}, but never saved, filled via IMCs.
      */
-    private static final Set<ResourceLocation> blacklistVolatile = new HashSet<>();
+    private static final Map<ResourceLocation, ResourceLocation> blockToItemMappingIMC = new LinkedHashMap<>();
 
     /**
-     * Same as {@link #whitelist}, but never saved.
+     * Same as {@link #blockToItemMapping}, but never saved, built-in defaults.
      */
-    private static final Map<ResourceLocation, ConverterFilter> whitelistVolatile = new LinkedHashMap<>();
-
-    /**
-     * Same as {@link #blockToBlockMapping}, but never saved.
-     */
-    private static final Map<ResourceLocation, ResourceLocation> blockToBlockMappingVolatile = new LinkedHashMap<>();
-
-    /**
-     * Same as {@link #blockToItemMapping}, but never saved.
-     */
-    private static final Map<ResourceLocation, ResourceLocation> blockToItemMappingVolatile = new LinkedHashMap<>();
+    private static final Map<ResourceLocation, ResourceLocation> blockToItemMappingDefaults = new LinkedHashMap<>();
 
     // --------------------------------------------------------------------- //
     // Converter accessors
 
     public static boolean isBlacklisted(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        return location == null || blacklist.contains(location) || blacklistVolatile.contains(location);
+        if (location == null) {
+            return true;
+        }
+        if (blacklist.contains(location)) {
+            return true;
+        }
+        if (whitelist.containsKey(location)) {
+            return false;
+        }
+        if (blacklistIMC.contains(location)) {
+            return true;
+        }
+        if (whitelistIMC.containsKey(location)) {
+            return false;
+        }
+        return blacklistDefaults.contains(location);
     }
 
     public static boolean isWhitelisted(final Block block) {
         final ResourceLocation location = block.getRegistryName();
-        return location != null && (whitelist.containsKey(location) || whitelistVolatile.containsKey(location));
+        return location != null && (whitelist.containsKey(location) ||
+                                    whitelistIMC.containsKey(location) ||
+                                    whitelistDefaults.containsKey(location));
     }
 
     public static boolean hasNbtFilter(final Block block) {
         final ResourceLocation location = block.getRegistryName();
         ConverterFilter filter = whitelist.get(location);
         if (filter == null) {
-            filter = whitelistVolatile.get(location);
+            filter = whitelistIMC.get(location);
+        }
+        if (filter == null) {
+            filter = whitelistDefaults.get(location);
         }
         return filter != null && !filter.getNbtFilter().isEmpty();
     }
@@ -107,10 +147,27 @@ public final class Jasons {
         final ResourceLocation location = block.getRegistryName();
         ConverterFilter filter = whitelist.get(location);
         if (filter == null) {
-            filter = whitelistVolatile.get(location);
+            filter = whitelistIMC.get(location);
+        }
+        if (filter == null) {
+            whitelistDefaults.get(location);
         }
         if (filter != null) {
             filter.filter(nbt);
+        }
+    }
+
+    public static void stripNbt(final Block block, final NBTTagCompound nbt) {
+        final ResourceLocation location = block.getRegistryName();
+        ConverterFilter filter = whitelist.get(location);
+        if (filter == null) {
+            filter = whitelistIMC.get(location);
+        }
+        if (filter == null) {
+            filter = whitelistDefaults.get(location);
+        }
+        if (filter != null) {
+            filter.strip(nbt);
         }
     }
 
@@ -118,7 +175,10 @@ public final class Jasons {
         final ResourceLocation location = block.getRegistryName();
         ConverterFilter filter = whitelist.get(location);
         if (filter == null) {
-            filter = whitelistVolatile.get(location);
+            filter = whitelistIMC.get(location);
+        }
+        if (filter == null) {
+            filter = whitelistDefaults.get(location);
         }
         return filter == null ? 0 : filter.getSortIndex();
     }
@@ -130,7 +190,10 @@ public final class Jasons {
         }
         ResourceLocation mappedLocation = blockToBlockMapping.get(blockLocation);
         if (mappedLocation == null) {
-            mappedLocation = blockToBlockMappingVolatile.get(blockLocation);
+            mappedLocation = blockToBlockMappingIMC.get(blockLocation);
+        }
+        if (mappedLocation == null) {
+            mappedLocation = blockToBlockMappingDefaults.get(blockLocation);
         }
         if (mappedLocation == null) {
             return block;
@@ -146,7 +209,10 @@ public final class Jasons {
         }
         ResourceLocation itemLocation = blockToItemMapping.get(blockLocation);
         if (itemLocation == null) {
-            itemLocation = blockToItemMappingVolatile.get(blockLocation);
+            itemLocation = blockToItemMappingIMC.get(blockLocation);
+        }
+        if (itemLocation == null) {
+            itemLocation = blockToItemMappingDefaults.get(blockLocation);
         }
         if (itemLocation == null) {
             return Item.getItemFromBlock(block);
@@ -158,20 +224,20 @@ public final class Jasons {
     // --------------------------------------------------------------------- //
     // IMC accessors
 
-    public static void addToVolatileBlacklist(final ResourceLocation location) {
-        blacklistVolatile.add(location);
+    public static void addToIMCBlacklist(final ResourceLocation location) {
+        blacklistIMC.add(location);
     }
 
-    public static void addToVolatileWhitelist(final ResourceLocation location, final ConverterFilter filter) {
-        whitelistVolatile.put(location, filter);
+    public static void addToIMCWhitelist(final ResourceLocation location, final ConverterFilter filter) {
+        whitelistIMC.put(location, filter);
     }
 
-    public static void addVolatileBlockMapping(final ResourceLocation location, final ResourceLocation mapping) {
-        blockToBlockMappingVolatile.put(location, mapping);
+    public static void addIMCBlockMapping(final ResourceLocation location, final ResourceLocation mapping) {
+        blockToBlockMappingIMC.put(location, mapping);
     }
 
-    public static void addVolatileItemMapping(final ResourceLocation location, final ResourceLocation mapping) {
-        blockToItemMappingVolatile.put(location, mapping);
+    public static void addIMCItemMapping(final ResourceLocation location, final ResourceLocation mapping) {
+        blockToItemMappingIMC.put(location, mapping);
     }
 
     // --------------------------------------------------------------------- //
@@ -231,7 +297,7 @@ public final class Jasons {
     public static ResourceLocation getBlockMapping(final ResourceLocation location) {
         ResourceLocation mapping = blockToBlockMapping.get(location);
         if (mapping == null) {
-            mapping = blockToItemMappingVolatile.get(location);
+            mapping = blockToItemMappingIMC.get(location);
         }
         return mapping;
     }
@@ -257,7 +323,7 @@ public final class Jasons {
     public static ResourceLocation getItemMapping(final ResourceLocation location) {
         ResourceLocation mapping = blockToItemMapping.get(location);
         if (mapping == null) {
-            mapping = blockToItemMappingVolatile.get(location);
+            mapping = blockToItemMappingIMC.get(location);
         }
         if (mapping == null) {
             final Block block = ForgeRegistries.BLOCKS.getValue(location);
@@ -287,7 +353,7 @@ public final class Jasons {
 
     // --------------------------------------------------------------------- //
 
-    public static void loadJSON() {
+    public static void loadJSON(final boolean initDefaults) {
         final String configDirectory = Loader.instance().getConfigDir().getPath();
         final Gson gson = new GsonBuilder().
                 setPrettyPrinting().
@@ -295,10 +361,17 @@ public final class Jasons {
                 registerTypeAdapter(ConverterFilter.class, new ConverterFilterAdapter()).
                 create();
 
-        loadJasonBlacklist(blacklist, Constants.BLACKLIST_FILENAME, configDirectory, gson);
-        loadJasonWhitelist(whitelist, Constants.WHITELIST_FILENAME, configDirectory, gson);
-        loadJasonMapping(blockToBlockMapping, Constants.BLOCK_MAPPING_FILENAME, configDirectory, gson);
-        loadJasonMapping(blockToItemMapping, Constants.ITEM_MAPPING_FILENAME, configDirectory, gson);
+        if (initDefaults) {
+            loadDefaultBlacklist(gson);
+            loadDefaultWhitelist(gson);
+            loadDefaultBlockMapping(gson);
+            loadDefaultItemMapping(gson);
+        }
+
+        loadBlacklist(configDirectory, gson);
+        loadWhitelist(configDirectory, gson);
+        loadMapping(blockToBlockMapping, Constants.BLOCK_MAPPING_FILENAME, configDirectory, gson);
+        loadMapping(blockToItemMapping, Constants.ITEM_MAPPING_FILENAME, configDirectory, gson);
     }
 
     public static void saveJSON() {
@@ -309,10 +382,10 @@ public final class Jasons {
                 registerTypeAdapter(ConverterFilter.class, new ConverterFilterAdapter()).
                 create();
 
-        saveJason(blacklist, Constants.BLACKLIST_FILENAME, configDirectory, gson);
-        saveJason(whitelist, Constants.WHITELIST_FILENAME, configDirectory, gson);
-        saveJason(blockToBlockMapping, Constants.BLOCK_MAPPING_FILENAME, configDirectory, gson);
-        saveJason(blockToItemMapping, Constants.ITEM_MAPPING_FILENAME, configDirectory, gson);
+        save(blacklist, Constants.BLACKLIST_FILENAME, configDirectory, gson);
+        save(whitelist, Constants.WHITELIST_FILENAME, configDirectory, gson);
+        save(blockToBlockMapping, Constants.BLOCK_MAPPING_FILENAME, configDirectory, gson);
+        save(blockToItemMapping, Constants.ITEM_MAPPING_FILENAME, configDirectory, gson);
     }
 
     // --------------------------------------------------------------------- //
@@ -325,63 +398,103 @@ public final class Jasons {
         return Arrays.stream(values).map(ResourceLocation::new).collect(Collectors.toSet());
     }
 
-    private static void loadJasonBlacklist(final Set<ResourceLocation> set, final String fileName, final String basePath, final Gson gson) {
-        final Set<ResourceLocation> result = loadJason(set, fileName, Types.SET_RESOURCE_LOCATION, basePath, gson);
-        if (result != set) {
-            set.clear();
-            set.addAll(result);
+    private static void loadDefaultBlacklist(final Gson gson) {
+        try {
+            final Collection<ResourceLocation> result = loadDefault(Constants.BLACKLIST_FILENAME, Types.SET_RESOURCE_LOCATION, gson);
+            blacklistDefaults.clear();
+            blacklistDefaults.addAll(result);
+        } catch (final IOException | JsonSyntaxException e) {
+            Architect.getLog().warn("Failed reading " + Constants.BLACKLIST_FILENAME + ".", e);
         }
     }
 
-    private static void loadJasonWhitelist(final Map<ResourceLocation, ConverterFilter> map, final String fileName, final String basePath, final Gson gson) {
-        final Map<ResourceLocation, ConverterFilter> result = loadJason(map, fileName, Types.MAP_CONVERTER_FILTER, basePath, gson);
+    private static void loadDefaultWhitelist(final Gson gson) {
+        try {
+            final Map<ResourceLocation, ConverterFilter> result = loadDefault(Constants.WHITELIST_FILENAME, Types.MAP_CONVERTER_FILTER, gson);
+            whitelistDefaults.clear();
+            whitelistDefaults.putAll(result);
+        } catch (final IOException | JsonSyntaxException e) {
+            Architect.getLog().warn("Failed reading " + Constants.WHITELIST_FILENAME + ".", e);
+        }
+    }
+
+    private static void loadDefaultBlockMapping(final Gson gson) {
+        try {
+            final Map<ResourceLocation, ResourceLocation> result = loadDefault(Constants.BLOCK_MAPPING_FILENAME, Types.MAP_RESOURCE_LOCATION, gson);
+            blockToBlockMappingDefaults.clear();
+            blockToBlockMappingDefaults.putAll(result);
+        } catch (final IOException | JsonSyntaxException e) {
+            Architect.getLog().warn("Failed reading " + Constants.BLOCK_MAPPING_FILENAME + ".", e);
+        }
+    }
+
+    private static void loadDefaultItemMapping(final Gson gson) {
+        try {
+            final Map<ResourceLocation, ResourceLocation> result = loadDefault(Constants.ITEM_MAPPING_FILENAME, Types.MAP_RESOURCE_LOCATION, gson);
+            blockToItemMappingDefaults.clear();
+            blockToItemMappingDefaults.putAll(result);
+        } catch (final IOException | JsonSyntaxException e) {
+            Architect.getLog().warn("Failed reading " + Constants.ITEM_MAPPING_FILENAME + ".", e);
+        }
+    }
+
+    private static void loadBlacklist(final String basePath, final Gson gson) {
+        final Set<ResourceLocation> result = load(blacklist, Constants.BLACKLIST_FILENAME, Types.SET_RESOURCE_LOCATION, basePath, gson);
+        if (result != blacklist) {
+            blacklist.clear();
+            blacklist.addAll(result);
+        }
+    }
+
+    private static void loadWhitelist(final String basePath, final Gson gson) {
+        final Map<ResourceLocation, ConverterFilter> result = load(whitelist, Constants.WHITELIST_FILENAME, Types.MAP_CONVERTER_FILTER, basePath, gson);
+        if (result != whitelist) {
+            whitelist.clear();
+            whitelist.putAll(result);
+        }
+    }
+
+    private static void loadMapping(final Map<ResourceLocation, ResourceLocation> map, final String fileName, final String basePath, final Gson gson) {
+        final Map<ResourceLocation, ResourceLocation> result = load(map, fileName, Types.MAP_RESOURCE_LOCATION, basePath, gson);
         if (result != map) {
             map.clear();
             map.putAll(result);
         }
     }
 
-    private static void loadJasonMapping(final Map<ResourceLocation, ResourceLocation> map, final String fileName, final String basePath, final Gson gson) {
-        final Map<ResourceLocation, ResourceLocation> result = loadJason(map, fileName, Types.MAP_RESOURCE_LOCATION, basePath, gson);
-        if (result != map) {
-            map.clear();
-            map.putAll(result);
-        }
-    }
-
-    private static <T> T loadJason(T value, final String fileName, final Type type, final String basePath, final Gson gson) {
+    private static <T> T load(T value, final String fileName, final Type type, final String basePath, final Gson gson) {
         final File path = Paths.get(basePath, API.MOD_ID, fileName).toFile();
         try {
             if (path.exists()) {
-                value = loadJason(path, type, gson);
+                value = load(path, type, gson);
             } else {
-                value = loadDefaultJason(fileName, type, gson);
+                value = loadDefault(fileName, type, gson);
             }
-            saveJason(value, path, gson);
+            save(value, path, gson);
         } catch (final IOException | JsonSyntaxException e) {
-            Architect.getLog().warn("Failed reading " + path.toString() + ".", e);
+            Architect.getLog().warn("Failed reading " + fileName + ".", e);
         }
         return value;
     }
 
-    private static <T> T loadJason(final File path, final Type type, final Gson gson) throws IOException, JsonSyntaxException {
+    private static <T> T load(final File path, final Type type, final Gson gson) throws IOException, JsonSyntaxException {
         try (final InputStream stream = new FileInputStream(path)) {
             return gson.fromJson(new InputStreamReader(stream), type);
         }
     }
 
-    private static <T> T loadDefaultJason(final String fileName, final Type type, final Gson gson) throws IOException, JsonSyntaxException {
+    private static <T> T loadDefault(final String fileName, final Type type, final Gson gson) throws IOException, JsonSyntaxException {
         try (final InputStream stream = Settings.class.getResourceAsStream("/assets/" + API.MOD_ID + "/config/" + fileName)) {
             return gson.fromJson(new InputStreamReader(stream), type);
         }
     }
 
-    private static void saveJason(final Object value, final String fileName, final String basePath, final Gson gson) {
+    private static void save(final Object value, final String fileName, final String basePath, final Gson gson) {
         final File path = Paths.get(basePath, API.MOD_ID, fileName).toFile();
-        saveJason(value, path, gson);
+        save(value, path, gson);
     }
 
-    private static void saveJason(final Object value, final File path, final Gson gson) {
+    private static void save(final Object value, final File path, final Gson gson) {
         try {
             FileUtils.writeStringToFile(path, gson.toJson(value));
         } catch (final IOException e) {

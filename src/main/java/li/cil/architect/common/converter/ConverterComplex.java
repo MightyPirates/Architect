@@ -68,15 +68,18 @@ public final class ConverterComplex extends AbstractConverter {
             return;
         }
 
+        final Block block = ConverterAPI.mapToBlock(state);
+
         // Yes, also filter when deserializing, in case the filter changed in
         // the meantime, so we don't allow players with an old blueprint to
         // deserialize NBT they shouldn't be allowed to.
         final NBTTagCompound nbt = data.getCompoundTag(TAG_NBT);
-        Jasons.filterNbt(ConverterAPI.mapToBlock(state), nbt);
+        Jasons.filterNbt(block, nbt);
 
         // Merge the persisted values into the current state of the TE.
         final NBTTagCompound currentNbt = new NBTTagCompound();
         tileEntity.writeToNBT(currentNbt);
+        Jasons.stripNbt(block, currentNbt);
         currentNbt.merge(nbt);
         tileEntity.readFromNBT(currentNbt);
     }
