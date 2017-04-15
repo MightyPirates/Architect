@@ -229,7 +229,11 @@ public final class Jasons {
 
     @Nullable
     public static ResourceLocation getBlockMapping(final ResourceLocation location) {
-        return blockToBlockMapping.get(location);
+        ResourceLocation mapping = blockToBlockMapping.get(location);
+        if (mapping == null) {
+            mapping = blockToItemMappingVolatile.get(location);
+        }
+        return mapping;
     }
 
     public static boolean addBlockMapping(final ResourceLocation location, final ResourceLocation mapping) {
@@ -251,7 +255,17 @@ public final class Jasons {
 
     @Nullable
     public static ResourceLocation getItemMapping(final ResourceLocation location) {
-        return blockToItemMapping.get(location);
+        ResourceLocation mapping = blockToItemMapping.get(location);
+        if (mapping == null) {
+            mapping = blockToItemMappingVolatile.get(location);
+        }
+        if (mapping == null) {
+            final Block block = ForgeRegistries.BLOCKS.getValue(location);
+            if (block != null) {
+                mapping = ForgeRegistries.ITEMS.getKey(Item.getItemFromBlock(block));
+            }
+        }
+        return mapping;
     }
 
     public static boolean addItemMapping(final ResourceLocation location, final ResourceLocation mapping) {
