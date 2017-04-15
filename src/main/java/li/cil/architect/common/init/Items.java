@@ -12,7 +12,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.function.Predicate;
 
@@ -59,17 +58,20 @@ public final class Items {
     }
 
     public static void addRecipes() {
-        GameRegistry.addRecipe(new ShapelessOreRecipe(
+        GameRegistry.addRecipe(new ShapedOreRecipe(
                 new ItemStack(sketch, 1),
-                net.minecraft.init.Items.BOOK,
-                "enderpearl",
-                net.minecraft.init.Items.COAL,
-                "ingotIron"));
+                "LEL",
+                "PPS",
+                "LLL",
+                'E', "enderpearl",
+                'P', "paper",
+                'L', "leather",
+                'S', "string"));
         GameRegistry.addRecipe(new ShapedOreRecipe(
                 new ItemStack(providerItem, 1),
-                "ITI",
-                "QHQ",
                 "IPI",
+                "QHQ",
+                "ITI",
                 'I', "ingotIron",
                 'P', "enderpearl",
                 'Q', "gemQuartz",
