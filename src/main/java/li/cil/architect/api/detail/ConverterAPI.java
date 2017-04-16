@@ -49,9 +49,9 @@ public interface ConverterAPI {
      * <code>furnace</code>.
      *
      * @param state the block state to resolve the mapping for.
-     * @return the mapped representation of the block.
+     * @return the mapped representation of the block state.
      */
-    Block mapToBlock(final IBlockState state);
+    IBlockState mapToBlock(final IBlockState state);
 
     /**
      * Get the item associated with the specified block. Takes into account

@@ -83,26 +83,22 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        return ConverterAPI.mapToItem(state.getBlock()) != Items.AIR && canSerialize(world, pos, state);
+        final IBlockState mapped = ConverterAPI.mapToBlock(state);
+        return mapped != null && ConverterAPI.mapToItem(mapped.getBlock()) != Items.AIR && canSerialize(world, pos, mapped);
     }
 
     @Override
     public NBTBase serialize(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos);
-        final Block block = ConverterAPI.mapToBlock(state);
-
-        final ResourceLocation name = block.getRegistryName();
-        assert name != null : "canSerialize implementation allowed invalid block";
-
-        // When mapping blocks, only keep metadata if class stays the same,
-        // otherwise we can't rely on the meta conversion to work correctly.
-        final int metadata = block.getClass() == state.getBlock().getClass() ? block.getMetaFromState(state) : 0;
+        final IBlockState mapped = ConverterAPI.mapToBlock(state);
+        assert mapped != null : "canSerialize implementation allowed invalid block";
+        assert mapped.getBlock().getRegistryName() != null;
 
         final NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setString(TAG_NAME, name.toString());
-        nbt.setByte(TAG_METADATA, (byte) metadata);
+        nbt.setString(TAG_NAME, mapped.getBlock().getRegistryName().toString());
+        nbt.setByte(TAG_METADATA, (byte) mapped.getBlock().getMetaFromState(mapped));
 
-        postSerialize(world, pos, state, nbt);
+        postSerialize(world, pos, mapped, nbt);
 
         return nbt;
     }
@@ -121,27 +117,22 @@ public abstract class AbstractConverter implements Converter {
     @SuppressWarnings("deprecation")
     @Override
     public void deserialize(final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
-        final NBTTagCompound nbt = (NBTTagCompound) data;
-        final ResourceLocation name = new ResourceLocation(nbt.getString(TAG_NAME));
-        final int metadata = nbt.getByte(TAG_METADATA) & 0xFF;
-
-        final Block block = ForgeRegistries.BLOCKS.getValue(name);
-        if (block == null) {
+        IBlockState state = getBlockState(data);
+        if (state == null) {
             // Block type does not exist in this Minecraft instance even though
             // an item exists? Weird. Drop what we consumed then.
             cancelDeserialization(world, pos, rotation, data);
             return;
         }
-
-        final IBlockState state = block.getStateFromMeta(metadata).withRotation(rotation);
+        state = state.withRotation(rotation);
 
         world.setBlockState(pos, state);
 
-        postDeserialize(world, pos, state, nbt);
+        postDeserialize(world, pos, state, (NBTTagCompound) data);
 
         // Rotate the tile entity, if there is a tile entity and we have a
         // rotation (avoid the lookup costs if we can).
-        if (block.hasTileEntity(state) && rotation != Rotation.NONE) {
+        if (state.getBlock().hasTileEntity(state) && rotation != Rotation.NONE) {
             final TileEntity tileEntity = world.getTileEntity(pos);
             if (tileEntity != null) {
                 tileEntity.rotate(rotation);

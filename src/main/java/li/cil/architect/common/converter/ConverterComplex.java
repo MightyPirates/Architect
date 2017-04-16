@@ -1,11 +1,10 @@
 package li.cil.architect.common.converter;
 
-import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.api.prefab.converter.AbstractConverter;
 import li.cil.architect.common.config.Constants;
+import li.cil.architect.common.config.ConverterFilter;
 import li.cil.architect.common.config.Jasons;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -33,15 +32,17 @@ public final class ConverterComplex extends AbstractConverter {
 
     @Override
     protected boolean canSerialize(final World world, final BlockPos pos, final IBlockState state) {
-        final Block block = ConverterAPI.mapToBlock(state);
-        return Jasons.isWhitelisted(block);
+        return Jasons.getFilter(state) != null;
     }
 
     @Override
     protected void postSerialize(final World world, final BlockPos pos, final IBlockState state, final NBTTagCompound data) {
         super.postSerialize(world, pos, state, data);
-        final Block block = ConverterAPI.mapToBlock(state);
-        if (!Jasons.hasNbtFilter(block)) {
+
+        final ConverterFilter filter = Jasons.getFilter(state);
+        assert filter != null;
+
+        if (filter.getNbtFilter().isEmpty()) {
             return;
         }
 
@@ -52,7 +53,7 @@ public final class ConverterComplex extends AbstractConverter {
 
         final NBTTagCompound nbt = new NBTTagCompound();
         tileEntity.writeToNBT(nbt);
-        Jasons.filterNbt(block, nbt);
+        filter.filter(nbt);
         data.setTag(TAG_NBT, nbt);
     }
 
@@ -63,23 +64,26 @@ public final class ConverterComplex extends AbstractConverter {
             return;
         }
 
+        final ConverterFilter filter = Jasons.getFilter(state);
+        if (filter == null) {
+            return;
+        }
+
         final TileEntity tileEntity = world.getTileEntity(pos);
         if (tileEntity == null) {
             return;
         }
 
-        final Block block = ConverterAPI.mapToBlock(state);
-
         // Yes, also filter when deserializing, in case the filter changed in
         // the meantime, so we don't allow players with an old blueprint to
         // deserialize NBT they shouldn't be allowed to.
         final NBTTagCompound nbt = data.getCompoundTag(TAG_NBT);
-        Jasons.filterNbt(block, nbt);
+        filter.filter(nbt);
 
         // Merge the persisted values into the current state of the TE.
         final NBTTagCompound currentNbt = new NBTTagCompound();
         tileEntity.writeToNBT(currentNbt);
-        Jasons.stripNbt(block, currentNbt);
+        filter.strip(currentNbt);
         currentNbt.merge(nbt);
         tileEntity.readFromNBT(currentNbt);
     }

@@ -9,10 +9,10 @@ import li.cil.architect.common.json.ConverterFilterAdapter;
 import li.cil.architect.common.json.ResourceLocationAdapter;
 import li.cil.architect.common.json.Types;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -124,15 +124,17 @@ public final class Jasons {
         return blacklistDefaults.contains(location);
     }
 
-    public static boolean isWhitelisted(final Block block) {
-        final ResourceLocation location = block.getRegistryName();
-        return location != null && (whitelist.containsKey(location) ||
-                                    whitelistIMC.containsKey(location) ||
-                                    whitelistDefaults.containsKey(location));
-    }
+    @Nullable
+    public static ConverterFilter getFilter(@Nullable final IBlockState state) {
+        if (state == null) {
+            return null;
+        }
 
-    public static boolean hasNbtFilter(final Block block) {
-        final ResourceLocation location = block.getRegistryName();
+        final ResourceLocation location = state.getBlock().getRegistryName();
+        if (location == null) {
+            return null;
+        }
+
         ConverterFilter filter = whitelist.get(location);
         if (filter == null) {
             filter = whitelistIMC.get(location);
@@ -140,35 +142,7 @@ public final class Jasons {
         if (filter == null) {
             filter = whitelistDefaults.get(location);
         }
-        return filter != null && !filter.getNbtFilter().isEmpty();
-    }
-
-    public static void filterNbt(final Block block, final NBTTagCompound nbt) {
-        final ResourceLocation location = block.getRegistryName();
-        ConverterFilter filter = whitelist.get(location);
-        if (filter == null) {
-            filter = whitelistIMC.get(location);
-        }
-        if (filter == null) {
-            whitelistDefaults.get(location);
-        }
-        if (filter != null) {
-            filter.filter(nbt);
-        }
-    }
-
-    public static void stripNbt(final Block block, final NBTTagCompound nbt) {
-        final ResourceLocation location = block.getRegistryName();
-        ConverterFilter filter = whitelist.get(location);
-        if (filter == null) {
-            filter = whitelistIMC.get(location);
-        }
-        if (filter == null) {
-            filter = whitelistDefaults.get(location);
-        }
-        if (filter != null) {
-            filter.strip(nbt);
-        }
+        return filter;
     }
 
     public static int getSortIndex(final Block block) {
@@ -183,23 +157,30 @@ public final class Jasons {
         return filter == null ? 0 : filter.getSortIndex();
     }
 
-    public static Block mapBlockToBlock(final Block block) {
-        final ResourceLocation blockLocation = block.getRegistryName();
-        if (blockLocation == null) {
-            return block;
+    @SuppressWarnings("deprecation")
+    public static IBlockState mapBlockToBlock(final IBlockState state) {
+        final ResourceLocation location = state.getBlock().getRegistryName();
+        if (location == null) {
+            return state;
         }
-        ResourceLocation mappedLocation = blockToBlockMapping.get(blockLocation);
+        ResourceLocation mappedLocation = blockToBlockMapping.get(location);
         if (mappedLocation == null) {
-            mappedLocation = blockToBlockMappingIMC.get(blockLocation);
-        }
-        if (mappedLocation == null) {
-            mappedLocation = blockToBlockMappingDefaults.get(blockLocation);
+            mappedLocation = blockToBlockMappingIMC.get(location);
         }
         if (mappedLocation == null) {
-            return block;
+            mappedLocation = blockToBlockMappingDefaults.get(location);
+        }
+        if (mappedLocation == null) {
+            return state;
         }
         final Block mappedBlock = ForgeRegistries.BLOCKS.getValue(mappedLocation);
-        return (mappedBlock == null || mappedBlock == Blocks.AIR) ? block : mappedBlock;
+        if (mappedBlock == null || mappedBlock == Blocks.AIR) {
+            return state;
+        }
+
+        // When mapping blocks, only keep metadata if class stays the same,
+        // otherwise we can't rely on the meta conversion to work correctly.
+        return mappedBlock.getClass() == state.getBlock().getClass() ? mappedBlock.getStateFromMeta(state.getBlock().getMetaFromState(state)) : mappedBlock.getDefaultState();
     }
 
     public static Item mapBlockToItem(final Block block) {

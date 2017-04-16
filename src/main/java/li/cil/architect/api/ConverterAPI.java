@@ -5,7 +5,6 @@ import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.converter.SortIndex;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -65,13 +64,14 @@ public final class ConverterAPI {
      * <code>furnace</code>.
      *
      * @param state the block state to resolve the mapping for.
-     * @return the mapped representation of the block.
+     * @return the mapped representation of the block state.
      */
-    public static Block mapToBlock(final IBlockState state) {
+    @Nullable
+    public static IBlockState mapToBlock(final IBlockState state) {
         if (API.converterAPI != null) {
             return API.converterAPI.mapToBlock(state);
         }
-        return Blocks.AIR;
+        return null;
     }
 
     /**

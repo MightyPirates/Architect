@@ -51,8 +51,8 @@ public final class ConverterAPIImpl implements ConverterAPI {
     }
 
     @Override
-    public Block mapToBlock(final IBlockState state) {
-        return Jasons.mapBlockToBlock(state.getBlock());
+    public IBlockState mapToBlock(final IBlockState state) {
+        return Jasons.mapBlockToBlock(state);
     }
 
     @Override
