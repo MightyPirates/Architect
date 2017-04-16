@@ -353,7 +353,7 @@ public final class Jasons {
 
     // --------------------------------------------------------------------- //
 
-    public static void loadJSON(final boolean initDefaults) {
+    public static Map<String, Throwable> loadJSON(final boolean initDefaults) {
         final String configDirectory = Loader.instance().getConfigDir().getPath();
         final Gson gson = new GsonBuilder().
                 setPrettyPrinting().
@@ -368,10 +368,12 @@ public final class Jasons {
             loadDefaultItemMapping(gson);
         }
 
-        loadBlacklist(configDirectory, gson);
-        loadWhitelist(configDirectory, gson);
-        loadMapping(blockToBlockMapping, Constants.BLOCK_MAPPING_FILENAME, configDirectory, gson);
-        loadMapping(blockToItemMapping, Constants.ITEM_MAPPING_FILENAME, configDirectory, gson);
+        final Map<String, Throwable> errors = new LinkedHashMap<>();
+        loadBlacklist(configDirectory, gson, errors);
+        loadWhitelist(configDirectory, gson, errors);
+        loadMapping(blockToBlockMapping, Constants.BLOCK_MAPPING_FILENAME, configDirectory, gson, errors);
+        loadMapping(blockToItemMapping, Constants.ITEM_MAPPING_FILENAME, configDirectory, gson, errors);
+        return errors;
     }
 
     public static void saveJSON() {
@@ -438,31 +440,31 @@ public final class Jasons {
         }
     }
 
-    private static void loadBlacklist(final String basePath, final Gson gson) {
-        final Set<ResourceLocation> result = load(blacklist, Constants.BLACKLIST_FILENAME, Types.SET_RESOURCE_LOCATION, basePath, gson);
+    private static void loadBlacklist(final String basePath, final Gson gson, final Map<String, Throwable> errors) {
+        final Set<ResourceLocation> result = load(blacklist, Constants.BLACKLIST_FILENAME, Types.SET_RESOURCE_LOCATION, basePath, gson, errors);
         if (result != blacklist) {
             blacklist.clear();
             blacklist.addAll(result);
         }
     }
 
-    private static void loadWhitelist(final String basePath, final Gson gson) {
-        final Map<ResourceLocation, ConverterFilter> result = load(whitelist, Constants.WHITELIST_FILENAME, Types.MAP_CONVERTER_FILTER, basePath, gson);
+    private static void loadWhitelist(final String basePath, final Gson gson, final Map<String, Throwable> errors) {
+        final Map<ResourceLocation, ConverterFilter> result = load(whitelist, Constants.WHITELIST_FILENAME, Types.MAP_CONVERTER_FILTER, basePath, gson, errors);
         if (result != whitelist) {
             whitelist.clear();
             whitelist.putAll(result);
         }
     }
 
-    private static void loadMapping(final Map<ResourceLocation, ResourceLocation> map, final String fileName, final String basePath, final Gson gson) {
-        final Map<ResourceLocation, ResourceLocation> result = load(map, fileName, Types.MAP_RESOURCE_LOCATION, basePath, gson);
+    private static void loadMapping(final Map<ResourceLocation, ResourceLocation> map, final String fileName, final String basePath, final Gson gson, final Map<String, Throwable> errors) {
+        final Map<ResourceLocation, ResourceLocation> result = load(map, fileName, Types.MAP_RESOURCE_LOCATION, basePath, gson, errors);
         if (result != map) {
             map.clear();
             map.putAll(result);
         }
     }
 
-    private static <T> T load(T value, final String fileName, final Type type, final String basePath, final Gson gson) {
+    private static <T> T load(T value, final String fileName, final Type type, final String basePath, final Gson gson, final Map<String, Throwable> errors) {
         final File path = Paths.get(basePath, API.MOD_ID, fileName).toFile();
         try {
             if (path.exists()) {
@@ -473,6 +475,7 @@ public final class Jasons {
             save(value, path, gson);
         } catch (final IOException | JsonSyntaxException e) {
             Architect.getLog().warn("Failed reading " + fileName + ".", e);
+            errors.put(fileName, e);
         }
         return value;
     }
