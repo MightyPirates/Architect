@@ -29,11 +29,13 @@ public final class API {
     /**
      * Whitelist a block and provide some additional processing information.
      * Takes a tag compound with a 'name' string entry that can be used to
-     * construct a ResourceLocation, an optional 'sortIndex' integer and an
-     * optional tag compound 'nbtFilter'. The filter must be structured the same
-     * as an entry in the <code>whitelist.json</code> file, i.e. keys for
-     * allowed keys in a filtered tag compound, with arbitrary values, or
-     * another tag compound as value for nested filtering.
+     * construct a ResourceLocation, an optional 'sortIndex' integer, an
+     * optional tag compound 'nbtFilter' and an optional tag compound
+     * 'nbtStripper'. The filter must be structured the same as an entry in the
+     * <code>whitelist.json</code> file, i.e. keys for allowed keys in a
+     * filtered tag compound, with arbitrary values, or another tag compound as
+     * value for nested filtering. Same goes for the compound defining tags to
+     * strip, except that keys present will be stripped, not kept.
      */
     public static final String IMC_WHITELIST = "whitelist";
 
