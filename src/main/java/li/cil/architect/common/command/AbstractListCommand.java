@@ -1,6 +1,7 @@
 package li.cil.architect.common.command;
 
 import li.cil.architect.common.config.Constants;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
@@ -19,13 +20,17 @@ abstract class AbstractListCommand extends AbstractSubCommand {
 
     @Override
     public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) throws CommandException {
-        final ResourceLocation location = getLookedAtResourceLocation(sender);
+        final IBlockState state = getLookedAtBlockState(sender);
+        if (state == null) {
+            return;
+        }
+        final ResourceLocation location = state.getBlock().getRegistryName();
         if (location == null) {
             return;
         }
 
         if (args.length < 1) {
-            if (addToList(location, getSubArgs(args))) {
+            if (addToList(sender, getSubArgs(args), state, location)) {
                 notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_ADDED, getName()), location);
             } else {
                 removeFromList(location);
@@ -33,7 +38,7 @@ abstract class AbstractListCommand extends AbstractSubCommand {
             }
         } else {
             if (COMMAND_ADD.equals(args[0])) {
-                if (addToList(location, getSubArgs(args))) {
+                if (addToList(sender, getSubArgs(args), state, location)) {
                     notifyCommandListener(sender, this, String.format(Constants.COMMAND_LIST_ADDED, getName()), location);
                 }
             } else if (COMMAND_REMOVE.equals(args[0])) {
@@ -57,7 +62,7 @@ abstract class AbstractListCommand extends AbstractSubCommand {
 
     // --------------------------------------------------------------------- //
 
-    protected abstract boolean addToList(final ResourceLocation location, final String[] args) throws CommandException;
+    protected abstract boolean addToList(final ICommandSender sender, final String[] args, final IBlockState state, final ResourceLocation location) throws CommandException;
 
     protected abstract boolean removeFromList(final ResourceLocation location);
 }

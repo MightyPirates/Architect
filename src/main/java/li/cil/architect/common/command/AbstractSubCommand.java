@@ -1,10 +1,13 @@
 package li.cil.architect.common.command;
 
+import li.cil.architect.common.Architect;
 import li.cil.architect.common.config.Constants;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -27,6 +30,40 @@ public abstract class AbstractSubCommand extends AbstractCommand {
         }
 
         return state.getBlock().getRegistryName();
+    }
+
+    @Nullable
+    static NBTTagCompound getLookedAtTileEntityNBT(final ICommandSender sender) throws CommandException {
+        final TileEntity tileEntity = getLookedAtTileEntity(sender);
+        if (tileEntity == null) {
+            return null;
+        }
+
+        final NBTTagCompound nbt = new NBTTagCompound();
+        try {
+            tileEntity.writeToNBT(nbt);
+        } catch (final Throwable e) {
+            Architect.getLog().warn("Failed getting tile entity NBT.", e);
+            return null;
+        }
+
+        // Strip stuff written by TileEntity base class.
+        nbt.removeTag("x");
+        nbt.removeTag("y");
+        nbt.removeTag("z");
+        nbt.removeTag("id");
+
+        return nbt;
+    }
+
+    @Nullable
+    static TileEntity getLookedAtTileEntity(final ICommandSender sender) throws CommandException {
+        final BlockPos pos = getLookedAtBlockPos(sender);
+        if (pos == null) {
+            return null;
+        }
+
+        return sender.getEntityWorld().getTileEntity(pos);
     }
 
     @Nullable

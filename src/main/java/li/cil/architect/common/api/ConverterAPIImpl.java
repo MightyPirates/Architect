@@ -11,13 +11,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -46,13 +44,8 @@ public final class ConverterAPIImpl implements ConverterAPI {
     }
 
     @Override
-    public boolean isBlacklisted(final Block block) {
-        return Jasons.isBlacklisted(block);
-    }
-
-    @Override
-    public Block mapToBlock(final IBlockState state) {
-        return Jasons.mapBlockToBlock(state.getBlock());
+    public IBlockState mapToBlock(final IBlockState state) {
+        return Jasons.mapBlockToBlock(state);
     }
 
     @Nullable
@@ -111,11 +104,8 @@ public final class ConverterAPIImpl implements ConverterAPI {
             return nbt;
         } catch (final Throwable e) {
             final IBlockState state = world.getBlockState(pos);
-            final ResourceLocation location = ForgeRegistries.BLOCKS.getKey(state.getBlock());
-            if (location != null) {
-                Jasons.addToBlacklist(location);
-            }
-            Architect.getLog().warn("Failed serializing block {}, blacklisting.", location);
+            Jasons.addToBlacklist(state.getBlock(), state.getProperties());
+            Architect.getLog().warn("Failed serializing block state {}, blacklisting.", state);
             return null;
         }
     }
@@ -179,7 +169,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
         }
 
         final IBlockState state = world.getBlockState(pos);
-        if (isBlacklisted(state.getBlock())) {
+        if (Jasons.isBlacklisted(state)) {
             return null;
         }
 

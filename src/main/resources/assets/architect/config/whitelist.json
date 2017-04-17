@@ -1,10 +1,11 @@
-{
-  "minecraft:beacon": {},
-  "minecraft:black_shulker_box": {},
-  "minecraft:blue_shulker_box": {},
-  "minecraft:brewing_stand": {},
-  "minecraft:brown_shulker_box": {},
-  "minecraft:chain_command_block": {
+[
+  "minecraft:beacon",
+  "minecraft:black_shulker_box",
+  "minecraft:blue_shulker_box",
+  "minecraft:brewing_stand",
+  "minecraft:brown_shulker_box",
+  {
+    "block": "minecraft:chain_command_block",
     "filter": {
       "conditionMet": "BYTE",
       "auto": "BYTE",
@@ -15,8 +16,9 @@
       "TrackOutput": "BYTE"
     }
   },
-  "minecraft:chest": {},
-  "minecraft:command_block": {
+  "minecraft:chest",
+  {
+    "block": "minecraft:command_block",
     "filter": {
       "conditionMet": "BYTE",
       "auto": "BYTE",
@@ -27,33 +29,35 @@
       "TrackOutput": "BYTE"
     }
   },
-  "minecraft:cyan_shulker_box": {},
-  "minecraft:daylight_detector": {},
-  "minecraft:daylight_detector_inverted": {},
-  "minecraft:dispenser": {},
-  "minecraft:dropper": {},
-  "minecraft:enchanting_table": {},
-  "minecraft:flower_pot": {},
-  "minecraft:furnace": {},
-  "minecraft:gray_shulker_box": {},
-  "minecraft:green_shulker_box": {},
-  "minecraft:hopper": {},
-  "minecraft:jukebox": {},
-  "minecraft:light_blue_shulker_box": {},
-  "minecraft:lime_shulker_box": {},
-  "minecraft:lit_furnace": {},
-  "minecraft:magenta_shulker_box": {},
-  "minecraft:noteblock": {
+  "minecraft:cyan_shulker_box",
+  "minecraft:daylight_detector",
+  "minecraft:daylight_detector_inverted",
+  "minecraft:dispenser",
+  "minecraft:dropper",
+  "minecraft:enchanting_table",
+  "minecraft:flower_pot",
+  "minecraft:furnace",
+  "minecraft:gray_shulker_box",
+  "minecraft:green_shulker_box",
+  "minecraft:hopper",
+  "minecraft:jukebox",
+  "minecraft:light_blue_shulker_box",
+  "minecraft:lime_shulker_box",
+  "minecraft:lit_furnace",
+  "minecraft:magenta_shulker_box",
+  {
+    "block": "minecraft:noteblock",
     "filter": {
       "note": "BYTE"
     }
   },
-  "minecraft:orange_shulker_box": {},
-  "minecraft:pink_shulker_box": {},
-  "minecraft:piston": {},
-  "minecraft:purple_shulker_box": {},
-  "minecraft:red_shulker_box": {},
-  "minecraft:repeating_command_block": {
+  "minecraft:orange_shulker_box",
+  "minecraft:pink_shulker_box",
+  "minecraft:piston",
+  "minecraft:purple_shulker_box",
+  "minecraft:red_shulker_box",
+  {
+    "block": "minecraft:repeating_command_block",
     "filter": {
       "conditionMet": "BYTE",
       "auto": "BYTE",
@@ -64,14 +68,16 @@
       "TrackOutput": "BYTE"
     }
   },
-  "minecraft:silver_shulker_box": {},
-  "minecraft:skull": {
+  "minecraft:silver_shulker_box",
+  {
+    "block": "minecraft:skull",
     "filter": {
       "Rot": "BYTE",
       "SkullType": "BYTE"
     }
   },
-  "minecraft:standing_sign": {
+  {
+    "block": "minecraft:standing_sign",
     "sortIndex": "attached",
     "filter": {
       "Text4": "STRING",
@@ -80,8 +86,9 @@
       "Text1": "STRING"
     }
   },
-  "minecraft:sticky_piston": {},
-  "minecraft:structure_block": {
+  "minecraft:sticky_piston",
+  {
+    "block": "minecraft:structure_block",
     "filter": {
       "metadata": "STRING",
       "mirror": "STRING",
@@ -103,11 +110,13 @@
       "showboundingbox": "BYTE"
     }
   },
-  "minecraft:trapped_chest": {},
-  "minecraft:unpowered_comparator": {
+  "minecraft:trapped_chest",
+  {
+    "block": "minecraft:unpowered_comparator",
     "sortIndex": "attached"
   },
-  "minecraft:wall_sign": {
+  {
+    "block": "minecraft:wall_sign",
     "sortIndex": "attached",
     "filter": {
       "Text4": "STRING",
@@ -116,408 +125,439 @@
       "Text1": "STRING"
     }
   },
-  "minecraft:white_shulker_box": {},
-  "minecraft:yellow_shulker_box": {},
-  "enderio:blockStirlingGenerator": {
+  "minecraft:white_shulker_box",
+  "minecraft:yellow_shulker_box",
+  {
+    "block": "enderio:blockstirlinggenerator",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockPaintedPressurePlate": {
+  {
+    "block": "enderio:blockpaintedpressureplate",
     "filter": {
-      "paintSource": "COMPOUND",
-      "rotation": "INT",
       "silent": "BYTE",
-      "type": "INT"
+      "paintSource": "COMPOUND",
+      "type": "INT",
+      "rotation": "INT"
     },
     "strip": {
       "paintSource__null": "If present, always ignores paintSource."
     }
   },
-  "enderio:blockCombustionGenerator": {
+  {
+    "block": "enderio:blockcombustiongenerator",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockZombieGenerator": {
+  {
+    "block": "enderio:blockzombiegenerator",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockReservoir": {
+  {
+    "block": "enderio:blockreservoir",
     "filter": {
       "autoEject": "BYTE"
     }
   },
-  "enderio:blockAlloySmelter": {
+  {
+    "block": "enderio:blockalloysmelter",
     "filter": {
-      "faceModes": "LONG",
-      "facing": "INT",
       "mode": "INT",
-      "paintSource": "COMPOUND",
-      "redstoneControlMode": "INT"
-    },
-    "strip": {
-      "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
-    }
-  },
-  "enderio:blockSolarPanel": {},
-  "enderio:blockVat": {
-    "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockPowerMonitorv2": {
+  "enderio:blocksolarpanel",
+  {
+    "block": "enderio:blockvat",
     "filter": {
-      "advanced": "BYTE",
+      "facing": "INT",
+      "faceModes": "LONG",
+      "paintSource": "COMPOUND",
+      "redstoneControlMode": "INT"
+    },
+    "strip": {
+      "faceModes__null": "If present, always ignores faceModes.",
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
+    }
+  },
+  {
+    "block": "enderio:blockpowermonitorv2",
+    "filter": {
       "engineControlEnabled": "BYTE",
-      "faceModes": "LONG",
-      "facing": "INT",
       "paintSource": "COMPOUND",
-      "redstoneControlMode": "INT"
-    },
-    "strip": {
-      "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
-    }
-  },
-  "enderio:blockPowerMonitor": {
-    "filter": {
       "advanced": "BYTE",
+      "facing": "INT",
+      "faceModes": "LONG",
+      "redstoneControlMode": "INT"
+    },
+    "strip": {
+      "faceModes__null": "If present, always ignores faceModes.",
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
+    }
+  },
+  {
+    "block": "enderio:blockpowermonitor",
+    "filter": {
       "engineControlEnabled": "BYTE",
-      "faceModes": "LONG",
+      "paintSource": "COMPOUND",
+      "advanced": "BYTE",
       "facing": "INT",
+      "faceModes": "LONG",
+      "redstoneControlMode": "INT"
+    },
+    "strip": {
+      "faceModes__null": "If present, always ignores faceModes.",
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
+    }
+  },
+  {
+    "block": "enderio:blocksagmill",
+    "filter": {
+      "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockSagMill": {
+  {
+    "block": "enderio:blockcapbank",
     "filter": {
-      "faceModes": "LONG",
-      "facing": "INT",
-      "paintSource": "COMPOUND",
-      "redstoneControlMode": "INT"
-    },
-    "strip": {
-      "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
-    }
-  },
-  "enderio:blockCapBank": {
-    "filter": {
-      "faceDisplayTypes": "LONG",
-      "faceModes": "LONG",
-      "inputControlMode": "INT",
-      "maxInput": "INT",
       "maxOutput": "INT",
-      "outputControlMode": "INT",
-      "type": "INT"
+      "faceDisplayTypes": "LONG",
+      "inputControlMode": "INT",
+      "faceModes": "LONG",
+      "maxInput": "INT",
+      "type": "INT",
+      "outputControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes."
     }
   },
-  "enderio:blockFarmStation": {
+  {
+    "block": "enderio:blockfarmstation",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
-      "lockedSlots": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
+      "lockedSlots": "INT",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockTank": {
+  {
+    "block": "enderio:blocktank",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT",
       "voidMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockCrafter": {
+  {
+    "block": "enderio:blockcrafter",
     "filter": {
-      "craftingGrid": "COMPOUND",
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
+      "craftingGrid": "COMPOUND",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockVacuumChest": {
+  {
+    "block": "enderio:blockvacuumchest",
     "filter": {
       "range": "INT",
       "redstoneControlMode": "INT"
     }
   },
-  "enderio:blockXPVacuum": {},
-  "enderio:blockWirelessCharger": {},
-  "enderio:blockEnchanter": {
+  "enderio:blockxpvacuum",
+  "enderio:blockwirelesscharger",
+  {
+    "block": "enderio:blockenchanter",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockSoulBinder": {
+  {
+    "block": "enderio:blocksoulbinder",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockSliceAndSplice": {
+  {
+    "block": "enderio:blocksliceandsplice",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockAttractor": {
+  {
+    "block": "enderio:blockattractor",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockSpawnGuard": {
+  {
+    "block": "enderio:blockspawnguard",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockSpawnRelocator": {
+  {
+    "block": "enderio:blockspawnrelocator",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockExperienceObelisk": {
+  {
+    "block": "enderio:blockexperienceobelisk",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockWeatherObelisk": {
+  {
+    "block": "enderio:blockweatherobelisk",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockInhibitorObelisk": {
+  {
+    "block": "enderio:blockinhibitorobelisk",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockTransceiver": {
+  {
+    "block": "enderio:blocktransceiver",
     "filter": {
-      "faceModes": "LONG",
-      "facing": "INT",
       "paintSource": "COMPOUND",
-      "recieveChannels": "LIST",
       "recieveItemFilter": "COMPOUND",
-      "redstoneControlMode": "INT",
       "sendChannels": "LIST",
+      "facing": "INT",
+      "faceModes": "LONG",
+      "recieveChannels": "LIST",
+      "redstoneControlMode": "INT",
       "sendItemFilter": "COMPOUND"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockBuffer": {
+  {
+    "block": "enderio:blockbuffer",
     "filter": {
-      "faceModes": "LONG",
-      "facing": "INT",
       "hasInventory": "BYTE",
-      "hasPower": "BYTE",
       "isCreative": "BYTE",
+      "hasPower": "BYTE",
       "maxIn": "INT",
       "maxOut": "INT",
       "paintSource": "COMPOUND",
+      "facing": "INT",
+      "faceModes": "LONG",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockInventoryPanel": {
+  {
+    "block": "enderio:blockinventorypanel",
     "filter": {
-      "active": "BYTE",
-      "extractionDisabled": "BYTE",
-      "faceModes": "LONG",
-      "facing": "INT",
-      "guiFilterString": "STRING",
+      "paintSource": "COMPOUND",
       "guiSortMode": "INT",
-      "paintSource": "COMPOUND",
-      "redstoneControlMode": "INT",
-      "storedCraftingRecipes": "COMPOUND"
+      "active": "BYTE",
+      "facing": "INT",
+      "faceModes": "LONG",
+      "guiFilterString": "STRING",
+      "storedCraftingRecipes": "COMPOUND",
+      "extractionDisabled": "BYTE",
+      "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockInventoryChest": {
+  {
+    "block": "enderio:blockinventorychest",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockKillerJoe": {
+  {
+    "block": "enderio:blockkillerjoe",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockPainter": {
+  {
+    "block": "enderio:blockpainter",
     "filter": {
-      "faceModes": "LONG",
       "facing": "INT",
+      "faceModes": "LONG",
       "paintSource": "COMPOUND",
       "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockElectricLight": {
+  {
+    "block": "enderio:blockelectriclight",
     "filter": {
       "face": "INT",
       "isInvereted": "BYTE",
@@ -525,30 +565,33 @@
       "requiresPower": "BYTE"
     }
   },
-  "enderio:blockTravelAnchor": {
+  {
+    "block": "enderio:blocktravelanchor",
     "filter": {
-      "accessMode": "INT",
-      "authorisedUsers": "COMPOUND",
-      "itemLabel": "COMPOUND",
-      "label": "STRING",
+      "password": "COMPOUND",
       "owner.uuid": "STRING",
       "owner.login": "STRING",
-      "password": "COMPOUND"
+      "authorisedUsers": "COMPOUND",
+      "label": "STRING",
+      "accessMode": "INT",
+      "itemLabel": "COMPOUND"
     }
   },
-  "enderio:blockTelePad": {
+  {
+    "block": "enderio:blocktelepad",
     "filter": {
-      "accessMode": "INT",
-      "authorisedUsers": "COMPOUND",
-      "itemLabel": "COMPOUND",
-      "label": "STRING",
+      "password": "COMPOUND",
       "owner.uuid": "STRING",
       "owner.login": "STRING",
-      "password": "COMPOUND",
+      "authorisedUsers": "COMPOUND",
+      "label": "STRING",
+      "accessMode": "INT",
+      "itemLabel": "COMPOUND",
       "target": "COMPOUND"
     }
   },
-  "enderio:blockDialingDevice": {
+  {
+    "block": "enderio:blockdialingdevice",
     "filter": {
       "facing": "INT",
       "targets": "COMPOUND"
@@ -557,21 +600,22 @@
       "facing__null": "If present, always ignores facing."
     }
   },
-  "enderio:blockGauge": {},
-  "enderio:blockInventoryPanelSensor": {
+  "enderio:blockgauge",
+  {
+    "block": "enderio:blockinventorypanelsensor",
     "filter": {
-      "faceModes": "LONG",
-      "facing": "INT",
       "itemToCheck": "COMPOUND",
-      "paintSource": "COMPOUND",
-      "redstoneControlMode": "INT",
+      "stopCount": "INT",
       "startCount": "INT",
-      "stopCount": "INT"
+      "paintSource": "COMPOUND",
+      "facing": "INT",
+      "faceModes": "LONG",
+      "redstoneControlMode": "INT"
     },
     "strip": {
       "faceModes__null": "If present, always ignores faceModes.",
-      "facing__null": "If present, always ignores facing.",
-      "paintSource__null": "If present, always ignores paintSource."
+      "paintSource__null": "If present, always ignores paintSource.",
+      "facing__null": "If present, always ignores facing."
     }
   }
-}
+]

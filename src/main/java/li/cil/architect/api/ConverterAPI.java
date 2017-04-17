@@ -5,7 +5,6 @@ import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.converter.SortIndex;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -45,33 +44,20 @@ public final class ConverterAPI {
     // --------------------------------------------------------------------- //
 
     /**
-     * Test if the specified block is blacklisted for conversion.
-     *
-     * @param block the block to test for.
-     * @return <code>true</code> if the block is blacklisted;
-     * <code>false</code> otherwise.
-     */
-    public static boolean isBlacklisted(final Block block) {
-        if (API.converterAPI != null) {
-            return API.converterAPI.isBlacklisted(block);
-        }
-        return false;
-    }
-
-    /**
      * Map a block to a potential replacement, based on current mapping
      * configuration. Generally used to replace state-dependent representations
      * with their default one, e.g. <code>lit_furnace</code> to
      * <code>furnace</code>.
      *
      * @param state the block state to resolve the mapping for.
-     * @return the mapped representation of the block.
+     * @return the mapped representation of the block state.
      */
-    public static Block mapToBlock(final IBlockState state) {
+    @Nullable
+    public static IBlockState mapToBlock(final IBlockState state) {
         if (API.converterAPI != null) {
             return API.converterAPI.mapToBlock(state);
         }
-        return Blocks.AIR;
+        return null;
     }
 
     /**

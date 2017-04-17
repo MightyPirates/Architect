@@ -34,24 +34,15 @@ public interface ConverterAPI {
     // --------------------------------------------------------------------- //
 
     /**
-     * Test if the specified block is blacklisted for conversion.
-     *
-     * @param block the block to test for.
-     * @return <code>true</code> if the block is blacklisted;
-     * <code>false</code> otherwise.
-     */
-    boolean isBlacklisted(final Block block);
-
-    /**
      * Map a block to a potential replacement, based on current mapping
      * configuration. Generally used to replace state-dependent representations
      * with their default one, e.g. <code>lit_furnace</code> to
      * <code>furnace</code>.
      *
      * @param state the block state to resolve the mapping for.
-     * @return the mapped representation of the block.
+     * @return the mapped representation of the block state.
      */
-    Block mapToBlock(final IBlockState state);
+    IBlockState mapToBlock(final IBlockState state);
 
     /**
      * Get the item associated with the specified block. Takes into account
