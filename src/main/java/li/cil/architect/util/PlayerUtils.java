@@ -11,6 +11,8 @@ public final class PlayerUtils {
 
     /**
      * Change the distance at which the free-aim pointer is positioned.
+     *
+     * @param delta the amount by which to change the distance.
      */
     public static void changeFreeAimDistance(final float delta) {
         freeAimDistance = MathHelper.clamp(freeAimDistance + delta, 1, 5);
