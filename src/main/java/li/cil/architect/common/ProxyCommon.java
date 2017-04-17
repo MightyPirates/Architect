@@ -40,9 +40,6 @@ import java.util.function.Supplier;
  */
 public class ProxyCommon {
     public void onPreInit(final FMLPreInitializationEvent event) {
-        // Load additional JSON based settings (black/whitelists, mappings).
-        Jasons.loadJSON(true);
-
         // Initialize API.
         API.creativeTab = new CreativeTab();
 
@@ -75,6 +72,10 @@ public class ProxyCommon {
     }
 
     public void onPostInit(final FMLPostInitializationEvent event) {
+        // Load additional JSON based settings (black/whitelists, mappings),
+        // do this after blocks from mods are all registered.
+        Jasons.loadJSON(true);
+
         // Mod integration.
         Integration.postInit(event);
     }
