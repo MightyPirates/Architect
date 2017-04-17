@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -29,7 +30,7 @@ public class BlockStateFilter {
 
     public BlockStateFilter(final ResourceLocation location, final Map<String, String> properties) {
         this.blockRaw = location;
-        this.propertiesRaw = new HashMap<>(properties);
+        this.propertiesRaw = new LinkedHashMap<>(properties);
 
         block = ForgeRegistries.BLOCKS.getValue(location);
         this.properties = new HashMap<>();
@@ -81,6 +82,10 @@ public class BlockStateFilter {
     @Nullable
     public Block getBlock() {
         return block;
+    }
+
+    public Map<IProperty<?>, Comparable<?>> getActualProperties() {
+        return properties;
     }
 
     boolean matches(final IBlockState state) {

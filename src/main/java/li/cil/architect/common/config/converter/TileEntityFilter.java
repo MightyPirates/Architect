@@ -3,8 +3,8 @@ package li.cil.architect.common.config.converter;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class TileEntityFilter {
@@ -18,8 +18,8 @@ public final class TileEntityFilter {
     public TileEntityFilter(final BlockStateFilter selector, final int sortIndex, final Map<String, Object> nbtFilter, final Map<String, Object> nbtStripper) {
         this.selector = selector;
         this.sortIndex = sortIndex;
-        this.nbtFilter = new HashMap<>(nbtFilter);
-        this.nbtStripper = new HashMap<>(nbtStripper);
+        this.nbtFilter = new LinkedHashMap<>(nbtFilter);
+        this.nbtStripper = new LinkedHashMap<>(nbtStripper);
     }
 
     public BlockStateFilter getSelector() {

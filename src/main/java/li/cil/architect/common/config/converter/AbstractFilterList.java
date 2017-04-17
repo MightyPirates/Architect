@@ -1,7 +1,6 @@
 package li.cil.architect.common.config.converter;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -34,15 +33,7 @@ public abstract class AbstractFilterList<F> {
             }
         }
 
-        if (selector.getProperties().isEmpty()) {
-            filters.clear();
-        }
-
-        if (filters.contains(filter)) {
-            return;
-        }
-
-        filters.add(filter);
+        addFilter(filter, filters, selector.getProperties().isEmpty());
     }
 
     public void addAll(final AbstractFilterList<F> from) {
@@ -89,16 +80,7 @@ public abstract class AbstractFilterList<F> {
         return filters;
     }
 
-    protected boolean addFilter(final F filter, final List<F> filters, final Map<IProperty<?>, Comparable<?>> properties) {
-        // When adding a constraint that is empty that means "any".
-        if (properties.isEmpty()) {
-            if (filters.size() == 1 && filters.contains(filter)) {
-                return false;
-            }
-
-            filters.clear();
-        }
-
+    protected boolean addFilter(final F filter, final List<F> filters, final boolean isWildcard) {
         if (filters.contains(filter)) {
             return false;
         }
