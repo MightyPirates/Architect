@@ -47,10 +47,10 @@ public class BlockStateFilter {
                         } else {
                             Architect.getLog().warn("Cannot parse property value '{}' for property '{}' of block {}.", entry.getValue(), entry.getKey(), location);
                         }
+                        continue outer;
                     }
-                    Architect.getLog().warn("Block {} has no property '{}'.", location, entry.getKey());
-                    continue outer;
                 }
+                Architect.getLog().warn("Block {} has no property '{}'.", location, entry.getKey());
             }
         }
     }
