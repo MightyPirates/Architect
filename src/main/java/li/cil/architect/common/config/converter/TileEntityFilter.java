@@ -1,4 +1,4 @@
-package li.cil.architect.common.config;
+package li.cil.architect.common.config.converter;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;

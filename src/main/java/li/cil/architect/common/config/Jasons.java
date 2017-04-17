@@ -5,10 +5,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import li.cil.architect.api.API;
 import li.cil.architect.common.Architect;
+import li.cil.architect.common.config.converter.Blacklist;
+import li.cil.architect.common.config.converter.BlockStateFilter;
+import li.cil.architect.common.config.converter.TileEntityFilter;
+import li.cil.architect.common.config.converter.Whitelist;
 import li.cil.architect.common.json.BlacklistAdapter;
 import li.cil.architect.common.json.BlockStateFilterAdapter;
-import li.cil.architect.common.json.ConverterFilterAdapter;
 import li.cil.architect.common.json.ResourceLocationAdapter;
+import li.cil.architect.common.json.TileEntityFilterAdapter;
 import li.cil.architect.common.json.Types;
 import li.cil.architect.common.json.WhitelistAdapter;
 import net.minecraft.block.Block;
@@ -299,7 +303,7 @@ public final class Jasons {
                 setPrettyPrinting().
                 registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).
                 registerTypeAdapter(BlockStateFilter.class, new BlockStateFilterAdapter()).
-                registerTypeAdapter(TileEntityFilter.class, new ConverterFilterAdapter()).
+                registerTypeAdapter(TileEntityFilter.class, new TileEntityFilterAdapter()).
                 registerTypeAdapter(Blacklist.class, new BlacklistAdapter()).
                 registerTypeAdapter(Whitelist.class, new WhitelistAdapter()).
                 create();
@@ -325,7 +329,7 @@ public final class Jasons {
                 setPrettyPrinting().
                 registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).
                 registerTypeAdapter(BlockStateFilter.class, new BlockStateFilterAdapter()).
-                registerTypeAdapter(TileEntityFilter.class, new ConverterFilterAdapter()).
+                registerTypeAdapter(TileEntityFilter.class, new TileEntityFilterAdapter()).
                 registerTypeAdapter(Blacklist.class, new BlacklistAdapter()).
                 registerTypeAdapter(Whitelist.class, new WhitelistAdapter()).
                 create();

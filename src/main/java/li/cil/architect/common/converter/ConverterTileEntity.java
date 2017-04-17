@@ -4,7 +4,7 @@ import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.api.prefab.converter.AbstractConverter;
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Jasons;
-import li.cil.architect.common.config.TileEntityFilter;
+import li.cil.architect.common.config.converter.TileEntityFilter;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;

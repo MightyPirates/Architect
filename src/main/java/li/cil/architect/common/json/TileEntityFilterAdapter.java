@@ -8,15 +8,15 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import li.cil.architect.api.converter.SortIndex;
-import li.cil.architect.common.config.BlockStateFilter;
-import li.cil.architect.common.config.TileEntityFilter;
+import li.cil.architect.common.config.converter.BlockStateFilter;
+import li.cil.architect.common.config.converter.TileEntityFilter;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ConverterFilterAdapter implements JsonSerializer<TileEntityFilter>, JsonDeserializer<TileEntityFilter> {
+public class TileEntityFilterAdapter implements JsonSerializer<TileEntityFilter>, JsonDeserializer<TileEntityFilter> {
     private static final String KEY_SELECTOR = "block";
     private static final String KEY_SORT_INDEX = "sortIndex";
     private static final String KEY_NBT_FILTER = "filter";

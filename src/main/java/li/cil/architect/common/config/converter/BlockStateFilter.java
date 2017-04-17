@@ -1,4 +1,4 @@
-package li.cil.architect.common.config;
+package li.cil.architect.common.config.converter;
 
 import com.google.common.base.Optional;
 import li.cil.architect.common.Architect;
@@ -18,14 +18,11 @@ import java.util.Objects;
 public class BlockStateFilter {
     // Keep the raw values for serialization, avoids losing data if the
     // block does not exist in the current setup.
-    @Nonnull
     private final ResourceLocation blockRaw;
-    @Nonnull
     private final Map<String, String> propertiesRaw;
 
     @Nullable
     private final Block block;
-    @Nonnull
     private final Map<IProperty<?>, Comparable<?>> properties;
 
     // --------------------------------------------------------------------- //
@@ -59,7 +56,7 @@ public class BlockStateFilter {
     }
 
     @SuppressWarnings("unchecked")
-    BlockStateFilter(final Block block, final Map<IProperty<?>, Comparable<?>> properties) {
+    BlockStateFilter(@Nonnull final Block block, final Map<IProperty<?>, Comparable<?>> properties) {
         this.block = block;
         this.properties = new HashMap<>(properties);
 

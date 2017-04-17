@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import li.cil.architect.common.config.BlockStateFilter;
+import li.cil.architect.common.config.converter.BlockStateFilter;
 import net.minecraft.util.ResourceLocation;
 
 import java.lang.reflect.Type;
