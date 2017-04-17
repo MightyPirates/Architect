@@ -82,14 +82,14 @@ public abstract class AbstractConverter implements Converter {
 
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
-        final IBlockState state = world.getBlockState(pos);
+        final IBlockState state = world.getBlockState(pos).getActualState(world, pos);
         final IBlockState mapped = ConverterAPI.mapToBlock(state);
         return mapped != null && ConverterAPI.mapToItem(mapped.getBlock()) != Items.AIR && canSerialize(world, pos, mapped);
     }
 
     @Override
     public NBTBase serialize(final World world, final BlockPos pos) {
-        final IBlockState state = world.getBlockState(pos);
+        final IBlockState state = world.getBlockState(pos).getActualState(world, pos);
         final IBlockState mapped = ConverterAPI.mapToBlock(state);
         assert mapped != null : "canSerialize implementation allowed invalid block";
         assert mapped.getBlock().getRegistryName() != null;
