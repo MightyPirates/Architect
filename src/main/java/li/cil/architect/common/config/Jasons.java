@@ -1,14 +1,18 @@
 package li.cil.architect.common.config;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import li.cil.architect.api.API;
 import li.cil.architect.common.Architect;
+import li.cil.architect.common.json.BlacklistAdapter;
+import li.cil.architect.common.json.BlockStateFilterAdapter;
 import li.cil.architect.common.json.ConverterFilterAdapter;
 import li.cil.architect.common.json.ResourceLocationAdapter;
 import li.cil.architect.common.json.Types;
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -26,15 +30,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Settings stored in JSON files.
@@ -43,17 +41,17 @@ public final class Jasons {
     /**
      * The list of blocks to ignore in built-in converters, user configurable.
      */
-    private static final Set<ResourceLocation> blacklist = new LinkedHashSet<>();
+    private static final Blacklist blacklist = new Blacklist();
 
     /**
      * Same as {@link #blacklist}, but never saved, filled via IMCs.
      */
-    private static final Set<ResourceLocation> blacklistIMC = new HashSet<>();
+    private static final Blacklist blacklistIMC = new Blacklist();
 
     /**
      * Same as {@link #blacklist}, but never saved, built-in defaults.
      */
-    private static final Set<ResourceLocation> blacklistDefaults = new HashSet<>();
+    private static final Blacklist blacklistDefaults = new Blacklist();
 
     /**
      * The list of blocks with tile entities allowed to be converted by
@@ -104,24 +102,25 @@ public final class Jasons {
     // --------------------------------------------------------------------- //
     // Converter accessors
 
-    public static boolean isBlacklisted(final Block block) {
-        final ResourceLocation location = block.getRegistryName();
+    public static boolean isBlacklisted(final IBlockState state) {
+        final ResourceLocation location = state.getBlock().getRegistryName();
         if (location == null) {
             return true;
         }
-        if (blacklist.contains(location)) {
+
+        if (blacklist.contains(state)) {
             return true;
         }
         if (whitelist.containsKey(location)) {
             return false;
         }
-        if (blacklistIMC.contains(location)) {
+        if (blacklistIMC.contains(state)) {
             return true;
         }
         if (whitelistIMC.containsKey(location)) {
             return false;
         }
-        return blacklistDefaults.contains(location);
+        return blacklistDefaults.contains(state);
     }
 
     @Nullable
@@ -205,8 +204,8 @@ public final class Jasons {
     // --------------------------------------------------------------------- //
     // IMC accessors
 
-    public static void addToIMCBlacklist(final ResourceLocation location) {
-        blacklistIMC.add(location);
+    public static void addToIMCBlacklist(final Block block, final ImmutableMap<IProperty<?>, Comparable<?>> properties) {
+        blacklistIMC.add(block, properties);
     }
 
     public static void addToIMCWhitelist(final ResourceLocation location, final ConverterFilter filter) {
@@ -224,17 +223,8 @@ public final class Jasons {
     // --------------------------------------------------------------------- //
     // Config GUI and command accessors
 
-    public static String[] getBlacklist() {
-        return toStringArray(blacklist);
-    }
-
-    public static void setBlacklist(final String[] values) {
-        blacklist.clear();
-        blacklist.addAll(toResourceLocationSet(values));
-    }
-
-    public static boolean addToBlacklist(final ResourceLocation location) {
-        if (blacklist.add(location)) {
+    public static boolean addToBlacklist(final Block block, final ImmutableMap<IProperty<?>, Comparable<?>> properties) {
+        if (blacklist.add(block, properties)) {
             saveJSON();
             return true;
         }
@@ -309,7 +299,7 @@ public final class Jasons {
         if (mapping == null) {
             final Block block = ForgeRegistries.BLOCKS.getValue(location);
             if (block != null) {
-                mapping = ForgeRegistries.ITEMS.getKey(Item.getItemFromBlock(block));
+                mapping = Item.getItemFromBlock(block).getRegistryName();
             }
         }
         return mapping;
@@ -339,6 +329,8 @@ public final class Jasons {
         final Gson gson = new GsonBuilder().
                 setPrettyPrinting().
                 registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).
+                registerTypeAdapter(BlockStateFilter.class, new BlockStateFilterAdapter()).
+                registerTypeAdapter(Blacklist.class, new BlacklistAdapter()).
                 registerTypeAdapter(ConverterFilter.class, new ConverterFilterAdapter()).
                 create();
 
@@ -362,6 +354,8 @@ public final class Jasons {
         final Gson gson = new GsonBuilder().
                 setPrettyPrinting().
                 registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).
+                registerTypeAdapter(BlockStateFilter.class, new BlockStateFilterAdapter()).
+                registerTypeAdapter(Blacklist.class, new BlacklistAdapter()).
                 registerTypeAdapter(ConverterFilter.class, new ConverterFilterAdapter()).
                 create();
 
@@ -373,17 +367,9 @@ public final class Jasons {
 
     // --------------------------------------------------------------------- //
 
-    private static String[] toStringArray(final Collection<ResourceLocation> locations) {
-        return locations.stream().map(ResourceLocation::toString).sorted().toArray(String[]::new);
-    }
-
-    private static Set<ResourceLocation> toResourceLocationSet(final String[] values) {
-        return Arrays.stream(values).map(ResourceLocation::new).collect(Collectors.toSet());
-    }
-
     private static void loadDefaultBlacklist(final Gson gson) {
         try {
-            final Collection<ResourceLocation> result = loadDefault(Constants.BLACKLIST_FILENAME, Types.SET_RESOURCE_LOCATION, gson);
+            final Blacklist result = loadDefault(Constants.BLACKLIST_FILENAME, Blacklist.class, gson);
             blacklistDefaults.clear();
             blacklistDefaults.addAll(result);
         } catch (final IOException | JsonSyntaxException e) {
@@ -422,7 +408,7 @@ public final class Jasons {
     }
 
     private static void loadBlacklist(final String basePath, final Gson gson, final Map<String, Throwable> errors) {
-        final Set<ResourceLocation> result = load(blacklist, Constants.BLACKLIST_FILENAME, Types.SET_RESOURCE_LOCATION, basePath, gson, errors);
+        final Blacklist result = load(blacklist, Constants.BLACKLIST_FILENAME, Blacklist.class, basePath, gson, errors);
         if (result != blacklist) {
             blacklist.clear();
             blacklist.addAll(result);

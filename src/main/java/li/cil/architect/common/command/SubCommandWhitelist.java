@@ -2,6 +2,7 @@ package li.cil.architect.common.command;
 
 import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.common.config.Jasons;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
@@ -38,7 +39,7 @@ final class SubCommandWhitelist extends AbstractListCommand {
     }
 
     @Override
-    protected boolean addToList(final ResourceLocation location, final String[] args) throws CommandException {
+    protected boolean addToList(final IBlockState state, final ResourceLocation location, final String[] args) throws CommandException {
         final int sortIndex;
         if (args.length == 0) {
             sortIndex = SortIndex.SOLID_BLOCK;
