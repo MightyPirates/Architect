@@ -68,12 +68,13 @@ public abstract class AbstractSubCommand extends AbstractCommand {
 
     @Nullable
     static IBlockState getLookedAtBlockState(final ICommandSender sender) throws CommandException {
+        final World world = sender.getEntityWorld();
         final BlockPos pos = getLookedAtBlockPos(sender);
         if (pos == null) {
             return null;
         }
 
-        return sender.getEntityWorld().getBlockState(pos);
+        return world.getBlockState(pos).getActualState(world, pos);
     }
 
     @Nullable

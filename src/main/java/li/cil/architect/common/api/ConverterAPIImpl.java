@@ -102,7 +102,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
             nbt.setTag(TAG_DATA, converter.serialize(world, pos));
             return nbt;
         } catch (final Throwable e) {
-            final IBlockState state = world.getBlockState(pos);
+            final IBlockState state = world.getBlockState(pos).getActualState(world, pos);
             Jasons.addToBlacklist(state.getBlock(), state.getProperties());
             Architect.getLog().warn("Failed serializing block state {}, blacklisting.", state);
             return null;
@@ -142,7 +142,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
             Architect.getLog().warn("Converter threw up while deserializing.", e);
         }
 
-        final IBlockState state = world.getBlockState(pos);
+        final IBlockState state = world.getBlockState(pos).getActualState(world, pos);
         if (world.getTotalWorldTime() > lastPlaceSound + 3) {
             lastPlaceSound = world.getTotalWorldTime();
             final SoundType soundtype = state.getBlock().getSoundType(state, world, pos, null);
@@ -151,7 +151,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
     }
 
     private static boolean isValidPosition(final World world, final BlockPos pos) {
-        final IBlockState state = world.getBlockState(pos);
+        final IBlockState state = world.getBlockState(pos).getActualState(world, pos);
         return state.getBlock().isReplaceable(world, pos);
     }
 
@@ -167,7 +167,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
             return null;
         }
 
-        final IBlockState state = world.getBlockState(pos);
+        final IBlockState state = world.getBlockState(pos).getActualState(world, pos);
         if (Jasons.isBlacklisted(state)) {
             return null;
         }
