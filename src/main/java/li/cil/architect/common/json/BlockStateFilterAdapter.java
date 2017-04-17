@@ -40,7 +40,10 @@ public final class BlockStateFilterAdapter implements JsonSerializer<BlockStateF
 
         final JsonObject matcherJson = json.getAsJsonObject();
         final ResourceLocation location = context.deserialize(matcherJson.get(KEY_BLOCK), ResourceLocation.class);
+        if (location == null) {
+            throw new JsonParseException("BlockStateFilter requires a '" + KEY_BLOCK + "' property.");
+        }
         final Map<String, String> properties = context.deserialize(matcherJson.get(KEY_PROPERTIES), Types.MAP_STRING_STRING);
-        return new BlockStateFilter(location, properties);
+        return new BlockStateFilter(location, properties == null ? Collections.emptyMap() : properties);
     }
 }

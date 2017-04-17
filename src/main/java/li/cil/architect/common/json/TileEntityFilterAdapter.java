@@ -75,12 +75,18 @@ public class TileEntityFilterAdapter implements JsonSerializer<TileEntityFilter>
     public TileEntityFilter deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
         if (json.isJsonPrimitive()) {
             final BlockStateFilter selector = context.deserialize(json, BlockStateFilter.class);
+            if (selector == null) {
+                throw new JsonParseException("TileEntityFilter requires a block selector.");
+            }
             return new TileEntityFilter(selector, SortIndex.SOLID_BLOCK, Collections.emptyMap(), Collections.emptyMap());
         }
 
         final JsonObject converterJson = json.getAsJsonObject();
 
         final BlockStateFilter selector = context.deserialize(converterJson.get(KEY_SELECTOR), BlockStateFilter.class);
+        if (selector == null) {
+            throw new JsonParseException("TileEntityFilter requires a block selector.");
+        }
 
         final JsonElement sortIndexJson = converterJson.get(KEY_SORT_INDEX);
         final int sortIndex;
