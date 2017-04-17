@@ -1,6 +1,5 @@
 package li.cil.architect.common.command;
 
-import com.google.common.collect.ImmutableMap;
 import li.cil.architect.common.config.Jasons;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -46,7 +45,7 @@ final class SubCommandBlacklist extends AbstractListCommand {
     }
 
     @Override
-    protected boolean addToList(final IBlockState state, final ResourceLocation location, final String[] args) {
+    protected boolean addToList(final ICommandSender sender, final String[] args, final IBlockState state, final ResourceLocation location) {
         final Map<IProperty<?>, Comparable<?>> constraintList = new HashMap<>();
         if (args.length > 0) {
             for (final Map.Entry<IProperty<?>, Comparable<?>> property : state.getProperties().entrySet()) {
@@ -55,7 +54,7 @@ final class SubCommandBlacklist extends AbstractListCommand {
                 }
             }
         }
-        return Jasons.addToBlacklist(state.getBlock(), ImmutableMap.copyOf(constraintList));
+        return Jasons.addToBlacklist(state.getBlock(), constraintList);
     }
 
     @Override

@@ -3,8 +3,8 @@ package li.cil.architect.common.converter;
 import li.cil.architect.api.converter.SortIndex;
 import li.cil.architect.api.prefab.converter.AbstractConverter;
 import li.cil.architect.common.config.Constants;
-import li.cil.architect.common.config.ConverterFilter;
 import li.cil.architect.common.config.Jasons;
+import li.cil.architect.common.config.TileEntityFilter;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,10 +13,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public final class ConverterComplex extends AbstractConverter {
+public final class ConverterTileEntity extends AbstractConverter {
     private static final String TAG_NBT = "nbt";
 
-    public ConverterComplex() {
+    public ConverterTileEntity() {
         super(Constants.UUID_CONVERTER_TILE_ENTITY);
     }
 
@@ -27,7 +27,12 @@ public final class ConverterComplex extends AbstractConverter {
             return SortIndex.SOLID_BLOCK;
         }
 
-        return Jasons.getSortIndex(state.getBlock());
+        final TileEntityFilter filter = Jasons.getFilter(state);
+        if (filter == null) {
+            return SortIndex.SOLID_BLOCK;
+        }
+
+        return filter.getSortIndex();
     }
 
     @Override
@@ -39,7 +44,7 @@ public final class ConverterComplex extends AbstractConverter {
     protected void postSerialize(final World world, final BlockPos pos, final IBlockState state, final NBTTagCompound data) {
         super.postSerialize(world, pos, state, data);
 
-        final ConverterFilter filter = Jasons.getFilter(state);
+        final TileEntityFilter filter = Jasons.getFilter(state);
         assert filter != null;
 
         if (filter.getNbtFilter().isEmpty()) {
@@ -64,7 +69,7 @@ public final class ConverterComplex extends AbstractConverter {
             return;
         }
 
-        final ConverterFilter filter = Jasons.getFilter(state);
+        final TileEntityFilter filter = Jasons.getFilter(state);
         if (filter == null) {
             return;
         }

@@ -31,14 +31,11 @@ public class BlacklistAdapter implements JsonSerializer<Blacklist>, JsonDeserial
 
     @Override
     public Blacklist deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-        if (!json.isJsonArray()) {
-            throw new JsonParseException("The blacklist should be a JSON array.");
-        }
         final JsonArray entriesJson = json.getAsJsonArray();
 
         final Blacklist blacklist = new Blacklist();
-        for (final JsonElement entryJsonMixed : entriesJson) {
-            blacklist.add(context.deserialize(entryJsonMixed, BlockStateFilter.class));
+        for (final JsonElement entryJson : entriesJson) {
+            blacklist.add(context.deserialize(entryJson, BlockStateFilter.class));
         }
         return blacklist;
     }

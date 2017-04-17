@@ -3,7 +3,6 @@ package li.cil.architect.common.command;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
-import li.cil.architect.common.Architect;
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.network.Network;
 import li.cil.architect.common.network.message.MessageClipboard;
@@ -16,7 +15,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -43,33 +41,18 @@ public final class SubCommandNbt extends AbstractSubCommand {
 
         final IBlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
-        final ResourceLocation location = Block.REGISTRY.getNameForObject(block);
+        final ResourceLocation location = block.getRegistryName();
         if (location == null) {
             notifyCommandListener(sender, this, Constants.COMMAND_NBT_INVALID_BLOCK);
             return;
         }
 
-        final TileEntity tileEntity = world.getTileEntity(pos);
-        if (tileEntity == null) {
+        // Grab nbt from tile entity.
+        final NBTTagCompound nbt = getLookedAtTileEntityNBT(sender);
+        if (nbt == null) {
             notifyCommandListener(sender, this, Constants.COMMAND_NBT_NO_TILE_ENTITY);
             return;
         }
-
-        // Grab nbt from tile entity.
-        final NBTTagCompound nbt = new NBTTagCompound();
-        try {
-            tileEntity.writeToNBT(nbt);
-        } catch (final Throwable e) {
-            notifyCommandListener(sender, this, Constants.COMMAND_NBT_ERROR);
-            Architect.getLog().warn("Failed getting tile entity NBT.", e);
-            return;
-        }
-
-        // Strip stuff written by TileEntity base class.
-        nbt.removeTag("x");
-        nbt.removeTag("y");
-        nbt.removeTag("z");
-        nbt.removeTag("id");
 
         // Convert it to our filter format.
         final StringBuilder builder = new StringBuilder();

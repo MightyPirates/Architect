@@ -1,6 +1,5 @@
 package li.cil.architect.common.config;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -11,6 +10,7 @@ import li.cil.architect.common.json.BlockStateFilterAdapter;
 import li.cil.architect.common.json.ConverterFilterAdapter;
 import li.cil.architect.common.json.ResourceLocationAdapter;
 import li.cil.architect.common.json.Types;
+import li.cil.architect.common.json.WhitelistAdapter;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -57,17 +57,17 @@ public final class Jasons {
      * The list of blocks with tile entities allowed to be converted by
      * built-in converters, user configurable.
      */
-    private static final Map<ResourceLocation, ConverterFilter> whitelist = new LinkedHashMap<>();
+    private static final Whitelist whitelist = new Whitelist();
 
     /**
      * Same as {@link #whitelist}, but never saved, filled via IMCs.
      */
-    private static final Map<ResourceLocation, ConverterFilter> whitelistIMC = new LinkedHashMap<>();
+    private static final Whitelist whitelistIMC = new Whitelist();
 
     /**
      * Same as {@link #whitelist}, but never saved, built-in defaults.
      */
-    private static final Map<ResourceLocation, ConverterFilter> whitelistDefaults = new LinkedHashMap<>();
+    private static final Whitelist whitelistDefaults = new Whitelist();
 
     /**
      * The mappings of blocks to other blocks for replacements in blueprints.
@@ -103,57 +103,35 @@ public final class Jasons {
     // Converter accessors
 
     public static boolean isBlacklisted(final IBlockState state) {
-        final ResourceLocation location = state.getBlock().getRegistryName();
-        if (location == null) {
-            return true;
-        }
-
         if (blacklist.contains(state)) {
             return true;
         }
-        if (whitelist.containsKey(location)) {
+        if (whitelist.contains(state)) {
             return false;
         }
         if (blacklistIMC.contains(state)) {
             return true;
         }
-        if (whitelistIMC.containsKey(location)) {
+        if (whitelistIMC.contains(state)) {
             return false;
         }
         return blacklistDefaults.contains(state);
     }
 
     @Nullable
-    public static ConverterFilter getFilter(@Nullable final IBlockState state) {
+    public static TileEntityFilter getFilter(@Nullable final IBlockState state) {
         if (state == null) {
             return null;
         }
 
-        final ResourceLocation location = state.getBlock().getRegistryName();
-        if (location == null) {
-            return null;
-        }
-
-        ConverterFilter filter = whitelist.get(location);
+        TileEntityFilter filter = whitelist.getFilter(state);
         if (filter == null) {
-            filter = whitelistIMC.get(location);
+            filter = whitelistIMC.getFilter(state);
         }
         if (filter == null) {
-            filter = whitelistDefaults.get(location);
+            filter = whitelistDefaults.getFilter(state);
         }
         return filter;
-    }
-
-    public static int getSortIndex(final Block block) {
-        final ResourceLocation location = block.getRegistryName();
-        ConverterFilter filter = whitelist.get(location);
-        if (filter == null) {
-            filter = whitelistIMC.get(location);
-        }
-        if (filter == null) {
-            filter = whitelistDefaults.get(location);
-        }
-        return filter == null ? 0 : filter.getSortIndex();
     }
 
     @SuppressWarnings("deprecation")
@@ -204,12 +182,12 @@ public final class Jasons {
     // --------------------------------------------------------------------- //
     // IMC accessors
 
-    public static void addToIMCBlacklist(final Block block, final ImmutableMap<IProperty<?>, Comparable<?>> properties) {
+    public static void addToIMCBlacklist(final Block block, final Map<IProperty<?>, Comparable<?>> properties) {
         blacklistIMC.add(block, properties);
     }
 
-    public static void addToIMCWhitelist(final ResourceLocation location, final ConverterFilter filter) {
-        whitelistIMC.put(location, filter);
+    public static void addToIMCWhitelist(final Block block, final Map<IProperty<?>, Comparable<?>> properties, final int sortIndex, final Map<String, Object> nbtFilter, final Map<String, Object> nbtStripper) {
+        whitelistIMC.add(block, properties, sortIndex, nbtFilter, nbtStripper);
     }
 
     public static void addIMCBlockMapping(final ResourceLocation location, final ResourceLocation mapping) {
@@ -223,7 +201,7 @@ public final class Jasons {
     // --------------------------------------------------------------------- //
     // Config GUI and command accessors
 
-    public static boolean addToBlacklist(final Block block, final ImmutableMap<IProperty<?>, Comparable<?>> properties) {
+    public static boolean addToBlacklist(final Block block, final Map<IProperty<?>, Comparable<?>> properties) {
         if (blacklist.add(block, properties)) {
             saveJSON();
             return true;
@@ -239,25 +217,16 @@ public final class Jasons {
         return false;
     }
 
-    public static boolean addToWhitelist(final ResourceLocation location, final int sortIndex) {
-        if (!whitelist.containsKey(location)) {
-            whitelist.put(location, new ConverterFilter(sortIndex));
+    public static boolean addToWhitelist(final Block block, final Map<IProperty<?>, Comparable<?>> properties, final int sortIndex, final Map<String, Object> nbtFilter, final Map<String, Object> nbtStripper) {
+        if (whitelist.add(block, properties, sortIndex, nbtFilter, nbtStripper)) {
             saveJSON();
             return true;
-        } else {
-            final ConverterFilter filter = whitelist.get(location);
-            if (filter.getSortIndex() != sortIndex) {
-                filter.setSortIndex(sortIndex);
-                saveJSON();
-                return true;
-            }
         }
         return false;
     }
 
     public static boolean removeFromWhitelist(final ResourceLocation location) {
-        if (whitelist.containsKey(location)) {
-            whitelist.remove(location);
+        if (whitelist.remove(location)) {
             saveJSON();
             return true;
         }
@@ -330,8 +299,9 @@ public final class Jasons {
                 setPrettyPrinting().
                 registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).
                 registerTypeAdapter(BlockStateFilter.class, new BlockStateFilterAdapter()).
+                registerTypeAdapter(TileEntityFilter.class, new ConverterFilterAdapter()).
                 registerTypeAdapter(Blacklist.class, new BlacklistAdapter()).
-                registerTypeAdapter(ConverterFilter.class, new ConverterFilterAdapter()).
+                registerTypeAdapter(Whitelist.class, new WhitelistAdapter()).
                 create();
 
         if (initDefaults) {
@@ -355,8 +325,9 @@ public final class Jasons {
                 setPrettyPrinting().
                 registerTypeAdapter(ResourceLocation.class, new ResourceLocationAdapter()).
                 registerTypeAdapter(BlockStateFilter.class, new BlockStateFilterAdapter()).
+                registerTypeAdapter(TileEntityFilter.class, new ConverterFilterAdapter()).
                 registerTypeAdapter(Blacklist.class, new BlacklistAdapter()).
-                registerTypeAdapter(ConverterFilter.class, new ConverterFilterAdapter()).
+                registerTypeAdapter(Whitelist.class, new WhitelistAdapter()).
                 create();
 
         save(blacklist, Constants.BLACKLIST_FILENAME, configDirectory, gson);
@@ -379,9 +350,9 @@ public final class Jasons {
 
     private static void loadDefaultWhitelist(final Gson gson) {
         try {
-            final Map<ResourceLocation, ConverterFilter> result = loadDefault(Constants.WHITELIST_FILENAME, Types.MAP_CONVERTER_FILTER, gson);
+            final Whitelist result = loadDefault(Constants.WHITELIST_FILENAME, Whitelist.class, gson);
             whitelistDefaults.clear();
-            whitelistDefaults.putAll(result);
+            whitelistDefaults.addAll(result);
         } catch (final IOException | JsonSyntaxException e) {
             Architect.getLog().warn("Failed reading " + Constants.WHITELIST_FILENAME + ".", e);
         }
@@ -416,10 +387,10 @@ public final class Jasons {
     }
 
     private static void loadWhitelist(final String basePath, final Gson gson, final Map<String, Throwable> errors) {
-        final Map<ResourceLocation, ConverterFilter> result = load(whitelist, Constants.WHITELIST_FILENAME, Types.MAP_CONVERTER_FILTER, basePath, gson, errors);
+        final Whitelist result = load(whitelist, Constants.WHITELIST_FILENAME, Whitelist.class, basePath, gson, errors);
         if (result != whitelist) {
             whitelist.clear();
-            whitelist.putAll(result);
+            whitelist.addAll(result);
         }
     }
 

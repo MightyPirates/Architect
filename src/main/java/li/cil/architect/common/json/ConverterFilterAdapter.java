@@ -8,18 +8,20 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import li.cil.architect.api.converter.SortIndex;
-import li.cil.architect.common.config.ConverterFilter;
+import li.cil.architect.common.config.BlockStateFilter;
+import li.cil.architect.common.config.TileEntityFilter;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, JsonDeserializer<ConverterFilter> {
+public class ConverterFilterAdapter implements JsonSerializer<TileEntityFilter>, JsonDeserializer<TileEntityFilter> {
+    private static final String KEY_SELECTOR = "block";
     private static final String KEY_SORT_INDEX = "sortIndex";
     private static final String KEY_NBT_FILTER = "filter";
-    private static final String KEY_NBT_FILTER_LEGACY = "nbt";
     private static final String KEY_NBT_STRIP = "strip";
+
     private static final String SORT_INDEX_SOLID = "solid";
     private static final String SORT_INDEX_FALLING = "falling";
     private static final String SORT_INDEX_ATTACHED = "attached";
@@ -29,10 +31,20 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
     // JsonSerializer
 
     @Override
-    public JsonElement serialize(final ConverterFilter src, final Type typeOfSrc, final JsonSerializationContext context) {
+    public JsonElement serialize(final TileEntityFilter src, final Type typeOfSrc, final JsonSerializationContext context) {
         final JsonObject converterJson = new JsonObject();
 
+        final BlockStateFilter selector = src.getSelector();
         final int sortIndex = src.getSortIndex();
+        final Map<String, Object> nbtFilter = src.getNbtFilter();
+        final Map<String, Object> nbtStripper = src.getNbtStripper();
+
+        final JsonElement selectorJson = context.serialize(selector);
+        if (selectorJson.isJsonPrimitive() && sortIndex == SortIndex.SOLID_BLOCK && nbtFilter.isEmpty() && nbtStripper.isEmpty()) {
+            return selectorJson;
+        }
+        converterJson.add(KEY_SELECTOR, selectorJson);
+
         if (sortIndex == SortIndex.SOLID_BLOCK) {
             // Default, don't need to save.
         } else if (sortIndex == SortIndex.FALLING_BLOCK) {
@@ -45,12 +57,12 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
             converterJson.addProperty(KEY_SORT_INDEX, src.getSortIndex());
         }
 
-        if (!src.getNbtFilter().isEmpty()) {
-            converterJson.add(KEY_NBT_FILTER, serialize(src.getNbtFilter()));
+        if (!nbtFilter.isEmpty()) {
+            converterJson.add(KEY_NBT_FILTER, serialize(nbtFilter));
         }
 
-        if (!src.getNbtStripper().isEmpty()) {
-            converterJson.add(KEY_NBT_STRIP, serialize(src.getNbtStripper()));
+        if (!nbtStripper.isEmpty()) {
+            converterJson.add(KEY_NBT_STRIP, serialize(nbtStripper));
         }
 
         return converterJson;
@@ -60,11 +72,15 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
     // JsonDeserializer
 
     @Override
-    public ConverterFilter deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-        if (!json.isJsonObject()) {
-            throw new JsonParseException("Filter entry is not a JSON object.");
+    public TileEntityFilter deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+        if (json.isJsonPrimitive()) {
+            final BlockStateFilter selector = context.deserialize(json, BlockStateFilter.class);
+            return new TileEntityFilter(selector, SortIndex.SOLID_BLOCK, Collections.emptyMap(), Collections.emptyMap());
         }
+
         final JsonObject converterJson = json.getAsJsonObject();
+
+        final BlockStateFilter selector = context.deserialize(converterJson.get(KEY_SELECTOR), BlockStateFilter.class);
 
         final JsonElement sortIndexJson = converterJson.get(KEY_SORT_INDEX);
         final int sortIndex;
@@ -80,10 +96,7 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
             sortIndex = sortIndexJson.getAsInt();
         }
 
-        JsonElement filterJson = converterJson.get(KEY_NBT_FILTER);
-        if (filterJson == null) {
-            filterJson = converterJson.get(KEY_NBT_FILTER_LEGACY);
-        }
+        final JsonElement filterJson = converterJson.get(KEY_NBT_FILTER);
         final Map<String, Object> nbtFilter;
         if (filterJson != null) {
             nbtFilter = deserialize(filterJson);
@@ -99,7 +112,7 @@ public class ConverterFilterAdapter implements JsonSerializer<ConverterFilter>, 
             nbtStripper = Collections.emptyMap();
         }
 
-        return new ConverterFilter(nbtFilter, nbtStripper, sortIndex);
+        return new TileEntityFilter(selector, sortIndex, nbtFilter, nbtStripper);
     }
 
     // --------------------------------------------------------------------- //

@@ -3,38 +3,31 @@ package li.cil.architect.common.config;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class ConverterFilter {
+public final class TileEntityFilter {
+    private final BlockStateFilter selector;
+    private int sortIndex;
     private final Map<String, Object> nbtFilter;
     private final Map<String, Object> nbtStripper;
-    private int sortIndex;
 
     // --------------------------------------------------------------------- //
 
-    public ConverterFilter(final Map<String, Object> nbtFilter, final Map<String, Object> nbtStripper, final int sortIndex) {
+    public TileEntityFilter(final BlockStateFilter selector, final int sortIndex, final Map<String, Object> nbtFilter, final Map<String, Object> nbtStripper) {
+        this.selector = selector;
         this.sortIndex = sortIndex;
-        this.nbtFilter = nbtFilter;
-        this.nbtStripper = nbtStripper;
+        this.nbtFilter = new HashMap<>(nbtFilter);
+        this.nbtStripper = new HashMap<>(nbtStripper);
     }
 
-    public ConverterFilter(final int sortIndex) {
-        this(Collections.emptyMap(), Collections.emptyMap(), sortIndex);
-    }
-
-    public ConverterFilter(final NBTTagCompound nbtFilter, final NBTTagCompound nbtStripper, final int sortIndex) {
-        this(convertToMap(nbtFilter), convertToMap(nbtStripper), sortIndex);
+    public BlockStateFilter getSelector() {
+        return selector;
     }
 
     public int getSortIndex() {
         return sortIndex;
-    }
-
-    public void setSortIndex(final int sortIndex) {
-        this.sortIndex = sortIndex;
     }
 
     public Map<String, Object> getNbtFilter() {
@@ -52,6 +45,41 @@ public final class ConverterFilter {
     public void strip(final NBTTagCompound nbt) {
         strip(nbt, nbtStripper);
     }
+
+    // --------------------------------------------------------------------- //
+    // Object
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final TileEntityFilter filter = (TileEntityFilter) o;
+        if (sortIndex != filter.sortIndex) {
+            return false;
+        }
+        if (!selector.equals(filter.selector)) {
+            return false;
+        }
+        if (!nbtFilter.equals(filter.nbtFilter)) {
+            return false;
+        }
+        return nbtStripper.equals(filter.nbtStripper);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = selector.hashCode();
+        result = 31 * result + sortIndex;
+        result = 31 * result + nbtFilter.hashCode();
+        result = 31 * result + nbtStripper.hashCode();
+        return result;
+    }
+
 
     // --------------------------------------------------------------------- //
 
@@ -86,18 +114,5 @@ public final class ConverterFilter {
                 iterator.remove();
             }
         }
-    }
-
-    private static Map<String, Object> convertToMap(final NBTTagCompound nbt) {
-        final Map<String, Object> result = new HashMap<>();
-        for (final String key : nbt.getKeySet()) {
-            final NBTBase value = nbt.getTag(key);
-            if (value instanceof NBTTagCompound) {
-                result.put(key, convertToMap((NBTTagCompound) value));
-            } else {
-                result.put(key, value.toString());
-            }
-        }
-        return result;
     }
 }
