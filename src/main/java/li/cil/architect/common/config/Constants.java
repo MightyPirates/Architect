@@ -50,7 +50,6 @@ public final class Constants {
     // --------------------------------------------------------------------- //
     // Config
 
-    public static final String CONFIG_MAX_BLUEPRINT_SIZE = "config.architect.maxBlueprintSize";
     public static final String CONFIG_MAX_PROVIDER_RADIUS = "config.architect.maxProviderRadius";
     public static final String CONFIG_MAX_CHUNK_OPS_PER_TICK = "config.architect.maxChunkOperationsPerTick";
     public static final String CONFIG_MAX_WORLD_OPS_PER_TICK = "config.architect.maxWorldOperationsPerTick";
