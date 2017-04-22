@@ -74,15 +74,15 @@ public enum BlueprintRenderer {
         doPositionPrologue(event);
         doOverlayPrologue();
 
-        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
-        renderCellBounds(cellBounds);
-        renderRotationIndicator(data.getRotation(), cellBounds);
-
         GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
         renderValidBlocks(world, data.getBlocks(hitPos), dt);
 
         GlStateManager.color(0.9f, 0.2f, 0.2f, 0.3f);
         renderInvalidBlocks(world, data.getBlocks(hitPos), dt);
+
+        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
+        renderCellBounds(cellBounds);
+        renderRotationIndicator(data.getRotation(), cellBounds);
 
         doOverlayEpilogue();
         doPositionEpilogue();
