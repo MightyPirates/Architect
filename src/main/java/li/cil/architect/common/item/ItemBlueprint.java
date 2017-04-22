@@ -27,7 +27,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
 import java.lang.ref.WeakReference;
-import java.util.Comparator;
 import java.util.List;
 
 public final class ItemBlueprint extends AbstractItem {
@@ -36,6 +35,7 @@ public final class ItemBlueprint extends AbstractItem {
 
     private static final int COSTS_PER_PAGE = 10;
     private static WeakReference<ItemStack> tooltipStack;
+    private static List<String> tooltipCosts;
     private static long tooltipStart;
     private static long tooltipLast;
 
@@ -140,27 +140,26 @@ public final class ItemBlueprint extends AbstractItem {
 
     @SideOnly(Side.CLIENT)
     private void addCosts(final ItemStack stack, final List<String> tooltip, final BlueprintData data) {
-        final List<ItemStack> costs = data.getCosts();
-        if (costs.isEmpty()) {
+        final ItemStack previousStack = tooltipStack != null ? tooltipStack.get() : null;
+        if (previousStack != stack) {
+            tooltipCosts = data.getCosts();
+        }
+
+        if (tooltipCosts == null || tooltipCosts.isEmpty()) {
             tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_UNKNOWN));
             return;
         }
 
-        costs.sort(Comparator.comparing(ItemStack::getDisplayName));
-
-        final int pages = MathHelper.ceil(costs.size() / (float) COSTS_PER_PAGE);
+        final int pages = MathHelper.ceil(tooltipCosts.size() / (float) COSTS_PER_PAGE);
 
         // Rewind to first page if we're showing a tooltip for a different stack
         // or didn't show a tooltip in a while -- avoids page changes soon after
         // starting to show a tooltip, which feels unpolished.
-        if (pages > 1) {
-            final ItemStack previousStack = tooltipStack != null ? tooltipStack.get() : null;
-            if ((System.currentTimeMillis() - tooltipLast) > 100 || previousStack != stack) {
-                tooltipStack = new WeakReference<>(stack);
-                tooltipStart = System.currentTimeMillis();
-            }
-            tooltipLast = System.currentTimeMillis();
+        if ((System.currentTimeMillis() - tooltipLast) > 100 || previousStack != stack) {
+            tooltipStack = new WeakReference<>(stack);
+            tooltipStart = System.currentTimeMillis();
         }
+        tooltipLast = System.currentTimeMillis();
 
         final int page = ((int) (System.currentTimeMillis() - tooltipStart) / 2500) % pages;
 
@@ -171,9 +170,8 @@ public final class ItemBlueprint extends AbstractItem {
         }
 
         final int offset = page * COSTS_PER_PAGE;
-        for (int i = offset, end = Math.min(costs.size(), offset + COSTS_PER_PAGE); i < end; i++) {
-            final ItemStack cost = costs.get(i);
-            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_LINE, cost.getCount(), cost.getDisplayName()));
+        for (int i = offset, end = Math.min(tooltipCosts.size(), offset + COSTS_PER_PAGE); i < end; i++) {
+            tooltip.add(tooltipCosts.get(i));
         }
     }
 

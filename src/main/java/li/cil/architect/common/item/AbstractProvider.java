@@ -1,6 +1,7 @@
 package li.cil.architect.common.item;
 
 import li.cil.architect.common.config.Constants;
+import li.cil.architect.common.config.Settings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
@@ -13,12 +14,18 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 public abstract class AbstractProvider extends AbstractItem {
     // --------------------------------------------------------------------- //
@@ -88,6 +95,61 @@ public abstract class AbstractProvider extends AbstractItem {
     }
 
     // --------------------------------------------------------------------- //
+
+    abstract protected boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side);
+
+    abstract protected String getTooltip();
+
+    /**
+     * Get a list of all valid capabilities accessible via providers in the
+     * specified inventory, in range of the specified position.
+     *
+     * @param consumerPos      the position to base range checks on.
+     * @param inventory        the inventory to get providers from.
+     * @param providerFilter   filter for legal provider stacks.
+     * @param capabilityGetter extracts a capability from a tile entity.
+     * @return the list of valid capabilities available.
+     */
+    static <T> List<T> findProviders(final Vec3d consumerPos, final IItemHandler inventory, final Predicate<ItemStack> providerFilter, BiFunction<ItemStack, TileEntity, T> capabilityGetter) {
+        final List<T> result = new ArrayList<>();
+
+        final float rangeSquared = Settings.maxProviderRadius * Settings.maxProviderRadius;
+        for (int slot = 0; slot < inventory.getSlots(); slot++) {
+            final ItemStack stack = inventory.getStackInSlot(slot);
+            if (!providerFilter.test(stack) || !isBound(stack)) {
+                continue;
+            }
+
+            final int dimension = getDimension(stack);
+            final World world = DimensionManager.getWorld(dimension);
+            if (world == null) {
+                continue;
+            }
+
+            final BlockPos pos = getPosition(stack);
+            if (consumerPos.squareDistanceTo(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > rangeSquared) {
+                continue;
+            }
+            if (!world.isBlockLoaded(pos)) {
+                continue;
+            }
+
+            final TileEntity tileEntity = world.getTileEntity(pos);
+            if (tileEntity == null) {
+                continue;
+            }
+
+            final T capability = capabilityGetter.apply(stack, tileEntity);
+            if (capability == null) {
+                continue;
+            }
+
+            result.add(capability);
+        }
+        return result;
+    }
+
+    // --------------------------------------------------------------------- //
     // Item
 
     @SideOnly(Side.CLIENT)
@@ -136,8 +198,4 @@ public abstract class AbstractProvider extends AbstractItem {
         }
         return new ActionResult<>(EnumActionResult.PASS, stack);
     }
-
-    abstract protected boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side);
-
-    abstract protected String getTooltip();
 }
