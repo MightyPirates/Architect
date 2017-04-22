@@ -5,6 +5,7 @@ import li.cil.architect.common.Architect;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
@@ -35,7 +36,7 @@ public class BlockStateFilter {
         block = ForgeRegistries.BLOCKS.getValue(location);
         this.properties = new HashMap<>();
 
-        if (block != null) {
+        if (block != null && block != Blocks.AIR) {
             final IBlockState state = block.getDefaultState();
             final Collection<IProperty<?>> blockProperties = state.getPropertyKeys();
             outer:
@@ -82,10 +83,6 @@ public class BlockStateFilter {
     @Nullable
     public Block getBlock() {
         return block;
-    }
-
-    public Map<IProperty<?>, Comparable<?>> getActualProperties() {
-        return properties;
     }
 
     boolean matches(final IBlockState state) {

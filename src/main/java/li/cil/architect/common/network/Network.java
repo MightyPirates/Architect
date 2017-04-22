@@ -3,9 +3,11 @@ package li.cil.architect.common.network;
 import li.cil.architect.api.API;
 import li.cil.architect.client.network.handler.MessageHandlerClipboardClient;
 import li.cil.architect.client.network.handler.MessageHandlerRequestClipboard;
+import li.cil.architect.common.network.handler.MessageHandlerBlueprintData;
 import li.cil.architect.common.network.handler.MessageHandlerBlueprintRotate;
 import li.cil.architect.common.network.handler.MessageHandlerBlueprintShift;
 import li.cil.architect.common.network.handler.MessageHandlerClipboardServer;
+import li.cil.architect.common.network.message.MessageBlueprintData;
 import li.cil.architect.common.network.message.MessageBlueprintRotate;
 import li.cil.architect.common.network.message.MessageBlueprintShift;
 import li.cil.architect.common.network.message.MessageClipboard;
@@ -23,7 +25,8 @@ public enum Network {
         BlueprintShift,
         BlueprintRotate,
         Clipboard,
-        RequestBlueprintData
+        RequestBlueprintData,
+        BlueprintData
     }
 
     // --------------------------------------------------------------------- //
@@ -36,6 +39,7 @@ public enum Network {
         wrapper.registerMessage(MessageHandlerClipboardClient.class, MessageClipboard.class, Messages.Clipboard.ordinal(), Side.CLIENT);
         wrapper.registerMessage(MessageHandlerClipboardServer.class, MessageClipboard.class, Messages.Clipboard.ordinal(), Side.SERVER);
         wrapper.registerMessage(MessageHandlerRequestClipboard.class, MessageRequestBlueprintData.class, Messages.RequestBlueprintData.ordinal(), Side.CLIENT);
+        wrapper.registerMessage(MessageHandlerBlueprintData.class, MessageBlueprintData.class, Messages.BlueprintData.ordinal(), Side.SERVER);
     }
 
     public SimpleNetworkWrapper getWrapper() {

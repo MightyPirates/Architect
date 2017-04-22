@@ -1,25 +1,24 @@
 package li.cil.architect.common.item;
 
+import li.cil.architect.client.gui.GuiId;
+import li.cil.architect.common.Architect;
 import li.cil.architect.common.config.Constants;
-import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.data.BlueprintData;
 import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
@@ -41,6 +40,7 @@ public final class ItemBlueprint extends AbstractItem {
 
     // NBT tag names.
     private static final String TAG_BLUEPRINT = "blueprint";
+    private static final String TAG_COLOR = "color";
 
     // --------------------------------------------------------------------- //
 
@@ -60,6 +60,16 @@ public final class ItemBlueprint extends AbstractItem {
     public static void setData(final ItemStack stack, final BlueprintData data) {
         final NBTTagCompound nbt = getDataTag(stack);
         nbt.setTag(TAG_BLUEPRINT, data.serializeNBT());
+    }
+
+    public static void setColor(final ItemStack stack, final EnumDyeColor color) {
+        final NBTTagCompound nbt = getDataTag(stack);
+        nbt.setByte(TAG_COLOR, (byte) color.getMetadata());
+    }
+
+    public static EnumDyeColor getColor(final ItemStack stack) {
+        final NBTTagCompound nbt = getDataTag(stack);
+        return EnumDyeColor.byMetadata(nbt.getByte(TAG_COLOR));
     }
 
     // --------------------------------------------------------------------- //
@@ -90,7 +100,7 @@ public final class ItemBlueprint extends AbstractItem {
     @Override
     public ActionResult<ItemStack> onItemRightClick(final ItemStack stack, final World world, final EntityPlayer player, final EnumHand hand) {
         if (player.isSneaking()) {
-            player.setActiveHand(hand);
+            player.openGui(Architect.instance, GuiId.BLUEPRINT.ordinal(), world, 0, 0, 0);
         } else if (!world.isRemote) {
             handleInput(player, hand, PlayerUtils.getLookAtPos(player));
         }
@@ -106,34 +116,8 @@ public final class ItemBlueprint extends AbstractItem {
     }
 
     @Override
-    public int getMaxItemUseDuration(final ItemStack stack) {
-        return 30;
-    }
-
-    @Override
-    public void onUsingTick(final ItemStack stack, final EntityLivingBase player, final int count) {
-        final Vec3d lookAtBase = player.
-                getPositionEyes(1).
-                add(player.getLookVec());
-        final Vec3d speedBase = player.
-                getLookVec().
-                scale(-1);
-        for (int i = 0; i < 10; i++) {
-            final Vec3d lookAt = lookAtBase.addVector(itemRand.nextGaussian(), itemRand.nextGaussian(), itemRand.nextGaussian());
-            final Vec3d speed = speedBase.addVector(itemRand.nextGaussian(), itemRand.nextGaussian(), itemRand.nextGaussian());
-            player.getEntityWorld().spawnParticle(EnumParticleTypes.PORTAL, lookAt.xCoord, lookAt.yCoord, lookAt.zCoord, speed.xCoord, speed.yCoord, speed.zCoord);
-        }
-    }
-
-    @Override
-    public ItemStack onItemUseFinish(final ItemStack stack, final World world, final EntityLivingBase entity) {
-        disableUseAfterConversion();
-        return new ItemStack(Items.sketch);
-    }
-
-    @Override
     public boolean shouldCauseReequipAnimation(final ItemStack oldStack, final ItemStack newStack, final boolean slotChanged) {
-        return oldStack.getItem() != newStack.getItem();
+        return oldStack.getItem() != newStack.getItem() || getColor(oldStack) != getColor(newStack);
     }
 
     // --------------------------------------------------------------------- //

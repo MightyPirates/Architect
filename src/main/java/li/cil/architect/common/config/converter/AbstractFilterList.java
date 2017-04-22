@@ -2,6 +2,7 @@ package li.cil.architect.common.config.converter;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
@@ -28,7 +29,7 @@ public abstract class AbstractFilterList<F> {
             filters = new ArrayList<>();
             filtersByBlockRaw.put(location, filters);
             final Block block = selector.getBlock();
-            if (block != null) {
+            if (block != null && block != Blocks.AIR) {
                 filtersByBlock.put(block, filters);
             }
         }

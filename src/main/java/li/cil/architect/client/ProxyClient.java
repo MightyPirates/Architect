@@ -1,13 +1,18 @@
 package li.cil.architect.client;
 
 import li.cil.architect.api.API;
+import li.cil.architect.client.gui.GuiHandlerClient;
 import li.cil.architect.client.input.KeyboardEventHandlerBlueprint;
 import li.cil.architect.client.input.MouseEventHandlerBlueprint;
 import li.cil.architect.client.input.MouseEventHandlerSketch;
 import li.cil.architect.client.renderer.BlueprintRenderer;
 import li.cil.architect.client.renderer.ProviderRenderer;
 import li.cil.architect.client.renderer.SketchRenderer;
+import li.cil.architect.client.renderer.color.ItemColorBlueprint;
+import li.cil.architect.common.Architect;
 import li.cil.architect.common.ProxyCommon;
+import li.cil.architect.common.init.Items;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -17,7 +22,9 @@ import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.function.Supplier;
@@ -30,6 +37,8 @@ public final class ProxyClient extends ProxyCommon {
     public void onInit(final FMLInitializationEvent event) {
         super.onInit(event);
 
+        NetworkRegistry.INSTANCE.registerGuiHandler(Architect.instance, new GuiHandlerClient());
+
         KeyBindings.init();
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -39,6 +48,13 @@ public final class ProxyClient extends ProxyCommon {
         MinecraftForge.EVENT_BUS.register(KeyboardEventHandlerBlueprint.INSTANCE);
         MinecraftForge.EVENT_BUS.register(MouseEventHandlerBlueprint.INSTANCE);
         MinecraftForge.EVENT_BUS.register(MouseEventHandlerSketch.INSTANCE);
+    }
+
+    @Override
+    public void onPostInit(final FMLPostInitializationEvent event) {
+        super.onPostInit(event);
+
+        Minecraft.getMinecraft().getItemColors().registerItemColorHandler(ItemColorBlueprint.INSTANCE, Items.blueprint);
     }
 
     // --------------------------------------------------------------------- //
