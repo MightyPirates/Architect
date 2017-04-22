@@ -617,5 +617,490 @@
       "paintSource__null": "If present, always ignores paintSource.",
       "facing__null": "If present, always ignores facing."
     }
+  },
+  {
+    "block": "immersiveengineering:stoneDecorationSlab",
+    "filter": {
+      "slabType": "INT"
+    }
+  },
+  {
+    "block": "immersiveengineering:storageSlab",
+    "filter": {
+      "slabType": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:clothDevice",
+      "properties": {
+        "type": "balloon"
+      }
+    },
+    "filter": {
+      "shader": "COMPOUND",
+      "rotation": "FLOAT",
+      "facing": "INT",
+      "style": "INT",
+      "colour0": "INT",
+      "colour1": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:clothDevice",
+      "properties": {
+        "type": "stripcurtain"
+      }
+    },
+    "filter": {
+      "facing": "INT",
+      "colour": "INT",
+      "ceilingAttached": "BYTE"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:connector",
+      "properties": {
+        "type": "breakerswitch"
+      }
+    },
+    "sortIndex": "attached",
+    "filter": {
+      "facing": "INT",
+      "active": "BYTE",
+      "inverted": "BYTE",
+      "rotation": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:connector",
+      "properties": {
+        "type": "redstone_breaker"
+      }
+    },
+    "sortIndex": "attached",
+    "filter": {
+      "facing": "INT",
+      "inverted": "BYTE",
+      "rotation": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:connector",
+      "properties": {
+        "_0multiblockslave": "false"
+      }
+    },
+    "sortIndex": "attached",
+    "filter": {
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice0",
+      "properties": {
+        "type": "capacitor_lv"
+      }
+    },
+    "filter": {
+      "sideConfig_0": "INT",
+      "sideConfig_1": "INT",
+      "sideConfig_2": "INT",
+      "sideConfig_3": "INT",
+      "sideConfig_4": "INT",
+      "sideConfig_5": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice0",
+      "properties": {
+        "type": "capacitor_mv"
+      }
+    },
+    "filter": {
+      "sideConfig_0": "INT",
+      "sideConfig_1": "INT",
+      "sideConfig_2": "INT",
+      "sideConfig_3": "INT",
+      "sideConfig_4": "INT",
+      "sideConfig_5": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice0",
+      "properties": {
+        "type": "capacitor_hv"
+      }
+    },
+    "filter": {
+      "sideConfig_0": "INT",
+      "sideConfig_1": "INT",
+      "sideConfig_2": "INT",
+      "sideConfig_3": "INT",
+      "sideConfig_4": "INT",
+      "sideConfig_5": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice0",
+      "properties": {
+        "type": "capacitor_creative"
+      }
+    },
+    "filter": {
+      "sideConfig_0": "INT",
+      "sideConfig_1": "INT",
+      "sideConfig_2": "INT",
+      "sideConfig_3": "INT",
+      "sideConfig_4": "INT",
+      "sideConfig_5": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice0",
+      "properties": {
+        "type": "barrel"
+      }
+    },
+    "filter": {
+      "sideConfig": "INT[]"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice0",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "fluid_pump"
+      }
+    },
+    "filter": {
+      "placeCobble": "BYTE",
+      "sideConfig": "INT[]"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice1",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "blast_furnace_preheater"
+      }
+    },
+    "filter": {
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice1",
+      "properties": {
+        "type": "fluid_pipe"
+      }
+    },
+    "filter": {
+      "sideConfig": "INT[]"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice1",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "sample_drill"
+      }
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice1",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "tesla_coil"
+      }
+    },
+    "filter": {
+      "facing": "INT",
+      "redstoneInverted": "BYTE",
+      "lowPower": "BYTE"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice1",
+      "properties": {
+        "type": "floodlight"
+      }
+    },
+    "filter": {
+      "side": "INT",
+      "rotX": "FLOAT",
+      "rotY": "FLOAT",
+      "facing": "INT",
+      "redstoneControlInverted": "BYTE"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice1",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "turret_chem"
+      }
+    },
+    "filter": {
+      "owner": "STRING",
+      "facing": "INT",
+      "ignite": "BYTE",
+      "whitelist": "BYTE",
+      "redstoneInverted": "BYTE",
+      "attackPlayers": "BYTE",
+      "attackNeutrals": "BYTE",
+      "attackAnimals": "BYTE"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice1",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "turret_gun"
+      }
+    },
+    "filter": {
+      "owner": "STRING",
+      "facing": "INT",
+      "expelCasings": "BYTE",
+      "whitelist": "BYTE",
+      "redstoneInverted": "BYTE",
+      "attackPlayers": "BYTE",
+      "attackNeutrals": "BYTE",
+      "attackAnimals": "BYTE"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDevice1",
+      "properties": {
+        "_0multiblockslave": "false"
+      }
+    },
+    "filter": {
+      "facing": "INT"
+    }
+  },
+  {
+    "block": "immersiveengineering:conveyor",
+    "filter": {
+      "conveyorBeltSubtypeNBT": "COMPOUND",
+      "facing": "INT",
+      "conveyorBeltSubtype": "STRING"
+    }
+  },
+  {
+    "block": "immersiveengineering:sheetmetalSlab",
+    "filter": {
+      "slabType": "INT"
+    }
+  },
+  {
+    "block": "immersiveengineering:treatedWoodSlab",
+    "filter": {
+      "slabType": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDecoration2",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "steel_post"
+      }
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDecoration2",
+      "properties": {
+        "type": "steel_wallmount"
+      }
+    },
+    "filter": {
+      "orientation": "INT",
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDecoration2",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "aluminum_post"
+      }
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDecoration2",
+      "properties": {
+        "type": "aluminum_wallmount"
+      }
+    },
+    "filter": {
+      "orientation": "INT",
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDecoration2",
+      "properties": {
+        "type": "lantern"
+      }
+    },
+    "filter": {
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:metalDecoration2",
+      "properties": {
+        "type": "razor_wire"
+      }
+    },
+    "filter": {
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice0",
+      "properties": {
+        "type": "sorter"
+      }
+    },
+    "filter": {
+      "filter": "LIST",
+      "sideFilter": "INT[]"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice0",
+      "properties": {
+        "type": "barrel"
+      }
+    },
+    "filter": {
+      "sideConfig": "INT[]"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice0",
+      "properties": {
+        "type": "crate"
+      }
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice0",
+      "properties": {
+        "type": "reinforced_crate"
+      }
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice0",
+      "properties": {
+        "type": "turntable"
+      }
+    },
+    "filter": {
+      "invert": "BYTE",
+      "facing": "INT",
+      "redstone": "BYTE"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice0",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "workbench"
+      }
+    },
+    "filter": {
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice1",
+      "properties": {
+        "type": "wallmount"
+      }
+    },
+    "filter": {
+      "orientation": "INT",
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice1",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "post"
+      }
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice1",
+      "properties": {
+        "type": "windmill"
+      }
+    },
+    "filter": {
+      "rotation": "FLOAT",
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice1",
+      "properties": {
+        "type": "windmill_advanced"
+      }
+    },
+    "filter": {
+      "rotation": "FLOAT",
+      "facing": "INT"
+    }
+  },
+  {
+    "block": {
+      "block": "immersiveengineering:woodenDevice1",
+      "properties": {
+        "_0multiblockslave": "false",
+        "type": "watermill"
+      }
+    },
+    "filter": {
+      "facing": "INT"
+    }
   }
 ]
