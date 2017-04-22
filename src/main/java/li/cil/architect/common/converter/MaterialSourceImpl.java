@@ -14,7 +14,6 @@ public final class MaterialSourceImpl implements MaterialSource {
     private final boolean isCreative;
     private final IItemHandler itemHandler;
     private final IFluidHandler fluidHandler;
-    private int lastItemSlot;
 
     public MaterialSourceImpl(final boolean isCreative, final IItemHandler itemHandler, final IFluidHandler fluidHandler) {
         this.isCreative = isCreative;
