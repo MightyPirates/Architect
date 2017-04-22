@@ -8,11 +8,6 @@ import net.minecraftforge.common.config.Config;
  */
 @Config(modid = API.MOD_ID)
 public final class Settings {
-    @Config.LangKey(Constants.CONFIG_MAX_BLUEPRINT_SIZE)
-    @Config.Comment("The maximum size of a blueprint in any dimension.")
-    @Config.RangeInt(min = 1, max = 255)
-    public static int maxBlueprintSize = 16;
-
     @Config.LangKey(Constants.CONFIG_MAX_PROVIDER_RADIUS)
     @Config.Comment("The maximum distance between a player and the position a provider is bound to for the provider to work.")
     @Config.RangeInt(min = 1, max = 1000)

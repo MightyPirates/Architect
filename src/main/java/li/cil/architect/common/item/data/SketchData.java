@@ -1,7 +1,7 @@
 package li.cil.architect.common.item.data;
 
 import li.cil.architect.api.ConverterAPI;
-import li.cil.architect.common.config.Settings;
+import li.cil.architect.common.config.Constants;
 import li.cil.architect.util.AxisAlignedBBUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -106,7 +106,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         assert origin != null;
         assert bounds != null;
 
-        final int max = Settings.maxBlueprintSize;
+        final int max = Constants.MAX_BLUEPRINT_SIZE;
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
         return bounds.expand(max - size.getX(), max - size.getY(), max - size.getZ());
     }
@@ -142,7 +142,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
             mainBounds = bounds.union(extraBounds);
         }
 
-        final int max = Settings.maxBlueprintSize;
+        final int max = Constants.MAX_BLUEPRINT_SIZE;
         final int sx = (int) (mainBounds.maxX - mainBounds.minX);
         final int sy = (int) (mainBounds.maxY - mainBounds.minY);
         final int sz = (int) (mainBounds.maxZ - mainBounds.minZ);

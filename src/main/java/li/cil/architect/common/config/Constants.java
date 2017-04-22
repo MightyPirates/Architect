@@ -98,6 +98,7 @@ public final class Constants {
     // --------------------------------------------------------------------- //
     // Gameplay
 
+    public static final int MAX_BLUEPRINT_SIZE = 16;
     public static final int ENERGY_PER_BLOCK = 10;
     public static final float EXHAUSTION_PER_BLOCK = 0.005f;
 
