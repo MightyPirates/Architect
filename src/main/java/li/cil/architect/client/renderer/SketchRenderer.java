@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
 import java.util.stream.Stream;
 
 import static li.cil.architect.client.renderer.OverlayRendererUtils.*;
@@ -29,6 +30,10 @@ public enum SketchRenderer {
 
     private static final float SELECTION_GROWTH = 0.05f;
 
+    // Cached data to avoid having to deserialize it from NBT each frame.
+    private static WeakReference<ItemStack> lastStack;
+    private static SketchData lastData;
+
     @SubscribeEvent
     public void onWorldRender(final RenderWorldLastEvent event) {
         final Minecraft mc = Minecraft.getMinecraft();
@@ -36,10 +41,19 @@ public enum SketchRenderer {
 
         final ItemStack stack = Items.getHeldItem(player, Items::isSketch);
         if (stack.isEmpty()) {
+            lastStack = null;
+            lastData = null;
             return;
         }
 
-        final SketchData data = ItemSketch.getData(stack);
+        final ItemStack previousStack = lastStack != null ? lastStack.get() : null;
+        if (previousStack == null || !ItemStack.areItemStackTagsEqual(previousStack, stack)) {
+            lastStack = new WeakReference<>(stack);
+            lastData = ItemSketch.getData(stack);
+        }
+        assert lastData != null;
+
+        final SketchData data = lastData;
         //noinspection ConstantConditions !isEmpty guarantees non-null.
         if (!data.isEmpty() && player.getDistanceSq(data.getOrigin()) > 64 * 64) {
             return;

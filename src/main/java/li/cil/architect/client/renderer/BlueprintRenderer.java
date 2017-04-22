@@ -21,6 +21,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.lang.ref.WeakReference;
 import java.util.stream.Stream;
 
 import static li.cil.architect.client.renderer.OverlayRendererUtils.*;
@@ -30,6 +31,10 @@ public enum BlueprintRenderer {
 
     private static final float ROTATION_INSET = 0.2f;
 
+    // Cached data to avoid having to deserialize it from NBT each frame.
+    private static WeakReference<ItemStack> lastStack;
+    private static BlueprintData lastData;
+
     @SubscribeEvent
     public void onWorldRender(final RenderWorldLastEvent event) {
         final Minecraft mc = Minecraft.getMinecraft();
@@ -38,10 +43,19 @@ public enum BlueprintRenderer {
 
         final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
         if (stack.isEmpty()) {
+            lastStack = null;
+            lastData = null;
             return;
         }
 
-        final BlueprintData data = ItemBlueprint.getData(stack);
+        final ItemStack previousStack = lastStack != null ? lastStack.get() : null;
+        if (previousStack == null || !ItemStack.areItemStackTagsEqual(previousStack, stack)) {
+            lastStack = new WeakReference<>(stack);
+            lastData = ItemBlueprint.getData(stack);
+        }
+        assert lastData != null;
+
+        final BlueprintData data = lastData;
         if (data.isEmpty()) {
             return;
         }
