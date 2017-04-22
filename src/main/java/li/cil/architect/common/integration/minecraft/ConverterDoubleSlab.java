@@ -23,9 +23,7 @@ public class ConverterDoubleSlab extends AbstractConverter {
     @Override
     protected ItemStack getItemStack(final Item item, final IBlockState state, final NBTBase data) {
         final ItemStack stack = super.getItemStack(item, state, data);
-        if (!stack.isEmpty()) {
-            stack.setCount(2);
-        }
+        stack.setCount(2);
         return stack;
     }
 
