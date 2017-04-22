@@ -92,11 +92,11 @@ public final class Items {
                 new ItemStack(providerFluid, 1),
                 "IEI",
                 "QPQ",
-                "ITI",
+                "IBI",
                 'I', "ingotIron",
                 'E', "enderpearl",
                 'Q', "gemQuartz",
-                'T', Blocks.TRAPDOOR,
+                'B', net.minecraft.init.Items.BUCKET,
                 'P', Blocks.PISTON));
     }
 
