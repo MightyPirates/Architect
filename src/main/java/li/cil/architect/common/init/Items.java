@@ -10,10 +10,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
+import java.util.Collections;
 import java.util.function.Predicate;
 
 /**
@@ -78,8 +80,11 @@ public final class Items {
                 'P', "paper",
                 'L', "leather",
                 'S', "string"));
+        GameRegistry.addRecipe(new ShapelessRecipes(
+                new ItemStack(sketch, 1),
+                Collections.singletonList(new ItemStack(blueprint))));
         GameRegistry.addRecipe(new ShapedOreRecipe(
-                new ItemStack(providerItem, 1),
+                new ItemStack(providerItem),
                 "IEI",
                 "QHQ",
                 "ITI",
@@ -89,7 +94,7 @@ public final class Items {
                 'T', Blocks.TRAPDOOR,
                 'H', Blocks.HOPPER));
         GameRegistry.addRecipe(new ShapedOreRecipe(
-                new ItemStack(providerFluid, 1),
+                new ItemStack(providerFluid),
                 "IEI",
                 "QPQ",
                 "IBI",

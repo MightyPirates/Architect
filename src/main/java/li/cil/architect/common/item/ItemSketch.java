@@ -13,6 +13,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
@@ -171,6 +172,7 @@ public final class ItemSketch extends AbstractItem {
 
         final ItemStack result = new ItemStack(Items.blueprint);
         ItemBlueprint.setData(result, builder.getData());
+        ItemBlueprint.setColor(result, EnumDyeColor.byMetadata(world.rand.nextInt(16)));
         disableUseAfterConversion();
         return result;
     }
