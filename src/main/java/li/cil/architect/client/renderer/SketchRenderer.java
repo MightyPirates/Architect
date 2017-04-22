@@ -75,6 +75,16 @@ public enum SketchRenderer {
         doPositionPrologue(event);
         doOverlayPrologue();
 
+        final float dt = computeScaleOffset();
+
+        if (!data.isEmpty()) {
+            GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
+            renderBlocks(data.getBlocks(), dt);
+
+            GlStateManager.color(0.4f, 0.7f, 0.9f, 1f);
+            renderCubeGrid(potentialBounds);
+        }
+
         if (hitPos != null) {
             if (hasRangeSelection) {
                 renderRangeSelection(player, ItemSketch.getRangeSelection(stack, hitPos));
@@ -83,24 +93,14 @@ public enum SketchRenderer {
             }
         }
 
-        if (!data.isEmpty()) {
-            GlStateManager.color(0.4f, 0.7f, 0.9f, 1f);
-            renderCubeGrid(potentialBounds);
+        if (hitPos != null && data.isSet(hitPos)) {
+            GlStateManager.color(0.2f, 0.4f, 0.9f, 0.3f);
+            renderCubePulsing(hitPos, dt);
 
-            final float dt = computeScaleOffset();
-
-            GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
-            renderBlocks(data.getBlocks(), dt);
-
-            if (hitPos != null && data.isSet(hitPos)) {
-                GlStateManager.color(0.2f, 0.4f, 0.9f, 0.3f);
-                renderCubePulsing(hitPos, dt);
-
-                doWirePrologue();
-                GlStateManager.color(0.2f, 0.4f, 0.9f, 0.5f);
-                renderCubePulsing(hitPos, dt);
-                doWireEpilogue();
-            }
+            doWirePrologue();
+            GlStateManager.color(0.2f, 0.4f, 0.9f, 0.5f);
+            renderCubePulsing(hitPos, dt);
+            doWireEpilogue();
         }
 
         doOverlayEpilogue();
