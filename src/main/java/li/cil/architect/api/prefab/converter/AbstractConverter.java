@@ -104,13 +104,29 @@ public abstract class AbstractConverter implements Converter {
 
     @Override
     public boolean preDeserialize(final MaterialSource materialSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
+        final ItemStack itemStack = getItemStack(data);
+        final FluidStack fluidStack = getFluidStack(data);
         final ItemStack wantStack = getItemStack(data);
-        if (isEmpty(wantStack)) {
+        if (isEmpty(wantStack) && fluidStack == null) {
             return true;
         }
+        assert itemStack != null : "isEmpty() returned false for null item stack.";
 
-        final ItemStack haveStack = materialSource.extractItem(wantStack);
-        return !isEmpty(haveStack);
+        if (fluidStack == null) {
+            return !isEmpty(materialSource.extractItem(itemStack, false));
+        }
+        if (isEmpty(itemStack)) {
+            return materialSource.extractFluid(fluidStack, false) != null;
+        }
+
+        if (isEmpty(materialSource.extractItem(itemStack, true)) ||
+            materialSource.extractFluid(fluidStack, true) == null) {
+            return false;
+        }
+
+        materialSource.extractItem(itemStack, false);
+        materialSource.extractFluid(fluidStack, false);
+        return true;
     }
 
     @SuppressWarnings("deprecation")
@@ -211,8 +227,8 @@ public abstract class AbstractConverter implements Converter {
     }
 
     /**
-     * Get the item stack required as materials to deserialize the block
-     * stored in the specified data.
+     * Get the item stack required as materials to deserialize the block stored
+     * in the specified data.
      *
      * @param data the serialized representation of the block.
      * @return the material cost for the block.
@@ -243,6 +259,18 @@ public abstract class AbstractConverter implements Converter {
      */
     protected ItemStack getItemStack(final Item item, final IBlockState state, final NBTBase data) {
         return new ItemStack(item, 1, state.getBlock().damageDropped(state));
+    }
+
+    /**
+     * Get the fluid stack required as materials to deserialize the block stored
+     * in the specified data.
+     *
+     * @param data the serialized representation of the block.
+     * @return the material cost for the block.
+     */
+    @Nullable
+    protected FluidStack getFluidStack(final NBTBase data) {
+        return null;
     }
 
     // --------------------------------------------------------------------- //

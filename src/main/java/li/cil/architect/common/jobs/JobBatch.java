@@ -9,7 +9,9 @@ import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.converter.MaterialSourceImpl;
 import li.cil.architect.common.inventory.CompoundItemHandler;
+import li.cil.architect.common.item.ItemProviderFluid;
 import li.cil.architect.common.item.ItemProviderItem;
+import li.cil.architect.util.FluidHandlerUtils;
 import li.cil.architect.util.ItemStackUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -25,7 +27,12 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import java.util.ArrayList;
@@ -63,11 +70,14 @@ class JobBatch implements JobManager.JobConsumer {
         this.player = player;
         this.world = player.getEntityWorld();
         this.jobTester = JobManager.INSTANCE.getJobTester(world);
-        final IItemHandler inventory = new InvWrapper(player.inventory);
-        final List<IItemHandler> providers = ItemProviderItem.findProviders(player.getPositionVector(), inventory);
-        providers.add(inventory);
-        final IItemHandler compoundProvider = new CompoundItemHandler(providers.toArray(new IItemHandler[providers.size()]));
-        this.materialSource = new MaterialSourceImpl(player.isCreative(), compoundProvider);
+        final IItemHandlerModifiable inventory = new InvWrapper(player.inventory);
+        final List<IItemHandler> itemHandlers = ItemProviderItem.findProviders(player.getPositionVector(), inventory);
+        final List<IFluidHandler> fluidHandlers = ItemProviderFluid.findProviders(player.getPositionVector(), inventory);
+        addItemHandlers(inventory, itemHandlers);
+        addFluidHandlers(inventory, fluidHandlers);
+        final IItemHandler compoundItemHandler = new CompoundItemHandler(itemHandlers.toArray(new IItemHandler[itemHandlers.size()]));
+        final IFluidHandler compoundFluidHandler = new FluidHandlerConcatenate(fluidHandlers.toArray(new IFluidHandler[fluidHandlers.size()]));
+        this.materialSource = new MaterialSourceImpl(player.isCreative(), compoundItemHandler, compoundFluidHandler);
     }
 
     void finish(final JobManagerImpl manager) {
@@ -136,6 +146,8 @@ class JobBatch implements JobManager.JobConsumer {
             return;
         }
 
+        player.inventory.markDirty();
+
         final int sortIndex = ConverterAPI.getSortIndex(nbt);
         if (!jobs.containsKey(sortIndex)) {
             jobs.put(sortIndex, new ArrayList<>());
@@ -153,6 +165,40 @@ class JobBatch implements JobManager.JobConsumer {
     }
 
     // --------------------------------------------------------------------- //
+
+    private void addItemHandlers(final IItemHandler inventory, final List<IItemHandler> itemHandlers) {
+        itemHandlers.add(inventory);
+
+        for (int slot = 0; slot < inventory.getSlots(); slot++) {
+            final ItemStack stack = inventory.getStackInSlot(slot);
+            if (ItemStackUtils.isEmpty(stack)) {
+                continue;
+            }
+
+            final IItemHandler capability = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+            if (capability == null) {
+                continue;
+            }
+
+            itemHandlers.add(capability);
+        }
+    }
+
+    private void addFluidHandlers(final IItemHandlerModifiable inventory, final List<IFluidHandler> fluidHandlers) {
+        for (int slot = 0; slot < inventory.getSlots(); slot++) {
+            final ItemStack stack = inventory.getStackInSlot(slot);
+            if (ItemStackUtils.isEmpty(stack)) {
+                continue;
+            }
+
+            final IFluidHandler capability = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+            if (capability == null || !FluidHandlerUtils.canDrain(capability)) {
+                continue;
+            }
+
+            fluidHandlers.add(capability);
+        }
+    }
 
     private boolean consumeEnergy() {
         if (player.isCreative()) {

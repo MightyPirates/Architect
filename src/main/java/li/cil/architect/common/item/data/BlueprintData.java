@@ -6,8 +6,10 @@ import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.common.Architect;
+import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.jobs.JobManager;
 import li.cil.architect.util.AxisAlignedBBUtils;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,15 +21,20 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Spliterators;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -212,7 +219,8 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
      *
      * @return the total costs for deserializing this blueprint.
      */
-    public List<ItemStack> getCosts() {
+    @SideOnly(Side.CLIENT)
+    public List<String> getCosts() {
         final int[] counts = new int[blockData.size()];
         if (blockData.size() > 1) {
             assert blockReferences != null;
@@ -223,27 +231,69 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
             counts[0] = blockPositions.cardinality();
         }
 
-        final List<ItemStack> knownCosts = new ArrayList<>();
+        final List<ItemStack> totalItemCosts = new ArrayList<>();
+        final List<FluidStack> totalFluidCosts = new ArrayList<>();
         for (int i = 0; i < blockData.size(); i++) {
             final NBTTagCompound data = blockData.get(i);
-            final Iterable<ItemStack> costs = ConverterAPI.getItemCosts(data);
-            for (final ItemStack cost : costs) {
+            final Iterable<ItemStack> itemCosts = ConverterAPI.getItemCosts(data);
+            final Iterable<FluidStack> fluidCosts = ConverterAPI.getFluidCosts(data);
+
+            for (final ItemStack cost : itemCosts) {
                 cost.stackSize = cost.stackSize * counts[i];
                 boolean found = false;
-                for (final ItemStack knownCost : knownCosts) {
-                    if (ItemStack.areItemsEqual(cost, knownCost) && ItemStack.areItemStackTagsEqual(cost, knownCost)) {
+                for (final ItemStack knownCost : totalItemCosts) {
+                    if (knownCost.isItemEqual(cost) && ItemStack.areItemStackTagsEqual(cost, knownCost)) {
                         knownCost.stackSize += cost.stackSize;
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    knownCosts.add(cost);
+                    totalItemCosts.add(cost);
+                }
+            }
+
+            for (final FluidStack cost : fluidCosts) {
+                cost.amount = cost.amount * counts[i];
+                boolean found = false;
+                for (final FluidStack knownCost : totalFluidCosts) {
+                    if (knownCost.isFluidEqual(cost) && FluidStack.areFluidStackTagsEqual(cost, knownCost)) {
+                        knownCost.amount += cost.amount;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    totalFluidCosts.add(cost);
                 }
             }
         }
 
-        return knownCosts;
+        final List<Object> totalCosts = new ArrayList<>();
+        totalCosts.addAll(totalItemCosts);
+        totalCosts.addAll(totalFluidCosts);
+        totalCosts.sort(Comparator.comparing(o -> {
+            if (o instanceof ItemStack) {
+                return ((ItemStack) o).getDisplayName();
+            } else {
+                return ((FluidStack) o).getLocalizedName();
+            }
+        }));
+
+        return totalCosts.stream().map(cost -> {
+            final int count;
+            final String name;
+            if (cost instanceof ItemStack) {
+                final ItemStack stack = (ItemStack) cost;
+                count = stack.stackSize;
+                name = stack.getDisplayName();
+            } else {
+                final FluidStack stack = (FluidStack) cost;
+                count = MathHelper.ceil(stack.amount / 1000f);
+                name = stack.getLocalizedName();
+            }
+            return I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_LINE, count, name);
+        }).collect(Collectors.toList());
     }
 
     /**

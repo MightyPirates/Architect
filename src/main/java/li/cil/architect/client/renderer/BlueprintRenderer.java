@@ -22,6 +22,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.lang.ref.WeakReference;
 import java.util.stream.Stream;
 
 import static li.cil.architect.client.renderer.OverlayRendererUtils.*;
@@ -31,6 +32,10 @@ public enum BlueprintRenderer {
 
     private static final float ROTATION_INSET = 0.2f;
 
+    // Cached data to avoid having to deserialize it from NBT each frame.
+    private static WeakReference<ItemStack> lastStack;
+    private static BlueprintData lastData;
+
     @SubscribeEvent
     public void onWorldRender(final RenderWorldLastEvent event) {
         final Minecraft mc = Minecraft.getMinecraft();
@@ -39,10 +44,19 @@ public enum BlueprintRenderer {
 
         final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
         if (ItemStackUtils.isEmpty(stack)) {
+            lastStack = null;
+            lastData = null;
             return;
         }
 
-        final BlueprintData data = ItemBlueprint.getData(stack);
+        final ItemStack previousStack = lastStack != null ? lastStack.get() : null;
+        if (previousStack == null || !ItemStack.areItemStackTagsEqual(previousStack, stack)) {
+            lastStack = new WeakReference<>(stack);
+            lastData = ItemBlueprint.getData(stack);
+        }
+        assert lastData != null;
+
+        final BlueprintData data = lastData;
         if (data.isEmpty()) {
             return;
         }
@@ -61,15 +75,15 @@ public enum BlueprintRenderer {
         doPositionPrologue(event);
         doOverlayPrologue();
 
-        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
-        renderCellBounds(cellBounds);
-        renderRotationIndicator(data.getRotation(), cellBounds);
-
         GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
         renderValidBlocks(world, data.getBlocks(hitPos), dt);
 
         GlStateManager.color(0.9f, 0.2f, 0.2f, 0.3f);
         renderInvalidBlocks(world, data.getBlocks(hitPos), dt);
+
+        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
+        renderCellBounds(cellBounds);
+        renderRotationIndicator(data.getRotation(), cellBounds);
 
         doOverlayEpilogue();
         doPositionEpilogue();

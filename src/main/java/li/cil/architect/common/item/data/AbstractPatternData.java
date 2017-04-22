@@ -1,6 +1,6 @@
 package li.cil.architect.common.item.data;
 
-import li.cil.architect.common.config.Settings;
+import li.cil.architect.common.config.Constants;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -11,7 +11,7 @@ abstract class AbstractPatternData {
     // --------------------------------------------------------------------- //
     // Computed data.
 
-    static final int NUM_BITS = 1 + MathHelper.log2(MathHelper.smallestEncompassingPowerOfTwo(Settings.maxBlueprintSize));
+    static final int NUM_BITS = 1 + MathHelper.log2(MathHelper.smallestEncompassingPowerOfTwo(Constants.MAX_BLUEPRINT_SIZE));
     private static final int Y_SHIFT = NUM_BITS;
     private static final int X_SHIFT = Y_SHIFT + NUM_BITS;
     private static final int MASK = (1 << NUM_BITS) - 1;
@@ -26,9 +26,9 @@ abstract class AbstractPatternData {
      * @return the index of the specified position.
      */
     static int toIndex(final BlockPos pos) {
-        assert pos.getX() < Settings.maxBlueprintSize;
-        assert pos.getY() < Settings.maxBlueprintSize;
-        assert pos.getZ() < Settings.maxBlueprintSize;
+        assert pos.getX() < Constants.MAX_BLUEPRINT_SIZE;
+        assert pos.getY() < Constants.MAX_BLUEPRINT_SIZE;
+        assert pos.getZ() < Constants.MAX_BLUEPRINT_SIZE;
         return (pos.getX() << X_SHIFT) | (pos.getY() << Y_SHIFT) | pos.getZ();
     }
 

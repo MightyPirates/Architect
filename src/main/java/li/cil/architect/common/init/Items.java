@@ -3,6 +3,7 @@ package li.cil.architect.common.init;
 import li.cil.architect.common.ProxyCommon;
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.item.ItemBlueprint;
+import li.cil.architect.common.item.ItemProviderFluid;
 import li.cil.architect.common.item.ItemProviderItem;
 import li.cil.architect.common.item.ItemSketch;
 import li.cil.architect.util.ItemStackUtils;
@@ -24,6 +25,7 @@ public final class Items {
     public static Item sketch;
     public static Item blueprint;
     public static Item providerItem;
+    public static Item providerFluid;
 
     // --------------------------------------------------------------------- //
 
@@ -35,8 +37,16 @@ public final class Items {
         return isItem(stack, blueprint);
     }
 
-    public static boolean isProvider(@Nullable final ItemStack stack) {
+    public static boolean isItemProvider(@Nullable final ItemStack stack) {
         return isItem(stack, providerItem);
+    }
+
+    public static boolean isFluidProvider(@Nullable final ItemStack stack) {
+        return isItem(stack, providerFluid);
+    }
+
+    public static boolean isProvider(@Nullable final ItemStack stack) {
+        return isItemProvider(stack) || isFluidProvider(stack);
     }
 
     @Nullable
@@ -58,6 +68,7 @@ public final class Items {
         sketch = proxy.registerItem(Constants.NAME_ITEM_SKETCH, ItemSketch::new);
         blueprint = proxy.registerItem(Constants.NAME_ITEM_BLUEPRINT, ItemBlueprint::new);
         providerItem = proxy.registerItem(Constants.NAME_ITEM_PROVIDER_ITEM, ItemProviderItem::new);
+        providerFluid = proxy.registerItem(Constants.NAME_ITEM_PROVIDER_FLUID, ItemProviderFluid::new);
     }
 
     public static void addRecipes() {
@@ -72,14 +83,24 @@ public final class Items {
                 'S', "string"));
         GameRegistry.addRecipe(new ShapedOreRecipe(
                 new ItemStack(providerItem, 1),
-                "IPI",
+                "IEI",
                 "QHQ",
                 "ITI",
                 'I', "ingotIron",
-                'P', "enderpearl",
+                'E', "enderpearl",
                 'Q', "gemQuartz",
                 'T', Blocks.TRAPDOOR,
                 'H', Blocks.HOPPER));
+        GameRegistry.addRecipe(new ShapedOreRecipe(
+                new ItemStack(providerFluid, 1),
+                "IEI",
+                "QPQ",
+                "ITI",
+                'I', "ingotIron",
+                'E', "enderpearl",
+                'Q', "gemQuartz",
+                'T', Blocks.TRAPDOOR,
+                'P', Blocks.PISTON));
     }
 
     // --------------------------------------------------------------------- //

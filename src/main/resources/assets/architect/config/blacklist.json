@@ -1,3 +1,87 @@
 [
-  "minecraft:snow_layer"
+  "minecraft:snow_layer",
+  {
+    "block": "immersiveengineering:metalDevice1",
+    "properties": {
+      "type": "sample_drill"
+    }
+  },
+  {
+    "block": "immersiveengineering:metalDevice1",
+    "properties": {
+      "type": "tesla_coil"
+    }
+  },
+  {
+    "block": "immersiveengineering:metalDevice1",
+    "properties": {
+      "type": "turret_chem"
+    }
+  },
+  {
+    "block": "immersiveengineering:metalDevice1",
+    "properties": {
+      "type": "turret_gun"
+    }
+  },
+  {
+    "block": "immersiveengineering:metalDevice1",
+    "properties": {
+      "type": "blast_furnace_preheater"
+    }
+  },
+  {
+    "block": "immersiveengineering:metalDevice0",
+    "properties": {
+      "type": "fluid_pump"
+    }
+  },
+  {
+    "block": "immersiveengineering:connector",
+    "properties": {
+      "type": "transformer"
+    }
+  },
+  {
+    "block": "immersiveengineering:connector",
+    "properties": {
+      "type": "transformer_hv"
+    }
+  },
+  {
+    "block": "immersiveengineering:connector",
+    "properties": {
+      "type": "energy_meter"
+    }
+  },
+  {
+    "block": "immersiveengineering:woodenDevice1",
+    "properties": {
+      "type": "watermill"
+    }
+  },
+  {
+    "block": "immersiveengineering:woodenDevice1",
+    "properties": {
+      "type": "post"
+    }
+  },
+  {
+    "block": "immersiveengineering:woodenDevice0",
+    "properties": {
+      "type": "workbench"
+    }
+  },
+  {
+    "block": "immersiveengineering:metalDecoration2",
+    "properties": {
+      "type": "steel_post"
+    }
+  },
+  {
+    "block": "immersiveengineering:metalDecoration2",
+    "properties": {
+      "type": "aluminum_post"
+    }
+  }
 ]

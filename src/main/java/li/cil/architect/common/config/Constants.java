@@ -19,12 +19,14 @@ public final class Constants {
     public static final String NAME_ITEM_SKETCH = "sketch";
     public static final String NAME_ITEM_BLUEPRINT = "blueprint";
     public static final String NAME_ITEM_PROVIDER_ITEM = "provider_item";
+    public static final String NAME_ITEM_PROVIDER_FLUID = "provider_fluid";
 
     // --------------------------------------------------------------------- //
     // Converter UUIDs
 
     public static final UUID UUID_CONVERTER_SIMPLE_BLOCKS = UUID.fromString("20a9cafc-d21c-49cd-9a40-f8ea34c91984");
     public static final UUID UUID_CONVERTER_FALLING_BLOCKS = UUID.fromString("74365f58-01c6-4b85-b069-e73656e57064");
+    public static final UUID UUID_CONVERTER_FLUID_BLOCKS = UUID.fromString("dd8d8a2e-2a1f-4df5-87cb-7839d8e0777d");
     public static final UUID UUID_CONVERTER_TILE_ENTITY = UUID.fromString("daf02728-b4b7-4530-84ba-2fb50dcdc8b1");
 
     // --------------------------------------------------------------------- //
@@ -42,17 +44,16 @@ public final class Constants {
     public static final String TOOLTIP_BLUEPRINT_COSTS_LINE = "tooltip.architect.blueprint.costs.line";
     public static final String TOOLTIP_BLUEPRINT_COSTS_UNKNOWN = "tooltip.architect.blueprint.costs.unknown";
     public static final String TOOLTIP_PROVIDER_ITEM = "tooltip.architect.provider.item";
+    public static final String TOOLTIP_PROVIDER_FLUID = "tooltip.architect.provider.fluid";
     public static final String TOOLTIP_PROVIDER_TARGET = "tooltip.architect.provider.target";
 
     // --------------------------------------------------------------------- //
     // Config
 
-    public static final String CONFIG_MAX_BLUEPRINT_SIZE = "config.architect.maxBlueprintSize";
     public static final String CONFIG_MAX_PROVIDER_RADIUS = "config.architect.maxProviderRadius";
     public static final String CONFIG_MAX_CHUNK_OPS_PER_TICK = "config.architect.maxChunkOperationsPerTick";
     public static final String CONFIG_MAX_WORLD_OPS_PER_TICK = "config.architect.maxWorldOperationsPerTick";
     public static final String CONFIG_USE_ENERGY = "config.architect.use_energy";
-    public static final String CONFIG_BLACKLIST = "config.architect.blacklist";
 
     // --------------------------------------------------------------------- //
     // Config files
@@ -76,10 +77,7 @@ public final class Constants {
     public static final String COMMAND_COPY_SUCCESS = "commands.architect.copy.success";
     public static final String COMMAND_PASTE_INVALID = "commands.architect.paste.invalid";
     public static final String COMMAND_PASTE_SUCCESS = "commands.architect.paste.success";
-    public static final String COMMAND_NBT_INVALID_BLOCK = "commands.architect.nbt.invalid_block";
     public static final String COMMAND_NBT_NO_TILE_ENTITY = "commands.architect.nbt.no_tile_entity";
-    public static final String COMMAND_NBT_ERROR = "commands.architect.nbt.error";
-    public static final String COMMAND_NBT_SUCCESS = "commands.architect.nbt.success";
     public static final String COMMAND_RELOAD_SUCCESS = "commands.architect.reload.success";
     public static final String COMMAND_RELOAD_ERRORS = "commands.architect.reload.errors";
     public static final String COMMAND_RELOAD_ERROR = "commands.architect.reload.error";
@@ -99,6 +97,7 @@ public final class Constants {
     // --------------------------------------------------------------------- //
     // Gameplay
 
+    public static final int MAX_BLUEPRINT_SIZE = 16;
     public static final int ENERGY_PER_BLOCK = 10;
     public static final float EXHAUSTION_PER_BLOCK = 0.005f;
 
