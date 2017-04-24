@@ -1,5 +1,6 @@
 package li.cil.architect.common.integration;
 
+import li.cil.architect.common.integration.chiselsandbits.ProxyChiselsAndBits;
 import li.cil.architect.common.integration.minecraft.ProxyMinecraft;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -16,6 +17,7 @@ public final class Integration {
 
     static {
         proxies.add(new ProxyMinecraft());
+        proxies.add(new ProxyChiselsAndBits());
     }
 
     // --------------------------------------------------------------------- //

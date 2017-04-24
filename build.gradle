@@ -61,6 +61,7 @@ repositories {
 
 dependencies {
     deobfCompile "mezz.jei:jei_${config.minecraft.version}:${config.jei.version}"
+    deobfCompile "mod.chiselsandbits:chiselsandbits:${config.chiselsandbits.version}"
 }
 
 processResources {
