@@ -2,9 +2,10 @@ package li.cil.architect.common.integration.chiselsandbits;
 
 import li.cil.architect.api.converter.MaterialSource;
 import li.cil.architect.api.prefab.converter.AbstractConverter;
-import mod.chiselsandbits.api.IChiseledBlockTileEntity;
+import li.cil.architect.util.ItemStackUtils;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
@@ -43,7 +44,7 @@ public class ConverterChiseledBlock extends AbstractConverter {
     @SideOnly(Side.CLIENT)
     public Iterable<ItemStack> getItemCosts(final NBTBase data) {
         final NBTBlobConverter converter = new NBTBlobConverter();
-        converter.readChisleData(((NBTTagCompound) data).getCompoundTag(TAG_NBT), VoxelBlob.VERSION_ANY);
+        converter.readChisleData(((NBTTagCompound) data).getCompoundTag(TAG_NBT));
         final VoxelBlob pattern = converter.getBlob();
 
         final List<ItemStack> result = new ArrayList<>();
@@ -64,7 +65,7 @@ public class ConverterChiseledBlock extends AbstractConverter {
 
     @Override
     public boolean canSerialize(final World world, final BlockPos pos) {
-        return world.getTileEntity(pos) instanceof IChiseledBlockTileEntity;
+        return world.getTileEntity(pos) instanceof TileEntityBlockChiseled;
     }
 
     // --------------------------------------------------------------------- //
@@ -80,11 +81,11 @@ public class ConverterChiseledBlock extends AbstractConverter {
         super.postSerialize(world, pos, state, data);
 
         final TileEntity tileEntity = world.getTileEntity(pos);
-        assert tileEntity instanceof IChiseledBlockTileEntity : "canSerialize lied or was ignored";
-        final IChiseledBlockTileEntity chiseledBlock = (IChiseledBlockTileEntity) tileEntity;
+        assert tileEntity instanceof TileEntityBlockChiseled : "canSerialize lied or was ignored";
+        final TileEntityBlockChiseled chiseledBlock = (TileEntityBlockChiseled) tileEntity;
 
         final NBTTagCompound nbt = new NBTTagCompound();
-        chiseledBlock.writeTileEntityToTag(nbt, true);
+        new NBTBlobConverter(false, chiseledBlock).writeChisleData(nbt, true);
 
         // Strip stuff written by TileEntity base class.
         nbt.removeTag("x");
@@ -98,7 +99,7 @@ public class ConverterChiseledBlock extends AbstractConverter {
     @Override
     public boolean preDeserialize(final MaterialSource materialSource, final World world, final BlockPos pos, final Rotation rotation, final NBTBase data) {
         final NBTBlobConverter converter = new NBTBlobConverter();
-        converter.readChisleData(((NBTTagCompound) data).getCompoundTag(TAG_NBT), VoxelBlob.VERSION_ANY);
+        converter.readChisleData(((NBTTagCompound) data).getCompoundTag(TAG_NBT));
         final VoxelBlob pattern = converter.getBlob();
 
         final Map<Integer, Integer> bits = pattern.getBlockSums();
@@ -148,11 +149,11 @@ public class ConverterChiseledBlock extends AbstractConverter {
                 int slot = findSlotWithBitType(itemHandler, bitType, 0);
                 while (slot >= 0) {
                     final ItemStack stack = itemHandler.extractItem(slot, remaining, simulate);
-                    if (stack.getCount() >= remaining) {
+                    if (stack.stackSize >= remaining) {
                         remaining = 0;
                         break;
                     } else {
-                        remaining -= stack.getCount();
+                        remaining -= stack.stackSize;
                         slot = findSlotWithBitType(itemHandler, bitType, slot + 1);
                     }
                 }
@@ -172,7 +173,8 @@ public class ConverterChiseledBlock extends AbstractConverter {
             final IItemHandler actualItemHandler = materialSource.getItemHandler();
             itemHandler = new ItemStackHandler(actualItemHandler.getSlots());
             for (int slot = 0; slot < actualItemHandler.getSlots(); slot++) {
-                itemHandler.insertItem(slot, actualItemHandler.getStackInSlot(slot).copy(), false);
+                final ItemStack stack = actualItemHandler.getStackInSlot(slot);
+                itemHandler.insertItem(slot, stack != null ? stack.copy() : null, false);
             }
         } else {
             itemHandler = materialSource.getItemHandler();
@@ -184,7 +186,7 @@ public class ConverterChiseledBlock extends AbstractConverter {
         final List<BagInventory> result = new ArrayList<>();
         for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
             final ItemStack stack = itemHandler.getStackInSlot(slot);
-            if (!stack.isEmpty() && stack.getItem() instanceof ItemBitBag) {
+            if (!ItemStackUtils.isEmpty(stack) && stack.getItem() instanceof ItemBitBag) {
                 result.add(new BagInventory(stack));
             }
         }
@@ -194,7 +196,7 @@ public class ConverterChiseledBlock extends AbstractConverter {
     private int findSlotWithBitType(final IItemHandler itemHandler, final int bitType, final int startAt) {
         for (int slot = startAt; slot < itemHandler.getSlots(); slot++) {
             final ItemStack stack = itemHandler.getStackInSlot(slot);
-            if (!stack.isEmpty() && stack.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit(stack, bitType)) {
+            if (!ItemStackUtils.isEmpty(stack) && stack.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit(stack, bitType)) {
                 return slot;
             }
         }
