@@ -411,7 +411,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         private final TObjectIntMap<NBTTagCompound> nbtToId = new TObjectIntHashMap<>();
         private final TIntIntMap blocks = new TIntIntHashMap();
 
-        public BlueprintData getData() {
+        public BlueprintData getData(final BlockPos origin) {
             final int[] keys = blocks.keys();
             Arrays.sort(keys);
             data.blockPositions.clear();
@@ -420,6 +420,8 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
                 data.blockPositions.set(keys[i]);
                 data.blockReferences[i] = blocks.get(keys[i]);
             }
+            final Vec3i size = AxisAlignedBBUtils.getBlockSize(data.bounds);
+            data.shift = new BlockPos(origin.getX() % size.getX(), origin.getY() % size.getY(), origin.getZ() % size.getZ());
             return data;
         }
 
