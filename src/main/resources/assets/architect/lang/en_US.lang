@@ -19,6 +19,7 @@ tooltip.architect.provider.fluid=§8Keep in inventory to use fluids from a bound
 tooltip.architect.provider.target=§7Bound to (%s, %s, %s).
 
 key.architect.rotateBlueprint=Rotate Blueprint
+key.architect.toggleGrid=Toggle Grid Snapping
 
 commands.architect.usage=Master command for all commands in the Architect mod. Use tab-completion to explore sub-commands.
 commands.architect.blacklist.usage=Call while looking at a block to add or remove it to or from the blacklist.
