@@ -159,13 +159,10 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         switch (amount) {
             case COUNTERCLOCKWISE_90:
                 bounds = rotateBoundsClockwise(bounds);
-                shift = rotateVectorClockwise(shift);
             case CLOCKWISE_180:
                 bounds = rotateBoundsClockwise(bounds);
-                shift = rotateVectorClockwise(shift);
             case CLOCKWISE_90:
                 bounds = rotateBoundsClockwise(bounds);
-                shift = rotateVectorClockwise(shift);
         }
     }
 
@@ -398,10 +395,6 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
     private static AxisAlignedBB rotateBoundsClockwise(final AxisAlignedBB bounds) {
         return new AxisAlignedBB(bounds.minX, bounds.minY, bounds.minZ, bounds.maxZ, bounds.maxY, bounds.maxX);
-    }
-
-    private static BlockPos rotateVectorClockwise(final BlockPos value) {
-        return new BlockPos(value.getZ(), value.getY(), -value.getX());
     }
 
     // --------------------------------------------------------------------- //

@@ -5,6 +5,7 @@ import li.cil.architect.common.item.ItemBlueprint;
 import li.cil.architect.common.item.data.BlueprintData;
 import li.cil.architect.util.ItemStackUtils;
 import li.cil.architect.util.PlayerUtils;
+import li.cil.architect.util.RenderUtils;
 import li.cil.architect.util.WorldUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -29,8 +30,6 @@ import static li.cil.architect.client.renderer.OverlayRendererUtils.*;
 
 public enum BlueprintRenderer {
     INSTANCE;
-
-    private static final float ROTATION_INSET = 0.2f;
 
     // Cached data to avoid having to deserialize it from NBT each frame.
     private static WeakReference<ItemStack> lastStack;
@@ -75,14 +74,16 @@ public enum BlueprintRenderer {
         doPositionPrologue(event);
         doOverlayPrologue();
 
-        GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
+        RenderUtils.setColor(0x33000000 | ItemBlueprint.getColor(stack).getMapColor().colorValue);
         renderValidBlocks(world, data.getBlocks(hitPos), dt);
 
-        GlStateManager.color(0.9f, 0.2f, 0.2f, 0.3f);
+        GlStateManager.color(0.9f, 0.2f, 0.2f, 0.5f);
         renderInvalidBlocks(world, data.getBlocks(hitPos), dt);
 
-        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
+        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.6f);
         renderCellBounds(cellBounds);
+
+        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.2f);
         renderRotationIndicator(data.getRotation(), cellBounds);
 
         doOverlayEpilogue();
@@ -97,28 +98,31 @@ public enum BlueprintRenderer {
 
     private static void renderRotationIndicator(final Rotation rotation, final AxisAlignedBB cellBounds) {
         GlStateManager.disableCull();
+        GlStateManager.pushMatrix();
+
+        GlStateManager.translate(cellBounds.minX, cellBounds.minY, cellBounds.minZ);
+        GlStateManager.scale(cellBounds.maxX - cellBounds.minX, 1, cellBounds.maxZ - cellBounds.minZ);
+        GlStateManager.translate(0.5, 0, 0.5);
+        GlStateManager.rotate(rotation.ordinal() * 90, 0, -1, 0);
+        GlStateManager.translate(-0.5, 0, -0.5);
 
         final Tessellator t = Tessellator.getInstance();
         final VertexBuffer buffer = t.getBuffer();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        buffer.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION);
 
-        switch (rotation) {
-            case NONE:
-                drawPlaneNegZ(cellBounds.minZ, cellBounds.minX + ROTATION_INSET, cellBounds.maxX - ROTATION_INSET, cellBounds.minY + ROTATION_INSET, cellBounds.maxY - ROTATION_INSET, buffer);
-                break;
-            case CLOCKWISE_90:
-                drawPlanePosX(cellBounds.maxX, cellBounds.minY + ROTATION_INSET, cellBounds.maxY - ROTATION_INSET, cellBounds.minZ + ROTATION_INSET, cellBounds.maxZ - ROTATION_INSET, buffer);
-                break;
-            case CLOCKWISE_180:
-                drawPlanePosZ(cellBounds.maxZ, cellBounds.minX + ROTATION_INSET, cellBounds.maxX - ROTATION_INSET, cellBounds.minY + ROTATION_INSET, cellBounds.maxY - ROTATION_INSET, buffer);
-                break;
-            case COUNTERCLOCKWISE_90:
-                drawPlaneNegX(cellBounds.minX, cellBounds.minY + ROTATION_INSET, cellBounds.maxY - ROTATION_INSET, cellBounds.minZ + ROTATION_INSET, cellBounds.maxZ - ROTATION_INSET, buffer);
-                break;
-        }
+        buffer.pos(0, 0, 0.5).endVertex();
+        buffer.pos(0.5, 0, 1).endVertex();
+        buffer.pos(1, 0, 0.5).endVertex();
+        buffer.pos(0.25, 0, 0).endVertex();
+        buffer.pos(0.25, 0, 0.5).endVertex();
+        buffer.pos(0.75, 0, 0.5).endVertex();
+        buffer.pos(0.25, 0, 0).endVertex();
+        buffer.pos(0.75, 0, 0.5).endVertex();
+        buffer.pos(0.75, 0, 0).endVertex();
 
         t.draw();
 
+        GlStateManager.popMatrix();
         GlStateManager.enableCull();
     }
 
