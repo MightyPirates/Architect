@@ -4,6 +4,7 @@ import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.ItemBlueprint;
 import li.cil.architect.common.item.data.BlueprintData;
 import li.cil.architect.util.PlayerUtils;
+import li.cil.architect.util.RenderUtils;
 import li.cil.architect.util.WorldUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -28,8 +29,6 @@ import static li.cil.architect.client.renderer.OverlayRendererUtils.*;
 
 public enum BlueprintRenderer {
     INSTANCE;
-
-    private static final float ROTATION_INSET = 0.2f;
 
     // Cached data to avoid having to deserialize it from NBT each frame.
     private static WeakReference<ItemStack> lastStack;
@@ -74,14 +73,16 @@ public enum BlueprintRenderer {
         doPositionPrologue(event);
         doOverlayPrologue();
 
-        GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
+        RenderUtils.setColor(0x33000000 | ItemBlueprint.getColor(stack).getMapColor().colorValue);
         renderValidBlocks(world, data.getBlocks(hitPos), dt);
 
-        GlStateManager.color(0.9f, 0.2f, 0.2f, 0.3f);
+        GlStateManager.color(0.9f, 0.2f, 0.2f, 0.5f);
         renderInvalidBlocks(world, data.getBlocks(hitPos), dt);
 
-        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.2f);
+        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.6f);
         renderCellBounds(cellBounds);
+
+        GlStateManager.color(0.2f, 0.9f, 0.4f, 0.2f);
         renderRotationIndicator(data.getRotation(), cellBounds);
 
         doOverlayEpilogue();
