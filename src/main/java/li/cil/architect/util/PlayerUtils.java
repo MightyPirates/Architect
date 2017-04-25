@@ -7,7 +7,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class PlayerUtils {
-    private static float freeAimDistance = 4;
+    private static final int MIN_AIM_DISTANCE = 4;
+    private static final int MAX_AIM_DISTANCE = 10;
+
+    private static float freeAimDistance = MIN_AIM_DISTANCE;
 
     /**
      * Change the distance at which the free-aim pointer is positioned.
@@ -15,7 +18,7 @@ public final class PlayerUtils {
      * @param delta the amount by which to change the distance.
      */
     public static void changeFreeAimDistance(final float delta) {
-        freeAimDistance = MathHelper.clamp(freeAimDistance + delta, 1, 5);
+        freeAimDistance = MathHelper.clamp(freeAimDistance + delta, MIN_AIM_DISTANCE, MAX_AIM_DISTANCE);
     }
 
     public static BlockPos getLookAtPos(final EntityPlayer player) {
