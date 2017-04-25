@@ -7,6 +7,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import li.cil.architect.api.ConverterAPI;
 import li.cil.architect.common.Architect;
 import li.cil.architect.common.config.Constants;
+import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.jobs.JobManager;
 import li.cil.architect.util.AxisAlignedBBUtils;
 import net.minecraft.client.resources.I18n;
@@ -88,22 +89,22 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
         while (shift.getX() < -size.getX()) {
-            shift = shift.add(size.getX() + 1, 0, 0);
+            shift = shift.add(size.getX(), 0, 0);
         }
         while (shift.getY() < -size.getY()) {
-            shift = shift.add(0, size.getY() + 1, 0);
+            shift = shift.add(0, size.getY(), 0);
         }
         while (shift.getZ() < -size.getZ()) {
-            shift = shift.add(0, 0, size.getZ() + 1);
+            shift = shift.add(0, 0, size.getZ());
         }
         while (shift.getX() > size.getX()) {
-            shift = shift.add(-size.getX() - 1, 0, 0);
+            shift = shift.add(-size.getX(), 0, 0);
         }
         while (shift.getY() > size.getY()) {
-            shift = shift.add(0, -size.getY() - 1, 0);
+            shift = shift.add(0, -size.getY(), 0);
         }
         while (shift.getZ() > size.getZ()) {
-            shift = shift.add(0, 0, -size.getZ() - 1);
+            shift = shift.add(0, 0, -size.getZ());
         }
     }
 
@@ -208,7 +209,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
             return Stream.empty(); // Corrupted data.
         }
-        final BlockPos origin = snapToGrid(pos, size).add(shift);
+        final BlockPos origin = snapToGrid(pos, size);
         return StreamSupport.stream(new BlockPosSpliterator(this, origin), false);
     }
 
@@ -309,7 +310,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
             return; // Corrupted data.
         }
-        final BlockPos origin = snapToGrid(pos, size).add(shift);
+        final BlockPos origin = snapToGrid(pos, size);
         JobManager.INSTANCE.addJobBatch(player, StreamSupport.stream(new JobAddSpliterator(this, origin), false));
     }
 
@@ -378,12 +379,16 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
     // --------------------------------------------------------------------- //
 
-    private static BlockPos snapToGrid(final BlockPos pos, final Vec3i grid) {
+    private BlockPos snapToGrid(final BlockPos pos, final Vec3i grid) {
+        if (!Settings.enablePlacementGrid) {
+            return pos.subtract(new BlockPos(bounds.getCenter()));
+        }
+        final BlockPos adjusted = pos.subtract(shift);
         return new BlockPos(
-                MathHelper.floor(pos.getX() / (float) grid.getX()) * grid.getX(),
-                MathHelper.floor(pos.getY() / (float) grid.getY()) * grid.getY(),
-                MathHelper.floor(pos.getZ() / (float) grid.getZ()) * grid.getZ()
-        );
+                MathHelper.floor(adjusted.getX() / (float) grid.getX()) * grid.getX(),
+                MathHelper.floor(adjusted.getY() / (float) grid.getY()) * grid.getY(),
+                MathHelper.floor(adjusted.getZ() / (float) grid.getZ()) * grid.getZ()
+        ).add(shift);
     }
 
     private static BlockPos rotatePosClockwise(final BlockPos pos, final AxisAlignedBB bounds) {
@@ -406,7 +411,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         private final TObjectIntMap<NBTTagCompound> nbtToId = new TObjectIntHashMap<>();
         private final TIntIntMap blocks = new TIntIntHashMap();
 
-        public BlueprintData getData() {
+        public BlueprintData getData(final BlockPos origin) {
             final int[] keys = blocks.keys();
             Arrays.sort(keys);
             data.blockPositions.clear();
@@ -415,6 +420,8 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
                 data.blockPositions.set(keys[i]);
                 data.blockReferences[i] = blocks.get(keys[i]);
             }
+            final Vec3i size = AxisAlignedBBUtils.getBlockSize(data.bounds);
+            data.shift = new BlockPos(origin.getX() % size.getX(), origin.getY() % size.getY(), origin.getZ() % size.getZ());
             return data;
         }
 

@@ -170,7 +170,7 @@ public final class ItemSketch extends AbstractItem {
         });
 
         final ItemStack result = new ItemStack(Items.blueprint);
-        ItemBlueprint.setData(result, builder.getData());
+        ItemBlueprint.setData(result, builder.getData(origin));
         ItemBlueprint.setColor(result, EnumDyeColor.byMetadata(world.rand.nextInt(16)));
         disableUseAfterConversion();
         return result;

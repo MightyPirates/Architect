@@ -1,5 +1,6 @@
 package li.cil.architect.client.input;
 
+import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.network.Network;
 import li.cil.architect.common.network.message.MessageBlueprintShift;
@@ -31,9 +32,14 @@ public enum MouseEventHandlerBlueprint {
             return;
         }
 
-        final EnumFacing facing = PlayerUtils.getPrimaryFacing(player);
-        final EnumFacing shift = event.getDwheel() > 0 ? facing : facing.getOpposite();
-        Network.INSTANCE.getWrapper().sendToServer(new MessageBlueprintShift(shift));
+        if (Settings.enablePlacementGrid) {
+            final EnumFacing facing = PlayerUtils.getPrimaryFacing(player);
+            final EnumFacing shift = event.getDwheel() > 0 ? facing : facing.getOpposite();
+            Network.INSTANCE.getWrapper().sendToServer(new MessageBlueprintShift(shift));
+        } else {
+            final float delta = Math.signum(event.getDwheel());
+            PlayerUtils.changeFreeAimDistance(delta);
+        }
 
         // Avoid selecting different item.
         event.setCanceled(true);

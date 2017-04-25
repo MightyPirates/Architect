@@ -48,9 +48,12 @@ commands.architect.reload.success=Converter settings reloaded.
 commands.architect.reload.errors=§cSome settings could not be reloaded due to errors:
 commands.architect.reload.error=%s: %s
 
+message.architect.grid_snapping.enabled=§aGrid snapping enabled.
+message.architect.grid_snapping.disabled=§cGrid snapping disabled.
 message.architect.placement.canceled=Some blocks were not placed due to lack of permissions.
 message.architect.placement.not_enough_energy=Placement failed: not enough energy available.
 
+config.architect.enablePlacementGrid=Enable Placement Grid
 config.architect.maxProviderRadius=Maximum Provider Radius
 config.architect.maxChunkOperationsPerTick=Maximum Chunk Operations/t
 config.architect.maxWorldOperationsPerTick=Maximum World Operations/t
