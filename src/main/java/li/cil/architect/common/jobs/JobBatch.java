@@ -13,6 +13,7 @@ import li.cil.architect.common.inventory.CompoundItemHandler;
 import li.cil.architect.common.item.ItemProviderFluid;
 import li.cil.architect.common.item.ItemProviderItem;
 import li.cil.architect.util.FluidHandlerUtils;
+import li.cil.architect.util.ItemHandlerUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -82,13 +83,34 @@ class JobBatch implements JobManager.JobConsumer {
     }
 
     void finish(final JobManagerImpl manager) {
-        if (!consumeEnergy()) {
+        // Simulate using a full copy of our materials in case the user only
+        // wants to place the blueprint if all materials are available. We
+        // need to do it this way because otherwise (if we just simulated
+        // extraction) converters could consume the same resource multiple
+        // times.
+        final MaterialSourceImpl simulationSource = new MaterialSourceImpl(false, ItemHandlerUtils.copy(materialSource.getItemHandler()), FluidHandlerUtils.copy(materialSource.getFluidHandler()));
+        jobs.forEachValue(list -> {
+            list.removeIf(job -> !ConverterAPI.preDeserialize(simulationSource, world, job.pos, job.rotation, idToNbt.get(job.id)));
+            return true;
+        });
+
+        if (!payForPlacement()) {
             return;
         }
+
+        jobs.forEachValue(list -> {
+            for (final BatchedJob job : list) {
+                final boolean success = ConverterAPI.preDeserialize(materialSource, world, job.pos, job.rotation, idToNbt.get(job.id));
+                assert success : "Inconsistent result from preSerialize in simulation and actual consumption: " + idToNbt.get(job.id);
+            }
+            return true;
+        });
 
         if (anyCanceled) {
             player.sendMessage(new TextComponentTranslation(Constants.MESSAGE_PLACEMENT_CANCELED));
         }
+
+        player.inventory.markDirty();
 
         // Shuffle jobs per sort index, to get a less... boring order when
         // actually deserializing the blocks.
@@ -143,12 +165,6 @@ class JobBatch implements JobManager.JobConsumer {
             return;
         }
 
-        if (!ConverterAPI.preDeserialize(materialSource, world, pos, rotation, nbt)) {
-            return;
-        }
-
-        player.inventory.markDirty();
-
         final int sortIndex = ConverterAPI.getSortIndex(nbt);
         if (!jobs.containsKey(sortIndex)) {
             jobs.put(sortIndex, new ArrayList<>());
@@ -201,7 +217,7 @@ class JobBatch implements JobManager.JobConsumer {
         }
     }
 
-    private boolean consumeEnergy() {
+    private boolean payForPlacement() {
         if (player.isCreative()) {
             return true;
         }
@@ -212,47 +228,53 @@ class JobBatch implements JobManager.JobConsumer {
         }
 
         if (Settings.useEnergy) {
-            final int energyRequired = Constants.ENERGY_PER_BLOCK * blockCount;
-            int energyReceived = 0;
-            final List<IEnergyStorage> energyStorages = new ArrayList<>();
-
-            // Find energy storages in the player's inventory until we found
-            // enough of them to cover the energy costs of the operation.
-            final int slotCount = player.inventory.getSizeInventory();
-            for (int slot = 0; slot < slotCount; slot++) {
-                final ItemStack stack = player.inventory.getStackInSlot(slot);
-                if (stack.isEmpty()) {
-                    continue;
-                }
-
-                final IEnergyStorage energyStorage = stack.getCapability(CapabilityEnergy.ENERGY, null);
-                if (energyStorage == null || !energyStorage.canExtract()) {
-                    continue;
-                }
-
-                energyReceived += energyStorage.extractEnergy(energyRequired - energyReceived, true);
-                energyStorages.add(energyStorage);
-                if (energyReceived >= energyRequired) {
-                    break;
-                }
-            }
-
-            // If we can't satisfy the energy usage, let the player know.
-            if (energyReceived < energyRequired) {
-                player.sendMessage(new TextComponentTranslation(Constants.MESSAGE_PLACEMENT_NOT_ENOUGH_ENERGY));
-                return false;
-            }
-
-            // Actually extract the energy.
-            energyReceived = 0;
-            for (final IEnergyStorage energyStorage : energyStorages) {
-                energyReceived += energyStorage.extractEnergy(energyRequired - energyReceived, false);
-                if (Math.abs(energyRequired - energyReceived) < 1) {
-                    break;
-                }
-            }
+            return consumeEnergy(blockCount);
         } else {
             player.addExhaustion(Constants.EXHAUSTION_PER_BLOCK * blockCount);
+        }
+
+        return true;
+    }
+
+    private boolean consumeEnergy(final int blockCount) {
+        final int energyRequired = Constants.ENERGY_PER_BLOCK * blockCount;
+        int energyReceived = 0;
+        final List<IEnergyStorage> energyStorages = new ArrayList<>();
+
+        // Find energy storages in the player's inventory until we found
+        // enough of them to cover the energy costs of the operation.
+        final int slotCount = player.inventory.getSizeInventory();
+        for (int slot = 0; slot < slotCount; slot++) {
+            final ItemStack stack = player.inventory.getStackInSlot(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            final IEnergyStorage energyStorage = stack.getCapability(CapabilityEnergy.ENERGY, null);
+            if (energyStorage == null || !energyStorage.canExtract()) {
+                continue;
+            }
+
+            energyReceived += energyStorage.extractEnergy(energyRequired - energyReceived, true);
+            energyStorages.add(energyStorage);
+            if (energyReceived >= energyRequired) {
+                break;
+            }
+        }
+
+        // If we can't satisfy the energy usage, let the player know.
+        if (energyReceived < energyRequired) {
+            player.sendMessage(new TextComponentTranslation(Constants.MESSAGE_PLACEMENT_NOT_ENOUGH_ENERGY));
+            return false;
+        }
+
+        // Actually extract the energy.
+        energyReceived = 0;
+        for (final IEnergyStorage energyStorage : energyStorages) {
+            energyReceived += energyStorage.extractEnergy(energyRequired - energyReceived, false);
+            if (Math.abs(energyRequired - energyReceived) < 1) {
+                break;
+            }
         }
 
         return true;
