@@ -12,6 +12,10 @@ public final class Settings {
     @Config.Comment("Whether to snap to a grid the size of the blueprint bounds when placing blueprints.")
     public static boolean enablePlacementGrid = true;
 
+    @Config.LangKey(Constants.CONFIG_ALLOW_PLACE_PARTIAL)
+    @Config.Comment("Whether to allow placing partial blueprints, in case some materials are missing.")
+    public static boolean allowPlacePartial = true;
+
     @Config.LangKey(Constants.CONFIG_MAX_PROVIDER_RADIUS)
     @Config.Comment("The maximum distance between a player and the position a provider is bound to for the provider to work.")
     @Config.RangeInt(min = 1, max = 1000)

@@ -20,6 +20,7 @@ tooltip.architect.provider.target=§7Bound to (%s, %s, %s).
 
 key.architect.rotateBlueprint=Rotate Blueprint
 key.architect.toggleGrid=Toggle Grid Snapping
+key.architect.toggleAllowPartial=Toggle Partial Placement
 
 commands.architect.usage=Master command for all commands in the Architect mod. Use tab-completion to explore sub-commands.
 commands.architect.blacklist.usage=Call while looking at a block to add or remove it to or from the blacklist.
@@ -51,10 +52,14 @@ commands.architect.reload.error=%s: %s
 
 message.architect.grid_snapping.enabled=§aGrid snapping enabled.
 message.architect.grid_snapping.disabled=§cGrid snapping disabled.
+message.architect.partial_placement.enabled=§aPartial placement enabled.
+message.architect.partial_placement.disabled=§cPartial placement disabled.
 message.architect.placement.canceled=Some blocks were not placed due to lack of permissions.
 message.architect.placement.not_enough_energy=Placement failed: not enough energy available.
+message.architect.placement.missing_materials=Placement failed: missing materials.
 
 config.architect.enablePlacementGrid=Enable Placement Grid
+config.architect.allowPlacePartial=Allow Partial Placement
 config.architect.maxProviderRadius=Maximum Provider Radius
 config.architect.maxChunkOperationsPerTick=Maximum Chunk Operations/t
 config.architect.maxWorldOperationsPerTick=Maximum World Operations/t

@@ -26,6 +26,8 @@ public enum KeyboardEventHandlerBlueprint {
             rotateBlueprint();
         } else if (KeyBindings.toggleGrid.isKeyDown()) {
             toggleGrid();
+        } else if (KeyBindings.toggleAllowPartial.isKeyDown()) {
+            toggleAllowPartial();
         }
     }
 
@@ -44,5 +46,11 @@ public enum KeyboardEventHandlerBlueprint {
         Settings.enablePlacementGrid = !Settings.enablePlacementGrid;
         ConfigManager.sync(API.MOD_ID, Config.Type.INSTANCE);
         Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(new TextComponentTranslation(Settings.enablePlacementGrid ? Constants.MESSAGE_GRID_ENABLED : Constants.MESSAGE_GRID_DISABLED), Constants.CHAT_LINE_ID);
+    }
+
+    private void toggleAllowPartial() {
+        Settings.allowPlacePartial = !Settings.allowPlacePartial;
+        ConfigManager.sync(API.MOD_ID, Config.Type.INSTANCE);
+        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(new TextComponentTranslation(Settings.allowPlacePartial ? Constants.MESSAGE_PARTIAL_ENABLED : Constants.MESSAGE_PARTIAL_DISABLED), Constants.CHAT_LINE_ID);
     }
 }

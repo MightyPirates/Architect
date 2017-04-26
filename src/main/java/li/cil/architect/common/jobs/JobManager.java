@@ -56,11 +56,12 @@ public enum JobManager {
      * is a "for each job you can give me, please tell this object what that
      * job is", with "this object" being the instance with internal bookkeeping.
      *
-     * @param player   the player creating the jobs.
-     * @param provider the stream to query for jobs.
+     * @param player       the player creating the jobs.
+     * @param allowPartial whether to allow partial placement.
+     * @param provider     the stream to query for jobs.
      */
-    public void addJobBatch(final EntityPlayer player, final Stream<JobSupplier> provider) {
-        final JobBatch batch = new JobBatch(player);
+    public void addJobBatch(final EntityPlayer player, final boolean allowPartial, final Stream<JobSupplier> provider) {
+        final JobBatch batch = new JobBatch(player, allowPartial);
         provider.forEach(jobProvider -> jobProvider.get(batch));
 
         final JobManagerImpl manager = getInstance(player.getEntityWorld());

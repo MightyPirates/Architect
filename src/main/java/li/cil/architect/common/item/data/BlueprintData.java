@@ -299,16 +299,17 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
      * <p>
      * The positions are defined the same way as in {@link #getBlocks(BlockPos)}.
      *
-     * @param player the player placing the blueprint.
-     * @param pos    the position of the cell defining the origin position.
+     * @param player       the player placing the blueprint.
+     * @param allowPartial whether to allow partial placement.
+     * @param pos          the position of the cell defining the origin position.
      */
-    public void createJobs(final EntityPlayer player, final BlockPos pos) {
+    public void createJobs(final EntityPlayer player, final boolean allowPartial, final BlockPos pos) {
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
         if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
             return; // Corrupted data.
         }
         final BlockPos origin = snapToGrid(pos, size);
-        JobManager.INSTANCE.addJobBatch(player, StreamSupport.stream(new JobAddSpliterator(this, origin), false));
+        JobManager.INSTANCE.addJobBatch(player, allowPartial, StreamSupport.stream(new JobAddSpliterator(this, origin), false));
     }
 
     // --------------------------------------------------------------------- //

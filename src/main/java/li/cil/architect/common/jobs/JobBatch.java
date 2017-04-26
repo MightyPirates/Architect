@@ -5,6 +5,7 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import li.cil.architect.api.ConverterAPI;
+import li.cil.architect.common.api.ConverterAPIImpl;
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.converter.MaterialSourceImpl;
@@ -40,6 +41,7 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -52,6 +54,7 @@ class JobBatch implements JobManager.JobConsumer {
     // --------------------------------------------------------------------- //
     // Computed data.
 
+    private final boolean allowPartial;
     private final MaterialSourceImpl materialSource;
     private final EntityPlayer player;
     private final World world;
@@ -68,10 +71,11 @@ class JobBatch implements JobManager.JobConsumer {
 
     // --------------------------------------------------------------------- //
 
-    JobBatch(final EntityPlayer player) {
+    JobBatch(final EntityPlayer player, final boolean allowPartial) {
         this.player = player;
         this.world = player.getEntityWorld();
         this.jobTester = JobManager.INSTANCE.getJobTester(world);
+        this.allowPartial = allowPartial;
         final IItemHandlerModifiable inventory = new InvWrapper(player.inventory);
         final List<IItemHandler> itemHandlers = ItemProviderItem.findProviders(player.getPositionVector(), inventory);
         final List<IFluidHandler> fluidHandlers = ItemProviderFluid.findProviders(player.getPositionVector(), inventory);
@@ -83,34 +87,21 @@ class JobBatch implements JobManager.JobConsumer {
     }
 
     void finish(final JobManagerImpl manager) {
-        // Simulate using a full copy of our materials in case the user only
-        // wants to place the blueprint if all materials are available. We
-        // need to do it this way because otherwise (if we just simulated
-        // extraction) converters could consume the same resource multiple
-        // times.
-        final MaterialSourceImpl simulationSource = new MaterialSourceImpl(false, ItemHandlerUtils.copy(materialSource.getItemHandler()), FluidHandlerUtils.copy(materialSource.getFluidHandler()));
-        jobs.forEachValue(list -> {
-            list.removeIf(job -> !ConverterAPI.preDeserialize(simulationSource, world, job.pos, job.rotation, idToNbt.get(job.id)));
-            return true;
-        });
-
-        if (!payForPlacement()) {
+        if (!simulateConsumeMaterials()) {
+            player.sendMessage(new TextComponentTranslation(Constants.MESSAGE_PLACEMENT_MISSING_MATERIALS));
             return;
         }
 
-        jobs.forEachValue(list -> {
-            for (final BatchedJob job : list) {
-                final boolean success = ConverterAPI.preDeserialize(materialSource, world, job.pos, job.rotation, idToNbt.get(job.id));
-                assert success : "Inconsistent result from preSerialize in simulation and actual consumption: " + idToNbt.get(job.id);
-            }
-            return true;
-        });
+        if (!consumeEnergy()) {
+            player.sendMessage(new TextComponentTranslation(Constants.MESSAGE_PLACEMENT_NOT_ENOUGH_ENERGY));
+            return;
+        }
 
         if (anyCanceled) {
             player.sendMessage(new TextComponentTranslation(Constants.MESSAGE_PLACEMENT_CANCELED));
         }
 
-        player.inventory.markDirty();
+        consumeMaterials();
 
         // Shuffle jobs per sort index, to get a less... boring order when
         // actually deserializing the blocks.
@@ -138,6 +129,10 @@ class JobBatch implements JobManager.JobConsumer {
         // Don't venture into unloaded territory... this should never really
         // happen anyway, because the player would have to be nearby.
         if (!world.isBlockLoaded(pos)) {
+            return;
+        }
+
+        if (!ConverterAPIImpl.isValidPosition(world, pos)) {
             return;
         }
 
@@ -217,7 +212,40 @@ class JobBatch implements JobManager.JobConsumer {
         }
     }
 
-    private boolean payForPlacement() {
+    private boolean simulateConsumeMaterials() {
+        // Simulate using a full copy of our materials in case the user only
+        // wants to place the blueprint if all materials are available. We
+        // need to do it this way because otherwise (if we just simulated
+        // extraction) converters could consume the same resource multiple
+        // times.
+        final MaterialSourceImpl simulationSource = new MaterialSourceImpl(false, ItemHandlerUtils.copy(materialSource.getItemHandler()), FluidHandlerUtils.copy(materialSource.getFluidHandler()));
+        return jobs.forEachValue(list -> {
+            for (final Iterator<BatchedJob> iterator = list.iterator(); iterator.hasNext(); ) {
+                final BatchedJob job = iterator.next();
+                if (!ConverterAPI.preDeserialize(simulationSource, world, job.pos, job.rotation, idToNbt.get(job.id))) {
+                    if (!allowPartial) {
+                        return false;
+                    }
+                    iterator.remove();
+                }
+            }
+            return true;
+        });
+    }
+
+    private void consumeMaterials() {
+        jobs.forEachValue(list -> {
+            for (final BatchedJob job : list) {
+                final boolean success = ConverterAPI.preDeserialize(materialSource, world, job.pos, job.rotation, idToNbt.get(job.id));
+                assert success : "Inconsistent result from preDeserialize in simulation and actual consumption: " + idToNbt.get(job.id);
+            }
+            return true;
+        });
+
+        player.inventory.markDirty();
+    }
+
+    private boolean consumeEnergy() {
         if (player.isCreative()) {
             return true;
         }

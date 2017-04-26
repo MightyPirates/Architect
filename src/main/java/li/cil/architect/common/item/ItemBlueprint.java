@@ -3,7 +3,10 @@ package li.cil.architect.common.item;
 import li.cil.architect.client.gui.GuiId;
 import li.cil.architect.common.Architect;
 import li.cil.architect.common.config.Constants;
+import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.item.data.BlueprintData;
+import li.cil.architect.common.network.Network;
+import li.cil.architect.common.network.message.MessageBlueprintPlace;
 import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -102,7 +105,7 @@ public final class ItemBlueprint extends AbstractItem {
         if (player.isSneaking()) {
             player.openGui(Architect.instance, GuiId.BLUEPRINT.ordinal(), world, 0, 0, 0);
         } else if (!world.isRemote) {
-            handleInput(player, hand, PlayerUtils.getLookAtPos(player));
+            handleInput(hand, PlayerUtils.getLookAtPos(player));
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
     }
@@ -110,7 +113,7 @@ public final class ItemBlueprint extends AbstractItem {
     @Override
     public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
         if (!world.isRemote) {
-            handleInput(player, hand, pos);
+            handleInput(hand, pos);
         }
         return EnumActionResult.SUCCESS;
     }
@@ -159,13 +162,11 @@ public final class ItemBlueprint extends AbstractItem {
         }
     }
 
-    private void handleInput(final EntityPlayer player, final EnumHand hand, final BlockPos pos) {
+    private void handleInput(final EnumHand hand, final BlockPos pos) {
         if (isUseDisabled()) {
             return;
         }
 
-        final ItemStack stack = player.getHeldItem(hand);
-        final BlueprintData data = getData(stack);
-        data.createJobs(player, pos);
+        Network.INSTANCE.getWrapper().sendToServer(new MessageBlueprintPlace(hand, pos, Settings.allowPlacePartial));
     }
 }
