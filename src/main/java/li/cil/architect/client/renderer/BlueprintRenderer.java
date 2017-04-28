@@ -7,6 +7,7 @@ import li.cil.architect.util.PlayerUtils;
 import li.cil.architect.util.RenderUtils;
 import li.cil.architect.util.WorldUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -89,40 +91,23 @@ public enum BlueprintRenderer {
         doPositionEpilogue();
     }
 
-    private static void renderCellBounds(final AxisAlignedBB cellBounds) {
-        doWirePrologue();
-        renderCube(cellBounds);
-        doWireEpilogue();
-    }
+    @SubscribeEvent
+    public void onOverlayRender(final RenderGameOverlayEvent.Post event) {
+        if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
+            return;
+        }
 
-    private static void renderRotationIndicator(final Rotation rotation, final AxisAlignedBB cellBounds) {
-        GlStateManager.disableCull();
-        GlStateManager.pushMatrix();
+        final Minecraft mc = Minecraft.getMinecraft();
+        final EntityPlayer player = mc.player;
+        if (player.isSneaking()) {
+            final ItemStack stack = Items.getHeldItem(player, Items::isBlueprint);
+            if (stack.isEmpty()) {
+                return;
+            }
 
-        GlStateManager.translate(cellBounds.minX, cellBounds.minY, cellBounds.minZ);
-        GlStateManager.scale(cellBounds.maxX - cellBounds.minX, 1, cellBounds.maxZ - cellBounds.minZ);
-        GlStateManager.translate(0.5, 0, 0.5);
-        GlStateManager.rotate(rotation.ordinal() * 90, 0, -1, 0);
-        GlStateManager.translate(-0.5, 0, -0.5);
-
-        final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
-        buffer.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION);
-
-        buffer.pos(0, 0, 0.5).endVertex();
-        buffer.pos(0.5, 0, 1).endVertex();
-        buffer.pos(1, 0, 0.5).endVertex();
-        buffer.pos(0.25, 0, 0).endVertex();
-        buffer.pos(0.25, 0, 0.5).endVertex();
-        buffer.pos(0.75, 0, 0.5).endVertex();
-        buffer.pos(0.25, 0, 0).endVertex();
-        buffer.pos(0.75, 0, 0.5).endVertex();
-        buffer.pos(0.75, 0, 0).endVertex();
-
-        t.draw();
-
-        GlStateManager.popMatrix();
-        GlStateManager.enableCull();
+            final ScaledResolution resolution = event.getResolution();
+            renderShiftOverlay(player, resolution.getScaledWidth(), resolution.getScaledHeight(), event.getPartialTicks(), false);
+        }
     }
 
     private static void renderValidBlocks(final World world, final Stream<BlockPos> blocks, final float dt) {
@@ -151,5 +136,33 @@ public enum BlueprintRenderer {
         });
 
         t.draw();
+    }
+
+    private static void renderCellBounds(final AxisAlignedBB cellBounds) {
+        doWirePrologue();
+        renderCube(cellBounds);
+        doWireEpilogue();
+    }
+
+    private static void renderRotationIndicator(final Rotation rotation, final AxisAlignedBB cellBounds) {
+        GlStateManager.disableCull();
+        GlStateManager.pushMatrix();
+
+        GlStateManager.translate(cellBounds.minX, cellBounds.minY, cellBounds.minZ);
+        GlStateManager.scale(cellBounds.maxX - cellBounds.minX, 1, cellBounds.maxZ - cellBounds.minZ);
+        GlStateManager.translate(0.5, 0, 0.5);
+        GlStateManager.rotate(rotation.ordinal() * 90, 0, -1, 0);
+        GlStateManager.translate(-0.5, 0, -0.5);
+
+        final Tessellator t = Tessellator.getInstance();
+        final VertexBuffer buffer = t.getBuffer();
+        buffer.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION);
+
+        drawArrow(buffer);
+
+        t.draw();
+
+        GlStateManager.popMatrix();
+        GlStateManager.enableCull();
     }
 }

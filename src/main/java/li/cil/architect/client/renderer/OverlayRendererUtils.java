@@ -1,11 +1,14 @@
 package li.cil.architect.client.renderer;
 
+import li.cil.architect.common.config.Settings;
+import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -136,6 +139,58 @@ final class OverlayRendererUtils {
         t.draw();
     }
 
+    static void renderShiftOverlay(final EntityPlayer player, final int width, final int height, final float partialTicks, final boolean ignoreGrid) {
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+
+        GlStateManager.translate(0, -100, 0);
+        GlStateManager.rotate(-50, 1, 0, 0);
+        GlStateManager.translate(0, 100, 0);
+
+        GlStateManager.translate(width / 2, height / 2, 200);
+        GlStateManager.rotate(player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks, -1, 0, 0);
+        GlStateManager.rotate(25, 1, 0, 0);
+
+        if (!ignoreGrid && Settings.enablePlacementGrid) {
+            GlStateManager.rotate(player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks, 0, 1, 0);
+
+            final EnumFacing facing = PlayerUtils.getPrimaryFacing(player);
+            switch (facing) {
+                case DOWN:
+                    GlStateManager.rotate(90, 1, 0, 0);
+                    break;
+                case UP:
+                    GlStateManager.rotate(270, 1, 0, 0);
+                    break;
+                case NORTH:
+                    GlStateManager.rotate(180, 0, 1, 0);
+                    break;
+                case WEST:
+                    GlStateManager.rotate(270, 0, 1, 0);
+                    break;
+                case EAST:
+                    GlStateManager.rotate(90, 0, 1, 0);
+                    break;
+            }
+        }
+
+        GlStateManager.scale(-1, -1, -1);
+        GlStateManager.scale(25, 25, 25);
+
+        final Tessellator t = Tessellator.getInstance();
+        final VertexBuffer buffer = t.getBuffer();
+        buffer.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
+
+        drawArrow3D(buffer);
+
+        t.draw();
+
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+    }
+
     static void drawCube(final BlockPos pos, final VertexBuffer buffer, final float dt) {
         final float offset = (pos.getX() + pos.getY() + pos.getZ()) % TWO_PI;
         final float scale = SCALE_STRENGTH * MathHelper.sin(offset + dt);
@@ -250,6 +305,108 @@ final class OverlayRendererUtils {
         buffer.pos(maxX, minY, z).endVertex();
         buffer.pos(maxX, maxY, z).endVertex();
         buffer.pos(minX, maxY, z).endVertex();
+    }
+
+    static void drawArrow(final VertexBuffer buffer) {
+        buffer.pos(0, 0, 0.5).endVertex();
+        buffer.pos(0.5, 0, 1).endVertex();
+        buffer.pos(1, 0, 0.5).endVertex();
+        buffer.pos(0.25, 0, 0).endVertex();
+        buffer.pos(0.25, 0, 0.5).endVertex();
+        buffer.pos(0.75, 0, 0.5).endVertex();
+        buffer.pos(0.25, 0, 0).endVertex();
+        buffer.pos(0.75, 0, 0.5).endVertex();
+        buffer.pos(0.75, 0, 0).endVertex();
+    }
+
+    private static void drawArrow3D(final VertexBuffer buffer) {
+        final float trunkSize = 0.3f;
+        final float trunkLength = 0.75f;
+        final float tipLength = 0.75f;
+        final float tipSize = 0.5f;
+
+        // Tip
+        buffer.pos(-tipSize, tipSize, 0).color(0.2f, 0.9f, 0.4f, 0.7f).endVertex();
+        buffer.pos(0, 0, tipLength).color(0.2f, 0.9f, 0.4f, 0.7f).endVertex();
+        buffer.pos(tipSize, tipSize, 0).color(0.2f, 0.9f, 0.4f, 0.7f).endVertex();
+
+        buffer.pos(tipSize, -tipSize, 0).color(0.1f, 0.7f, 0.3f, 0.7f).endVertex();
+        buffer.pos(0, 0, tipLength).color(0.1f, 0.7f, 0.3f, 0.7f).endVertex();
+        buffer.pos(-tipSize, -tipSize, 0).color(0.1f, 0.7f, 0.3f, 0.7f).endVertex();
+
+        buffer.pos(-tipSize, -tipSize, 0).color(0.2f, 0.85f, 0.4f, 0.7f).endVertex();
+        buffer.pos(0, 0, tipLength).color(0.2f, 0.85f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, tipSize, 0).color(0.2f, 0.85f, 0.4f, 0.7f).endVertex();
+
+        buffer.pos(tipSize, tipSize, 0).color(0.2f, 0.85f, 0.4f, 0.7f).endVertex();
+        buffer.pos(0, 0, tipLength).color(0.2f, 0.85f, 0.4f, 0.7f).endVertex();
+        buffer.pos(tipSize, -tipSize, 0).color(0.2f, 0.85f, 0.4f, 0.7f).endVertex();
+
+        // Base
+        buffer.pos(trunkSize, trunkSize, -trunkLength).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, -trunkSize, -trunkLength).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, trunkSize, -trunkLength).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(trunkSize, trunkSize, -trunkLength).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(trunkSize, -trunkSize, -trunkLength).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, -trunkSize, -trunkLength).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+
+        // Trunk
+        buffer.pos(trunkSize, trunkSize, -trunkLength).color(0.2f, 0.9f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, trunkSize, 0).color(0.2f, 0.9f, 0.4f, 0.7f).endVertex();
+        buffer.pos(trunkSize, trunkSize, 0).color(0.2f, 0.9f, 0.4f, 0.7f).endVertex();
+        buffer.pos(trunkSize, trunkSize, -trunkLength).color(0.2f, 0.9f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, trunkSize, -trunkLength).color(0.2f, 0.9f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, trunkSize, 0).color(0.2f, 0.9f, 0.4f, 0.7f).endVertex();
+
+        buffer.pos(-trunkSize, -trunkSize, -trunkLength).color(0.1f, 0.7f, 0.3f, 0.7f).endVertex();
+        buffer.pos(trunkSize, -trunkSize, 0).color(0.1f, 0.7f, 0.3f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, -trunkSize, 0).color(0.1f, 0.7f, 0.3f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, -trunkSize, -trunkLength).color(0.1f, 0.7f, 0.3f, 0.7f).endVertex();
+        buffer.pos(trunkSize, -trunkSize, -trunkLength).color(0.1f, 0.7f, 0.3f, 0.7f).endVertex();
+        buffer.pos(trunkSize, -trunkSize, 0).color(0.1f, 0.7f, 0.3f, 0.7f).endVertex();
+
+        buffer.pos(trunkSize, trunkSize, -trunkLength).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(trunkSize, trunkSize, 0).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(trunkSize, -trunkSize, 0).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(trunkSize, trunkSize, -trunkLength).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(trunkSize, -trunkSize, 0).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(trunkSize, -trunkSize, -trunkLength).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+
+        buffer.pos(-trunkSize, trunkSize, 0).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, trunkSize, -trunkLength).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, -trunkSize, -trunkLength).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, trunkSize, 0).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, -trunkSize, -trunkLength).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, -trunkSize, 0).color(0.15f, 0.75f, 0.35f, 0.7f).endVertex();
+
+        // Tip base
+        buffer.pos(tipSize, tipSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, tipSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(tipSize, tipSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(tipSize, trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+
+        buffer.pos(tipSize, -trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, -tipSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, -trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(tipSize, -trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(tipSize, -tipSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, -tipSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+
+        buffer.pos(-trunkSize, trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, -trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, -trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-trunkSize, trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, -trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(-tipSize, trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+
+        buffer.pos(tipSize, trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(tipSize, -trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(trunkSize, -trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(tipSize, trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(trunkSize, -trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
+        buffer.pos(trunkSize, trunkSize, 0).color(0.2f, 0.8f, 0.4f, 0.7f).endVertex();
     }
 
     private OverlayRendererUtils() {
