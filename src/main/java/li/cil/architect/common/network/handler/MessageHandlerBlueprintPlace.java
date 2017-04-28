@@ -13,7 +13,7 @@ public final class MessageHandlerBlueprintPlace extends AbstractMessageHandler<M
     protected void onMessageSynchronized(final MessageBlueprintPlace message, final MessageContext context) {
         final EntityPlayer player = context.getServerHandler().player;
         final ItemStack stack = player.getHeldItem(message.getHand());
-        if (stack.isEmpty() || !Items.isBlueprint(stack)) {
+        if (!Items.isBlueprint(stack)) {
             return;
         }
 
