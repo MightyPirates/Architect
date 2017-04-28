@@ -7,6 +7,7 @@ import li.cil.architect.common.item.data.SketchData;
 import li.cil.architect.util.ItemStackUtils;
 import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
@@ -16,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -106,6 +108,25 @@ public enum SketchRenderer {
 
         doOverlayEpilogue();
         doPositionEpilogue();
+    }
+
+    @SubscribeEvent
+    public void onOverlayRender(final RenderGameOverlayEvent.Post event) {
+        if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
+            return;
+        }
+
+        final Minecraft mc = Minecraft.getMinecraft();
+        final EntityPlayer player = mc.player;
+        if (player.isSneaking()) {
+            final ItemStack stack = Items.getHeldItem(player, Items::isSketch);
+            if (ItemStackUtils.isEmpty(stack)) {
+                return;
+            }
+
+            final ScaledResolution resolution = event.getResolution();
+            renderShiftOverlay(player, resolution.getScaledWidth(), resolution.getScaledHeight(), event.getPartialTicks(), true);
+        }
     }
 
     private static void renderBlockSelection(final EntityPlayer player, final BlockPos pos, final AxisAlignedBB potentialBounds) {

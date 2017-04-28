@@ -9,10 +9,12 @@ import org.lwjgl.input.Keyboard;
 public final class KeyBindings {
     public static final KeyBinding rotateBlueprint = new KeyBinding(Constants.KEY_BINDINGS_BLUEPRINT_ROTATE, KeyConflictContext.IN_GAME, Keyboard.KEY_R, Constants.KEY_BINDINGS_CATEGORY_NAME);
     public static final KeyBinding toggleGrid = new KeyBinding(Constants.KEY_BINDINGS_TOGGLE_GRID, KeyConflictContext.IN_GAME, Keyboard.KEY_G, Constants.KEY_BINDINGS_CATEGORY_NAME);
+    public static final KeyBinding toggleAllowPartial = new KeyBinding(Constants.KEY_BINDINGS_TOGGLE_ALLOW_PARTIAL, KeyConflictContext.IN_GAME, Keyboard.KEY_P, Constants.KEY_BINDINGS_CATEGORY_NAME);
 
     public static void init() {
         ClientRegistry.registerKeyBinding(rotateBlueprint);
         ClientRegistry.registerKeyBinding(toggleGrid);
+        ClientRegistry.registerKeyBinding(toggleAllowPartial);
     }
 
     private KeyBindings() {

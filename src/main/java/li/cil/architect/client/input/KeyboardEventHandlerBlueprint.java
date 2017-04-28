@@ -32,6 +32,8 @@ public enum KeyboardEventHandlerBlueprint {
             rotateBlueprint();
         } else if (KeyBindings.toggleGrid.isKeyDown()) {
             toggleGrid();
+        } else if (KeyBindings.toggleAllowPartial.isKeyDown()) {
+            toggleAllowPartial();
         }
     }
 
@@ -46,9 +48,20 @@ public enum KeyboardEventHandlerBlueprint {
         Network.INSTANCE.getWrapper().sendToServer(new MessageBlueprintRotate(rotation));
     }
 
-    @SuppressWarnings("unchecked")
     private void toggleGrid() {
         Settings.enablePlacementGrid = !Settings.enablePlacementGrid;
+        syncConfig();
+        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(new TextComponentTranslation(Settings.enablePlacementGrid ? Constants.MESSAGE_GRID_ENABLED : Constants.MESSAGE_GRID_DISABLED), Constants.CHAT_LINE_ID);
+    }
+
+    private void toggleAllowPartial() {
+        Settings.allowPlacePartial = !Settings.allowPlacePartial;
+        syncConfig();
+        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(new TextComponentTranslation(Settings.allowPlacePartial ? Constants.MESSAGE_PARTIAL_ENABLED : Constants.MESSAGE_PARTIAL_DISABLED), Constants.CHAT_LINE_ID);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void syncConfig() {
         try {
             // Why u no accessor D: Also why do I even bother in 1.10 -.-
             final File configDir = Loader.instance().getConfigDir();
@@ -61,6 +74,5 @@ public enum KeyboardEventHandlerBlueprint {
             config.save();
         } catch (NoSuchFieldException | IllegalAccessException ignored) {
         }
-        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(new TextComponentTranslation(Settings.enablePlacementGrid ? Constants.MESSAGE_GRID_ENABLED : Constants.MESSAGE_GRID_DISABLED), Constants.CHAT_LINE_ID);
     }
 }

@@ -151,7 +151,7 @@ public final class ConverterAPIImpl implements ConverterAPI {
         }
     }
 
-    private static boolean isValidPosition(final World world, final BlockPos pos) {
+    public static boolean isValidPosition(final World world, final BlockPos pos) {
         final IBlockState state = world.getBlockState(pos).getActualState(world, pos);
         return state.getBlock().isReplaceable(world, pos);
     }

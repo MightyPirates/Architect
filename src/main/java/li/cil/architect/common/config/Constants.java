@@ -53,6 +53,7 @@ public final class Constants {
     // Config
 
     public static final String CONFIG_ENABLE_PLACEMENT_GRID = "config.architect.enablePlacementGrid";
+    public static final String CONFIG_ALLOW_PLACE_PARTIAL = "config.architect.allowPlacePartial";
     public static final String CONFIG_MAX_PROVIDER_RADIUS = "config.architect.maxProviderRadius";
     public static final String CONFIG_MAX_CHUNK_OPS_PER_TICK = "config.architect.maxChunkOperationsPerTick";
     public static final String CONFIG_MAX_WORLD_OPS_PER_TICK = "config.architect.maxWorldOperationsPerTick";
@@ -91,8 +92,11 @@ public final class Constants {
     public static final int CHAT_LINE_ID = 1000000000 + API.MOD_ID.hashCode() % 1000000000; // This should make collisions unlikely enough, right? Right?!
     public static final String MESSAGE_GRID_ENABLED = "message.architect.grid_snapping.enabled";
     public static final String MESSAGE_GRID_DISABLED = "message.architect.grid_snapping.disabled";
+    public static final String MESSAGE_PARTIAL_ENABLED = "message.architect.partial_placement.enabled";
+    public static final String MESSAGE_PARTIAL_DISABLED = "message.architect.partial_placement.disabled";
     public static final String MESSAGE_PLACEMENT_CANCELED = "message.architect.placement.canceled";
     public static final String MESSAGE_PLACEMENT_NOT_ENOUGH_ENERGY = "message.architect.placement.not_enough_energy";
+    public static final String MESSAGE_PLACEMENT_MISSING_MATERIALS = "message.architect.placement.missing_materials";
 
     // --------------------------------------------------------------------- //
     // Key bindings
@@ -100,6 +104,7 @@ public final class Constants {
     public static final String KEY_BINDINGS_CATEGORY_NAME = MOD_NAME;
     public static final String KEY_BINDINGS_BLUEPRINT_ROTATE = "key.architect.rotateBlueprint";
     public static final String KEY_BINDINGS_TOGGLE_GRID = "key.architect.toggleGrid";
+    public static final String KEY_BINDINGS_TOGGLE_ALLOW_PARTIAL = "key.architect.toggleAllowPartial";
 
     // --------------------------------------------------------------------- //
     // Gameplay
