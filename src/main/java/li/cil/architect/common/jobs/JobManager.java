@@ -25,14 +25,14 @@ public enum JobManager {
     // --------------------------------------------------------------------- //
 
     /**
-     * Utility interface for {@link #addJobBatch(EntityPlayer, Stream)}.
+     * Utility interface for {@link #addJobBatch(EntityPlayer, boolean, Stream)}.
      */
     public interface JobConsumer {
         void accept(final BlockPos pos, final Rotation rotation, final NBTTagCompound nbt);
     }
 
     /**
-     * Utility interface for {@link #addJobBatch(EntityPlayer, Stream)}.
+     * Utility interface for {@link #addJobBatch(EntityPlayer, boolean, Stream)}.
      */
     public interface JobSupplier {
         void get(final JobConsumer consumer);
