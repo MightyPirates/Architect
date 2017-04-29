@@ -5,7 +5,8 @@ item.architect.blueprint.name=Blueprint
 item.architect.provider_item.name=Item Provider
 item.architect.provider_fluid.name=Fluid Provider
 
-tooltip.architect.sketch.bounds=§7Bounds: (%s, %s, %s) to (%s, %s, %s)
+tooltip.architect.sketch.data=§7Size: (%s, %s, %s), %sm away
+tooltip.architect.sketch.bounds=§8Bounds: (%s, %s, %s) to (%s, %s, %s)
 tooltip.architect.sketch.convert=§8Use for more than a second to convert this sketch into a blueprint.
 tooltip.architect.sketch.empty=§8Click on blocks to add them to the sketch.
 tooltip.architect.blueprint=§8Sneak-use to rename and change bookmark color.

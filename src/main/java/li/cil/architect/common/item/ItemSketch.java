@@ -23,7 +23,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
@@ -96,7 +98,15 @@ public final class ItemSketch extends AbstractItem {
 
             final AxisAlignedBB bounds = data.getBounds();
             assert bounds != null;
-            tooltip.add(I18n.format(Constants.TOOLTIP_SKETCH_BOUNDS, (int) bounds.minX, (int) bounds.minY, (int) bounds.minZ, (int) bounds.maxX, (int) bounds.maxY, (int) bounds.maxZ));
+
+            final Vec3d center = bounds.getCenter();
+            final int distance = MathHelper.ceil(playerIn.getDistance(center.xCoord, center.yCoord, center.zCoord));
+            final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
+            tooltip.add(I18n.format(Constants.TOOLTIP_SKETCH_DATA, size.getX(), size.getY(), size.getZ(), distance));
+
+            if (advanced) {
+                tooltip.add(I18n.format(Constants.TOOLTIP_SKETCH_BOUNDS, (int) bounds.minX, (int) bounds.minY, (int) bounds.minZ, (int) bounds.maxX, (int) bounds.maxY, (int) bounds.maxZ));
+            }
         } else {
             final String info = I18n.format(Constants.TOOLTIP_SKETCH_EMPTY);
             tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
