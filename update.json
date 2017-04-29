@@ -1,0 +1,21 @@
+{
+  "1.10.2": {
+    "1.0.0.12": "See https://minecraft.curseforge.com/projects/architect/files/2410608",
+    "1.0.1.14": "See https://minecraft.curseforge.com/projects/architect/files/2411457",
+    "1.0.2.17": "See https://minecraft.curseforge.com/projects/architect/files/2411974",
+    "1.0.3.19": "See https://minecraft.curseforge.com/projects/architect/files/2413155"
+  },
+  "1.11.2": {
+    "1.0.0.33": "See https://minecraft.curseforge.com/projects/architect/files/2410609",
+    "1.0.1.36": "See https://minecraft.curseforge.com/projects/architect/files/2411458",
+    "1.0.2.40": "See https://minecraft.curseforge.com/projects/architect/files/2411975",
+    "1.0.3.43": "See https://minecraft.curseforge.com/projects/architect/files/2413156"
+  },
+  "homepage": "https://minecraft.curseforge.com/projects/architect",
+  "promos": {
+    "1.10.2-latest": "1.0.3.19",
+    "1.10.2-recommended": "1.0.3.19",
+    "1.11.2-latest": "1.0.3.43",
+    "1.11.2-recommended": "1.0.3.43"
+  }
+}
