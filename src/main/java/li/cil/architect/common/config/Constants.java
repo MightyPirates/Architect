@@ -14,7 +14,7 @@ public final class Constants {
     public static final String MOD_NAME = "Architect";
     public static final String PROXY_CLIENT = "li.cil.architect.client.ProxyClient";
     public static final String PROXY_COMMON = "li.cil.architect.common.ProxyCommon";
-    public static final String URL_UPDATE_JSON = "https://raw.githubusercontent.com/MightyPirates/Architect/master-MC1.11/update.json";
+    public static final String URL_UPDATE_JSON = "http://cil.li/mc/oc/update.json";
 
     // --------------------------------------------------------------------- //
     // Block, item, entity and container names
