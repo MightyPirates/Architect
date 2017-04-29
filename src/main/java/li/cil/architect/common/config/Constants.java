@@ -37,6 +37,7 @@ public final class Constants {
 
     public static final int MAX_TOOLTIP_WIDTH = 200;
 
+    public static final String TOOLTIP_SKETCH_DATA = "tooltip.architect.sketch.data";
     public static final String TOOLTIP_SKETCH_BOUNDS = "tooltip.architect.sketch.bounds";
     public static final String TOOLTIP_SKETCH_CONVERT = "tooltip.architect.sketch.convert";
     public static final String TOOLTIP_SKETCH_EMPTY = "tooltip.architect.sketch.empty";
