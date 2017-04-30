@@ -138,9 +138,7 @@ public final class ItemSketch extends AbstractItem {
 
     @Override
     public void onUsingTick(final ItemStack stack, final EntityLivingBase player, final int count) {
-        final Vec3d lookAtBase = player.
-                getPositionEyes(1).
-                add(player.getLookVec());
+        final Vec3d lookAtBase = new Vec3d(player.posX, player.posY + player.getEyeHeight(), player.posZ).add(player.getLookVec());
         final Vec3d speedBase = player.
                 getLookVec();
         for (int i = 0; i < 10; i++) {
