@@ -21,7 +21,7 @@ public enum KeyboardEventHandlerBlueprint {
     INSTANCE;
 
     @SubscribeEvent
-    public void handleMouseEvent(final InputEvent.KeyInputEvent event) {
+    public void handleKeyEvent(final InputEvent.KeyInputEvent event) {
         if (KeyBindings.rotateBlueprint.isKeyDown()) {
             rotateBlueprint();
         } else if (KeyBindings.toggleGrid.isKeyDown()) {

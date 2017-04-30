@@ -19,7 +19,6 @@ import org.apache.logging.log4j.Logger;
 @Mod(modid = API.MOD_ID, version = API.MOD_VERSION, name = Constants.MOD_NAME,
      updateJSON = Constants.URL_UPDATE_JSON, useMetadata = true)
 public final class Architect {
-
     // --------------------------------------------------------------------- //
     // FML / Forge
 
