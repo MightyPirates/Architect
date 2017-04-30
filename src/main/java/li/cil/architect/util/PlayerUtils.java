@@ -23,7 +23,7 @@ public final class PlayerUtils {
 
     public static BlockPos getLookAtPos(final EntityPlayer player) {
         final Vec3d lookVec = player.getLookVec();
-        final Vec3d eyePos = player.getPositionEyes(1);
+        final Vec3d eyePos = new Vec3d(player.posX, player.posY + player.getEyeHeight(), player.posZ);
         return new BlockPos(eyePos.add(lookVec.scale(freeAimDistance)));
     }
 
