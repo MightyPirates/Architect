@@ -1,9 +1,11 @@
 package li.cil.architect.util;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
 public final class PlayerUtils {
@@ -25,6 +27,17 @@ public final class PlayerUtils {
         final Vec3d lookVec = player.getLookVec();
         final Vec3d eyePos = new Vec3d(player.posX, player.posY + player.getEyeHeight(), player.posZ);
         return new BlockPos(eyePos.add(lookVec.scale(freeAimDistance)));
+    }
+
+    public static BlockPos getRaytrace(final EntityPlayer player){
+        final BlockPos hitPos;
+        final RayTraceResult hit = Minecraft.getMinecraft().objectMouseOver;
+        if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
+            hitPos = hit.getBlockPos().offset(hit.sideHit);
+        } else {
+            hitPos = PlayerUtils.getLookAtPos(player);
+        }
+        return hitPos;
     }
 
     public static EnumFacing getPrimaryFacing(final EntityPlayer player) {

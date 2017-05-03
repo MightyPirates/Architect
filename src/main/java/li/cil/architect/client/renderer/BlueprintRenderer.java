@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -62,13 +61,7 @@ public enum BlueprintRenderer {
             return;
         }
 
-        final BlockPos hitPos;
-        final RayTraceResult hit = mc.objectMouseOver;
-        if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
-            hitPos = hit.getBlockPos();
-        } else {
-            hitPos = PlayerUtils.getLookAtPos(player);
-        }
+        final BlockPos hitPos = PlayerUtils.getRaytrace(player);
 
         final float dt = computeScaleOffset();
         final AxisAlignedBB cellBounds = data.getCellBounds(hitPos);
