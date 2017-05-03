@@ -11,6 +11,10 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public final class AxisAlignedBBUtils {
+    public static BlockPos getCenter(final AxisAlignedBB bounds) {
+        return new BlockPos(bounds.minX + (bounds.maxX - bounds.minX) * 0.5D, bounds.minY + (bounds.maxY - bounds.minY) * 0.5D, bounds.minZ + (bounds.maxZ - bounds.minZ) * 0.5D);
+    }
+
     public static Vec3d getSize(final AxisAlignedBB bounds) {
         return new Vec3d(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY, bounds.maxZ - bounds.minZ);
     }
