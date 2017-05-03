@@ -342,7 +342,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         rotation = Rotation.NONE;
 
         if (!nbt.hasKey(TAG_BLOCK_DATA, NBT.TAG_LIST) ||
-            !nbt.hasKey(TAG_BLOCK_POSITIONS, NBT.TAG_BYTE_ARRAY)) {
+                !nbt.hasKey(TAG_BLOCK_POSITIONS, NBT.TAG_BYTE_ARRAY)) {
             return;
         }
 
@@ -385,7 +385,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
                         -center.getX() * sideHit.getFrontOffsetX(),
                         -center.getY() * sideHit.getFrontOffsetY(),
                         -center.getZ() * sideHit.getFrontOffsetZ());
-                if (sideHit.getAxisDirection() == EnumFacing.AxisDirection.NEGATIVE) {
+                if (sideHit.getAxisDirection() == EnumFacing.AxisDirection.NEGATIVE && isSideEven(sideHit)) {
                     offset = offset.add(
                             sideHit.getFrontOffsetX(),
                             sideHit.getFrontOffsetY(),
@@ -400,6 +400,19 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
                 MathHelper.floor(adjusted.getY() / (float) grid.getY()) * grid.getY(),
                 MathHelper.floor(adjusted.getZ() / (float) grid.getZ()) * grid.getZ()
         ).add(shift);
+    }
+
+    private boolean isSideEven(EnumFacing side) {
+        switch (side.getAxis()) {
+            case X:
+                return bounds.maxX % 2 == 0;
+            case Y:
+                return bounds.maxY % 2 == 0;
+            case Z:
+                return bounds.maxZ % 2 == 0;
+            default:
+                return false;
+        }
     }
 
     private static BlockPos rotatePosClockwise(final BlockPos pos, final AxisAlignedBB bounds) {
