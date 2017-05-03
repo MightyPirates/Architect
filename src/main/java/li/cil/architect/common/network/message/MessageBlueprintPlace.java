@@ -9,11 +9,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 public final class MessageBlueprintPlace implements IMessage {
     private EnumHand hand;
     private BlockPos pos;
+    private float aimDistance;
     private boolean allowPartial;
 
-    public MessageBlueprintPlace(final EnumHand hand, final BlockPos pos, final boolean allowPartial) {
+    public MessageBlueprintPlace(final EnumHand hand, final BlockPos pos, final float aimDistance, final boolean allowPartial) {
         this.hand = hand;
         this.pos = pos;
+        this.aimDistance = aimDistance;
         this.allowPartial = allowPartial;
     }
 
@@ -31,6 +33,10 @@ public final class MessageBlueprintPlace implements IMessage {
         return pos;
     }
 
+    public float getAimDistance() {
+        return aimDistance;
+    }
+
     public boolean allowPartial() {
         return allowPartial;
     }
@@ -43,6 +49,7 @@ public final class MessageBlueprintPlace implements IMessage {
         final PacketBuffer packet = new PacketBuffer(buf);
         hand = packet.readEnumValue(EnumHand.class);
         pos = packet.readBlockPos();
+        aimDistance = packet.readFloat();
         allowPartial = packet.readBoolean();
     }
 
@@ -51,6 +58,7 @@ public final class MessageBlueprintPlace implements IMessage {
         final PacketBuffer packet = new PacketBuffer(buf);
         packet.writeEnumValue(hand);
         packet.writeBlockPos(pos);
+        packet.writeFloat(aimDistance);
         packet.writeBoolean(allowPartial);
     }
 }

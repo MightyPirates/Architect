@@ -167,6 +167,6 @@ public final class ItemBlueprint extends AbstractItem {
             return;
         }
         BlockPos pos = PlayerUtils.getRaytrace(player);
-        Network.INSTANCE.getWrapper().sendToServer(new MessageBlueprintPlace(hand, pos, Settings.allowPlacePartial));
+        Network.INSTANCE.getWrapper().sendToServer(new MessageBlueprintPlace(hand, pos, PlayerUtils.getAimDistance(), Settings.allowPlacePartial));
     }
 }
