@@ -7,6 +7,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 public final class PlayerUtils {
     private static final int MIN_AIM_DISTANCE = 4;
@@ -29,15 +32,29 @@ public final class PlayerUtils {
         return new BlockPos(eyePos.add(lookVec.scale(freeAimDistance)));
     }
 
-    public static BlockPos getRaytrace(final EntityPlayer player){
-        final BlockPos hitPos;
+    public static BlockPos getRaytrace(final EntityPlayer player) {
         final RayTraceResult hit = Minecraft.getMinecraft().objectMouseOver;
         if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
-            hitPos = hit.getBlockPos().offset(hit.sideHit);
-        } else {
-            hitPos = PlayerUtils.getLookAtPos(player);
+            boolean replaceable = player.world.getBlockState(hit.getBlockPos()).getBlock().isReplaceable(player.world, hit.getBlockPos());
+            if (replaceable) {
+                return hit.getBlockPos();
+            }
+            return hit.getBlockPos().offset(hit.sideHit);
         }
-        return hitPos;
+        return PlayerUtils.getLookAtPos(player);
+    }
+
+    @Nullable
+    public static EnumFacing getSideHit(World world) {
+        final RayTraceResult hit = Minecraft.getMinecraft().objectMouseOver;
+        if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
+            boolean replaceable = world.getBlockState(hit.getBlockPos()).getBlock().isReplaceable(world, hit.getBlockPos());
+            if (replaceable) {
+                return EnumFacing.UP;
+            }
+            return hit.sideHit;
+        }
+        return null;
     }
 
     public static EnumFacing getPrimaryFacing(final EntityPlayer player) {
