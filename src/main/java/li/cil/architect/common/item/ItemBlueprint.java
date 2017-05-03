@@ -104,7 +104,7 @@ public final class ItemBlueprint extends AbstractItem {
     public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
         if (player.isSneaking()) {
             player.openGui(Architect.instance, GuiId.BLUEPRINT.ordinal(), world, 0, 0, 0);
-        } else if (!world.isRemote) {
+        } else if (world.isRemote) {
             handleInput(hand, PlayerUtils.getLookAtPos(player));
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
@@ -112,7 +112,7 @@ public final class ItemBlueprint extends AbstractItem {
 
     @Override
     public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
-        if (!world.isRemote) {
+        if (world.isRemote) {
             handleInput(hand, pos);
         }
         return EnumActionResult.SUCCESS;
