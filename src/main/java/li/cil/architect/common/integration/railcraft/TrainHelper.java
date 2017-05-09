@@ -8,10 +8,19 @@ import net.minecraftforge.items.IItemHandler;
 public class TrainHelper implements ProxyRailcraft.ITrainHelper {
     @Override
     public IItemHandler getTrainItemHandler(EntityMinecart cart) {
-        return CartToolsAPI.transferHelper.getTrainItemHandler(cart);
+        try {
+            return CartToolsAPI.transferHelper.getTrainItemHandler(cart);
+        } catch (Throwable ignored) {
+        }
+        return null;
     }
+
     @Override
     public IFluidHandler getTrainFluidHandler(EntityMinecart cart) {
-        return CartToolsAPI.transferHelper.getTrainFluidHandler(cart);
+        try {
+            return CartToolsAPI.transferHelper.getTrainFluidHandler(cart);
+        } catch (Throwable ignored) {
+        }
+        return null;
     }
 }
