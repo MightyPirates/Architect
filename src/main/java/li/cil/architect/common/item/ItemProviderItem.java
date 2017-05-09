@@ -5,6 +5,8 @@ import li.cil.architect.common.init.Items;
 import li.cil.architect.common.integration.railcraft.ProxyRailcraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -33,13 +35,14 @@ public final class ItemProviderItem extends AbstractProvider {
     // AbstractProvider
 
     @Override
-    protected boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side) {
+    public boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side) {
         return tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
     }
 
     @Override
-    protected boolean isValidTarget(final Entity entity) {
-        return entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+    public boolean isValidTarget(final Entity entity) {
+        return !(entity instanceof EntityPlayer) && !(entity instanceof IMob)
+                && entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     }
 
     @Override

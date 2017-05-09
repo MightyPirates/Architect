@@ -6,6 +6,8 @@ import li.cil.architect.common.integration.railcraft.ProxyRailcraft;
 import li.cil.architect.util.FluidHandlerUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -34,17 +36,16 @@ public final class ItemProviderFluid extends AbstractProvider {
     // AbstractProvider
 
     @Override
-    protected boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side) {
+    public boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side) {
         final IFluidHandler capability = tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side);
         return capability != null && FluidHandlerUtils.canDrain(capability);
-
     }
 
     @Override
-    protected boolean isValidTarget(final Entity entity) {
+    public boolean isValidTarget(final Entity entity) {
         final IFluidHandler capability = entity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-        return capability != null && FluidHandlerUtils.canDrain(capability);
-
+        return !(entity instanceof EntityPlayer) && !(entity instanceof IMob)
+                && capability != null && FluidHandlerUtils.canDrain(capability);
     }
 
     @Override
