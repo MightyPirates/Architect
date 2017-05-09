@@ -57,11 +57,19 @@ minecraft {
 
 repositories {
     maven { url "http://dvs1.progwml6.com/files/maven" }
+    ivy {
+        name = "Railcraft"
+        url = "http://www.railcraft.info/ivy/"
+    }
 }
 
 dependencies {
     deobfCompile "mezz.jei:jei_${config.minecraft.version}:${config.jei.version}"
     deobfCompile "mod.chiselsandbits:chiselsandbits:${config.chiselsandbits.version}"
+    deobfCompile  ( "com.headlamp-games:Railcraft:${config.railcraft.version}"){
+        exclude module: "forestry_1.10.2"
+        exclude module: "industrialcraft-2"
+    }
 }
 
 processResources {

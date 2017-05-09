@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -43,22 +44,33 @@ public enum ProviderRenderer {
         final float dt = computeScaleOffset();
 
         final RayTraceResult hit = mc.objectMouseOver;
-        if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
-            final BlockPos hitPos = hit.getBlockPos();
-            final TileEntity tileEntity = mc.world.getTileEntity(hitPos);
-            if (tileEntity != null && tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, hit.sideHit)) {
-                final EnumFacing side = hit.sideHit;
+        if (hit != null) {
+            if (hit.typeOfHit == RayTraceResult.Type.BLOCK) {
+                final BlockPos hitPos = hit.getBlockPos();
+                final TileEntity tileEntity = mc.world.getTileEntity(hitPos);
+                if (tileEntity != null && tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, hit.sideHit)) {
+                    final EnumFacing side = hit.sideHit;
 
-                doWirePrologue();
-                GlStateManager.color(0.2f, 0.9f, 0.4f, 0.4f);
-                renderCubePulsing(hitPos, dt);
-                GlStateManager.color(0.2f, 0.9f, 0.4f, 0.8f);
-                renderSide(hitPos, side);
-                doWireEpilogue();
+                    doWirePrologue();
+                    GlStateManager.color(0.2f, 0.9f, 0.4f, 0.4f);
+                    renderCubePulsing(hitPos, dt);
+                    GlStateManager.color(0.2f, 0.9f, 0.4f, 0.8f);
+                    renderSide(hitPos, side);
+                    doWireEpilogue();
+                }
+            } else if (hit.typeOfHit == RayTraceResult.Type.ENTITY) {
+                final Entity entity = hit.entityHit;
+                if (entity != null && entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
+
+                    doWirePrologue();
+                    GlStateManager.color(0.2f, 0.9f, 0.4f, 1f);
+                    renderEntitySelectorWire(entity, dt);
+                    doWireEpilogue();
+                }
             }
         }
 
-        if (AbstractProvider.isBound(stack)) {
+        if (AbstractProvider.isBoundToBlock(stack)) {
             if (AbstractProvider.getDimension(stack) == player.getEntityWorld().provider.getDimension()) {
                 final BlockPos pos = AbstractProvider.getPosition(stack);
                 if (player.getDistanceSq(pos) <= 64 * 64) {
@@ -68,6 +80,15 @@ public enum ProviderRenderer {
                     renderCubePulsing(pos, dt);
                     GlStateManager.color(0.2f, 0.9f, 0.4f, 0.8f);
                     renderSide(pos, side);
+                }
+            }
+        } else if (AbstractProvider.isBoundToEntity(stack)) {
+            if (AbstractProvider.getDimension(stack) == player.getEntityWorld().provider.getDimension()) {
+                Entity entity = AbstractProvider.getEntity(stack, mc.world);
+                if (entity != null && player.getDistanceSqToEntity(entity) <= 64 * 64) {
+
+                    GlStateManager.color(0.2f, 0.9f, 0.4f, 0.4f);
+                    renderEntitySelector(entity, dt);
                 }
             }
         }
