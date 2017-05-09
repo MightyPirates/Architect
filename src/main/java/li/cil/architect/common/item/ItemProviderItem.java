@@ -2,6 +2,9 @@ package li.cil.architect.common.item;
 
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.init.Items;
+import li.cil.architect.common.integration.railcraft.ProxyRailcraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -22,7 +25,8 @@ public final class ItemProviderItem extends AbstractProvider {
      * @return the list of valid item handlers available.
      */
     public static List<IItemHandler> findProviders(final Vec3d consumerPos, final IItemHandler inventory) {
-        return AbstractProvider.findProviders(consumerPos, inventory, Items::isItemProvider, ItemProviderItem::getItemHandlerCapability);
+        return AbstractProvider.findProviders(consumerPos, inventory, Items::isItemProvider,
+                ItemProviderItem::getItemHandlerCapability, ItemProviderItem::getItemHandlerCapability);
     }
 
     // --------------------------------------------------------------------- //
@@ -31,6 +35,11 @@ public final class ItemProviderItem extends AbstractProvider {
     @Override
     protected boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side) {
         return tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+    }
+
+    @Override
+    protected boolean isValidTarget(final Entity entity) {
+        return entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     }
 
     @Override
@@ -43,5 +52,16 @@ public final class ItemProviderItem extends AbstractProvider {
     @Nullable
     private static IItemHandler getItemHandlerCapability(final ItemStack stack, final TileEntity tileEntity) {
         return tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, getSide(stack));
+    }
+
+    @Nullable
+    private static IItemHandler getItemHandlerCapability(final ItemStack stack, final Entity entity) {
+        IItemHandler itemHandler = null;
+        if (entity instanceof EntityMinecart)
+            itemHandler = ProxyRailcraft.trainHelper.getTrainItemHandler((EntityMinecart) entity);
+        if (itemHandler == null && entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
+            itemHandler = entity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        }
+        return itemHandler;
     }
 }
