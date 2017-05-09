@@ -18,7 +18,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.items.CapabilityItemHandler;
 import org.lwjgl.opengl.GL11;
 
 import static li.cil.architect.client.renderer.OverlayRendererUtils.*;
@@ -48,7 +47,7 @@ public enum ProviderRenderer {
             if (hit.typeOfHit == RayTraceResult.Type.BLOCK) {
                 final BlockPos hitPos = hit.getBlockPos();
                 final TileEntity tileEntity = mc.world.getTileEntity(hitPos);
-                if (tileEntity != null && tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, hit.sideHit)) {
+                if (tileEntity != null && ((AbstractProvider) stack.getItem()).isValidTarget(tileEntity, hit.sideHit)) {
                     final EnumFacing side = hit.sideHit;
 
                     doWirePrologue();
@@ -60,7 +59,7 @@ public enum ProviderRenderer {
                 }
             } else if (hit.typeOfHit == RayTraceResult.Type.ENTITY) {
                 final Entity entity = hit.entityHit;
-                if (entity != null && entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
+                if (entity != null && ((AbstractProvider) stack.getItem()).isValidTarget(entity)) {
 
                     doWirePrologue();
                     GlStateManager.color(0.2f, 0.9f, 0.4f, 1f);

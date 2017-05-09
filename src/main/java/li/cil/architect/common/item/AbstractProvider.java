@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -49,6 +50,7 @@ public abstract class AbstractProvider extends AbstractItem {
 
     static {
         MinecraftForge.EVENT_BUS.register(new Object() {
+            // We use this event because itemInteractionForEntity only applies to living entities, not minecarts.
             @SubscribeEvent
             public void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
                 EntityPlayer player = event.getEntityPlayer();
@@ -166,9 +168,9 @@ public abstract class AbstractProvider extends AbstractItem {
 
     // --------------------------------------------------------------------- //
 
-    abstract protected boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side);
+    abstract public boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side);
 
-    abstract protected boolean isValidTarget(final Entity entity);
+    abstract public boolean isValidTarget(final Entity entity);
 
     abstract protected String getTooltip();
 
@@ -281,12 +283,19 @@ public abstract class AbstractProvider extends AbstractItem {
                 final NBTTagCompound dataNbt = getDataTag(stack);
                 dataNbt.removeTag(TAG_DIMENSION);
                 dataNbt.removeTag(TAG_POSITION);
-                dataNbt.removeTag(TAG_ENTITY_UUID);
+                dataNbt.removeTag(TAG_ENTITY_UUID + "Most");
+                dataNbt.removeTag(TAG_ENTITY_UUID + "Least");
                 dataNbt.removeTag(TAG_SIDE);
                 player.inventory.markDirty();
             }
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
         return new ActionResult<>(EnumActionResult.PASS, stack);
+    }
+
+    @Override
+    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand) {
+        // This is required to prevent onItemRightClick being called when interacting with entities.
+        return true;
     }
 }
