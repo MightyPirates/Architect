@@ -60,6 +60,7 @@ public final class Constants {
     public static final String CONFIG_MAX_CHUNK_OPS_PER_TICK = "config.architect.maxChunkOperationsPerTick";
     public static final String CONFIG_MAX_WORLD_OPS_PER_TICK = "config.architect.maxWorldOperationsPerTick";
     public static final String CONFIG_USE_ENERGY = "config.architect.use_energy";
+    public static final String CONFIG_EXHAUSTION_PER_BLOCK = "config.architect.exhaustionPerBlock";
 
     // --------------------------------------------------------------------- //
     // Config files
@@ -113,7 +114,6 @@ public final class Constants {
 
     public static final int MAX_BLUEPRINT_SIZE = 16;
     public static final int ENERGY_PER_BLOCK = 10;
-    public static final float EXHAUSTION_PER_BLOCK = 0.005f;
 
     // --------------------------------------------------------------------- //
 
