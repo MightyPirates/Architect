@@ -2,10 +2,8 @@ package li.cil.architect.common.item;
 
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.init.Items;
-import li.cil.architect.common.integration.railcraft.ProxyRailcraft;
 import li.cil.architect.util.FluidHandlerUtils;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -64,13 +62,9 @@ public final class ItemProviderFluid extends AbstractProvider {
 
     @Nullable
     private static IFluidHandler getFluidHandlerCapability(final ItemStack stack, final Entity entity) {
-        IFluidHandler fluidHandler = null;
-        if (entity instanceof EntityMinecart) {
-            fluidHandler = ProxyRailcraft.trainHelper.getTrainFluidHandler((EntityMinecart) entity);
+        if (entity.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)) {
+            return entity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
         }
-        if (fluidHandler == null && entity.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)) {
-            fluidHandler = entity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-        }
-        return fluidHandler;
+        return null;
     }
 }

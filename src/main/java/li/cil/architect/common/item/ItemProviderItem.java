@@ -2,9 +2,7 @@ package li.cil.architect.common.item;
 
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.init.Items;
-import li.cil.architect.common.integration.railcraft.ProxyRailcraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -60,13 +58,9 @@ public final class ItemProviderItem extends AbstractProvider {
 
     @Nullable
     private static IItemHandler getItemHandlerCapability(final ItemStack stack, final Entity entity) {
-        IItemHandler itemHandler = null;
-        if (entity instanceof EntityMinecart) {
-            itemHandler = ProxyRailcraft.trainHelper.getTrainItemHandler((EntityMinecart) entity);
+        if (entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
+            return entity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         }
-        if (itemHandler == null && entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
-            itemHandler = entity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        }
-        return itemHandler;
+        return null;
     }
 }

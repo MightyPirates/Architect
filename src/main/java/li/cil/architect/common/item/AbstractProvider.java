@@ -2,7 +2,6 @@ package li.cil.architect.common.item;
 
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Settings;
-import li.cil.architect.util.ItemStackUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
@@ -69,7 +68,7 @@ public abstract class AbstractProvider extends AbstractItem {
                 }
 
                 final ItemStack stack = event.getItemStack();
-                if (ItemStackUtils.isEmpty(stack)) {
+                if (stack.isEmpty()) {
                     return;
                 }
 
