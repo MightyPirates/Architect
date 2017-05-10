@@ -1,6 +1,7 @@
 package li.cil.architect.client.renderer;
 
 import li.cil.architect.api.ConverterAPI;
+import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.ItemSketch;
 import li.cil.architect.common.item.data.SketchData;
@@ -81,7 +82,7 @@ public enum SketchRenderer {
         final float dt = computeScaleOffset();
 
         if (!data.isEmpty()) {
-            GlStateManager.color(0.2f, 0.4f, 0.9f, 0.5f);
+            GlStateManager.color(0.2f, 0.4f, 0.9f, Settings.sketchBlockAlpha);
             renderBlocks(data.getBlocks(), dt);
 
             GlStateManager.color(0.4f, 0.7f, 0.4f, 0.3f);

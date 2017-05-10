@@ -117,7 +117,10 @@ final class OverlayRendererUtils {
 
     static void renderCubeGrid(final AxisAlignedBB bounds) {
         doWirePrologue();
-        GlStateManager.enableDepth();
+
+        if (!Settings.sketchGridXRay) {
+            GlStateManager.enableDepth();
+        }
 
         final Tessellator t = Tessellator.getInstance();
         final VertexBuffer buffer = t.getBuffer();
@@ -127,7 +130,10 @@ final class OverlayRendererUtils {
 
         t.draw();
 
-        GlStateManager.disableDepth();
+        if (!Settings.sketchGridXRay) {
+            GlStateManager.disableDepth();
+        }
+
         doWireEpilogue();
     }
 

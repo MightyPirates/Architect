@@ -30,7 +30,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -341,7 +346,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         rotation = Rotation.NONE;
 
         if (!nbt.hasKey(TAG_BLOCK_DATA, NBT.TAG_LIST) ||
-                !nbt.hasKey(TAG_BLOCK_POSITIONS, NBT.TAG_BYTE_ARRAY)) {
+            !nbt.hasKey(TAG_BLOCK_POSITIONS, NBT.TAG_BYTE_ARRAY)) {
             return;
         }
 

@@ -29,7 +29,7 @@ public final class PlayerUtils {
         freeAimDistance = MathHelper.clamp(distance, MIN_AIM_DISTANCE, MAX_AIM_DISTANCE);
     }
 
-    public static float getAimDistance(){
+    public static float getAimDistance() {
         return freeAimDistance;
     }
 
