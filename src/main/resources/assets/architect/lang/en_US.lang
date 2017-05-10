@@ -66,3 +66,5 @@ config.architect.maxChunkOperationsPerTick=Maximum Chunk Operations/t
 config.architect.maxWorldOperationsPerTick=Maximum World Operations/t
 config.architect.use_energy=Use Energy
 config.architect.exhaustionPerBlock=Exhaustion Per Block
+config.architect.sketchBlockAlpha=Sketch Block Alpha
+config.architect.sketchGridXRay=Sketch Grid X-Ray

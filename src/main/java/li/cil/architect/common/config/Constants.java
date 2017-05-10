@@ -61,6 +61,8 @@ public final class Constants {
     public static final String CONFIG_MAX_WORLD_OPS_PER_TICK = "config.architect.maxWorldOperationsPerTick";
     public static final String CONFIG_USE_ENERGY = "config.architect.use_energy";
     public static final String CONFIG_EXHAUSTION_PER_BLOCK = "config.architect.exhaustionPerBlock";
+    public static final String CONFIG_SKETCH_BLOCK_ALPHA = "config.architect.sketchBlockAlpha";
+    public static final String CONFIG_SKETCH_GRID_XRAY = "config.architect.sketchGridXRay";
 
     // --------------------------------------------------------------------- //
     // Config files

@@ -39,6 +39,15 @@ public final class Settings {
     @Config.Comment("Amount of exhaustion to add to the player per block placed. Not applicable if use energy is true.")
     public static double exhaustionPerBlock = 0.005;
 
+    @Config.LangKey(Constants.CONFIG_SKETCH_BLOCK_ALPHA)
+    @Config.Comment("The opacity of block selection markers when rendering sketch selections.")
+    @Config.RangeDouble(min = 0.15, max = 1f)
+    public static float sketchBlockAlpha = 0.25f;
+
+    @Config.LangKey(Constants.CONFIG_SKETCH_GRID_XRAY)
+    @Config.Comment("Whether to show the sketch bounding grid through other blocks.")
+    public static boolean sketchGridXRay = false;
+
     // --------------------------------------------------------------------- //
 
     private Settings() {
