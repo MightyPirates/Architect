@@ -257,7 +257,7 @@ class JobBatch implements JobManager.JobConsumer {
         if (Settings.useEnergy) {
             return consumeEnergy(blockCount);
         } else {
-            player.addExhaustion(Constants.EXHAUSTION_PER_BLOCK * blockCount);
+            player.addExhaustion((float) (Settings.exhaustionPerBlock * blockCount));
         }
 
         return true;
