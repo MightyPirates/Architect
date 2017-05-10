@@ -28,7 +28,8 @@ public final class ItemProviderItem extends AbstractProvider {
      */
     public static List<IItemHandler> findProviders(final Vec3d consumerPos, final IItemHandler inventory) {
         return AbstractProvider.findProviders(consumerPos, inventory, Items::isItemProvider,
-                ItemProviderItem::getItemHandlerCapability, ItemProviderItem::getItemHandlerCapability);
+                                              ItemProviderItem::getItemHandlerCapability,
+                                              ItemProviderItem::getItemHandlerCapability);
     }
 
     // --------------------------------------------------------------------- //
@@ -42,7 +43,7 @@ public final class ItemProviderItem extends AbstractProvider {
     @Override
     public boolean isValidTarget(final Entity entity) {
         return !(entity instanceof EntityPlayer) && !(entity instanceof IMob)
-                && entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+               && entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     }
 
     @Override
@@ -60,8 +61,9 @@ public final class ItemProviderItem extends AbstractProvider {
     @Nullable
     private static IItemHandler getItemHandlerCapability(final ItemStack stack, final Entity entity) {
         IItemHandler itemHandler = null;
-        if (entity instanceof EntityMinecart)
+        if (entity instanceof EntityMinecart) {
             itemHandler = ProxyRailcraft.trainHelper.getTrainItemHandler((EntityMinecart) entity);
+        }
         if (itemHandler == null && entity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
             itemHandler = entity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         }

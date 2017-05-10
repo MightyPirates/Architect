@@ -42,7 +42,7 @@ public final class PlayerUtils {
     public static BlockPos getRaytrace(final EntityPlayer player) {
         final RayTraceResult hit = rayTracePlayerLook(player);
         if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
-            boolean replaceable = player.world.getBlockState(hit.getBlockPos()).getBlock().isReplaceable(player.world, hit.getBlockPos());
+            final boolean replaceable = player.world.getBlockState(hit.getBlockPos()).getBlock().isReplaceable(player.world, hit.getBlockPos());
             if (replaceable) {
                 return hit.getBlockPos();
             }
@@ -52,10 +52,10 @@ public final class PlayerUtils {
     }
 
     @Nullable
-    public static EnumFacing getSideHit(EntityPlayer player) {
+    public static EnumFacing getSideHit(final EntityPlayer player) {
         final RayTraceResult hit = rayTracePlayerLook(player);
         if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
-            boolean replaceable = player.world.getBlockState(hit.getBlockPos()).getBlock().isReplaceable(player.world, hit.getBlockPos());
+            final boolean replaceable = player.world.getBlockState(hit.getBlockPos()).getBlock().isReplaceable(player.world, hit.getBlockPos());
             if (replaceable) {
                 return EnumFacing.UP;
             }
@@ -65,7 +65,7 @@ public final class PlayerUtils {
     }
 
     @Nullable
-    public static RayTraceResult rayTracePlayerLook(EntityPlayer player) {
+    public static RayTraceResult rayTracePlayerLook(final EntityPlayer player) {
         return ForgeHooks.rayTraceEyes(player, freeAimDistance - 2);
     }
 

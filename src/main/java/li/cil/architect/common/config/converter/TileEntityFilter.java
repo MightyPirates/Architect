@@ -9,7 +9,7 @@ import java.util.Map;
 
 public final class TileEntityFilter {
     private final BlockStateFilter selector;
-    private int sortIndex;
+    private final int sortIndex;
     private final Map<String, Object> nbtFilter;
     private final Map<String, Object> nbtStripper;
 

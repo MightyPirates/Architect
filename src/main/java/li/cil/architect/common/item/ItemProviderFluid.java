@@ -29,7 +29,9 @@ public final class ItemProviderFluid extends AbstractProvider {
      * @return the list of valid fluid handlers available.
      */
     public static List<IFluidHandler> findProviders(final Vec3d consumerPos, final IItemHandler inventory) {
-        return AbstractProvider.findProviders(consumerPos, inventory, Items::isFluidProvider, ItemProviderFluid::getFluidHandlerCapability, ItemProviderFluid::getFluidHandlerCapability);
+        return AbstractProvider.findProviders(consumerPos, inventory, Items::isFluidProvider,
+                                              ItemProviderFluid::getFluidHandlerCapability,
+                                              ItemProviderFluid::getFluidHandlerCapability);
     }
 
     // --------------------------------------------------------------------- //
@@ -45,7 +47,7 @@ public final class ItemProviderFluid extends AbstractProvider {
     public boolean isValidTarget(final Entity entity) {
         final IFluidHandler capability = entity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
         return !(entity instanceof EntityPlayer) && !(entity instanceof IMob)
-                && capability != null && FluidHandlerUtils.canDrain(capability);
+               && capability != null && FluidHandlerUtils.canDrain(capability);
     }
 
     @Override
@@ -63,8 +65,9 @@ public final class ItemProviderFluid extends AbstractProvider {
     @Nullable
     private static IFluidHandler getFluidHandlerCapability(final ItemStack stack, final Entity entity) {
         IFluidHandler fluidHandler = null;
-        if (entity instanceof EntityMinecart)
+        if (entity instanceof EntityMinecart) {
             fluidHandler = ProxyRailcraft.trainHelper.getTrainFluidHandler((EntityMinecart) entity);
+        }
         if (fluidHandler == null && entity.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)) {
             fluidHandler = entity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
         }

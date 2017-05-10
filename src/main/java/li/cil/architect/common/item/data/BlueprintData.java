@@ -184,10 +184,11 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
      * This is the bounds of the blueprint snapped to a grid defined by the
      * size of those very bounds.
      *
-     * @param pos the position in the cell to get the bounds for.
+     * @param player the player requesting the bounds.
+     * @param pos    the position in the cell to get the bounds for.
      * @return the bounds of the cell.
      */
-    public AxisAlignedBB getCellBounds(EntityPlayer player, final BlockPos pos) {
+    public AxisAlignedBB getCellBounds(final EntityPlayer player, final BlockPos pos) {
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
         if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
             return new AxisAlignedBB(pos); // Corrupted data.
@@ -200,10 +201,11 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
      * Get a list of positions in this blueprint, as they would be placed in
      * the cell containing the specified world position.
      *
-     * @param pos the position in the cell defining the origin position.
+     * @param player the player requesting the blocks.
+     * @param pos    the position in the cell defining the origin position.
      * @return the list of positions in the cell.
      */
-    public Stream<BlockPos> getBlocks(EntityPlayer player, final BlockPos pos) {
+    public Stream<BlockPos> getBlocks(final EntityPlayer player, final BlockPos pos) {
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
         if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
             return Stream.empty(); // Corrupted data.
@@ -379,7 +381,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
     // --------------------------------------------------------------------- //
 
-    private BlockPos snapToGrid(EntityPlayer player, final BlockPos pos, final Vec3i grid) {
+    private BlockPos snapToGrid(final EntityPlayer player, final BlockPos pos, final Vec3i grid) {
         if (!Settings.enablePlacementGrid) {
             final EnumFacing sideHit = PlayerUtils.getSideHit(player);
             final BlockPos center = AxisAlignedBBUtils.getCenter(bounds);
@@ -406,7 +408,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         ).add(shift);
     }
 
-    private boolean isSideEven(EnumFacing side) {
+    private boolean isSideEven(final EnumFacing side) {
         switch (side.getAxis()) {
             case X:
                 return bounds.maxX % 2 == 0;

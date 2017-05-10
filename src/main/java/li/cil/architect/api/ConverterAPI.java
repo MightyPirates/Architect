@@ -35,7 +35,7 @@ public final class ConverterAPI {
      *
      * @param converter the converter to register.
      */
-    public static void addConverter(Converter converter) {
+    public static void addConverter(final Converter converter) {
         if (API.converterAPI != null) {
             API.converterAPI.addConverter(converter);
         }
