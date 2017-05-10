@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -82,7 +83,7 @@ final class OverlayRendererUtils {
         final VertexBuffer buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
-        drawCube((int) bounds.minX, (int) bounds.minY, (int) bounds.minZ, (int) bounds.maxX, (int) bounds.maxY, (int) bounds.maxZ, buffer);
+        drawCube(bounds.minX, bounds.minY, bounds.minZ, bounds.maxX, bounds.maxY, bounds.maxZ, buffer);
 
         t.draw();
     }
@@ -108,7 +109,7 @@ final class OverlayRendererUtils {
         final VertexBuffer buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
-        drawCube((int) bounds.minX, (int) bounds.minY, (int) bounds.minZ, (int) bounds.maxX, (int) bounds.maxY, (int) bounds.maxZ, buffer);
+        drawCube(bounds.minX, bounds.minY, bounds.minZ, bounds.maxX, bounds.maxY, bounds.maxZ, buffer);
 
         t.draw();
 
@@ -197,6 +198,43 @@ final class OverlayRendererUtils {
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
+    }
+
+    static void renderEntitySelector(Entity entity, float dt) {
+        final float offset = (float) (entity.getEntityId()) % TWO_PI;
+        final float sin = MathHelper.sin(offset + dt);
+        final float scale = SCALE_STRENGTH * sin;
+        final float yaw = 90 * sin;
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(entity.posX, entity.posY, entity.posZ);
+        GlStateManager.rotate(180F - yaw, 0, 1, 0);
+
+        renderCube(getEntityBoundingBox(entity, scale));
+        GlStateManager.popMatrix();
+    }
+
+    static void renderEntitySelectorWire(Entity entity, float dt) {
+        final float offset = (float) (entity.getEntityId()) % TWO_PI;
+        final float sin = MathHelper.sin(offset + dt);
+        final float scale = SCALE_STRENGTH * sin;
+        final float yaw = 90 * sin;
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(entity.posX, entity.posY, entity.posZ);
+        GlStateManager.rotate(180F - yaw, 0, 1, 0);
+
+        renderCubeWire(getEntityBoundingBox(entity, scale));
+        GlStateManager.popMatrix();
+    }
+
+    private static AxisAlignedBB getEntityBoundingBox(Entity entity, float scale) {
+        AxisAlignedBB boundingBox = entity.getEntityBoundingBox();
+        boundingBox = boundingBox.offset(
+                -boundingBox.minX - (boundingBox.maxX - boundingBox.minX) / 2.0,
+                -boundingBox.minY,
+                -boundingBox.minZ - (boundingBox.maxZ - boundingBox.minZ) / 2.0);
+        return boundingBox.expandXyz(scale);
     }
 
     static void drawCube(final BlockPos pos, final VertexBuffer buffer, final float dt) {

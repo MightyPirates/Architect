@@ -2,7 +2,12 @@ package li.cil.architect.common.item;
 
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.init.Items;
+import li.cil.architect.common.integration.railcraft.ProxyRailcraft;
 import li.cil.architect.util.FluidHandlerUtils;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -24,20 +29,23 @@ public final class ItemProviderFluid extends AbstractProvider {
      * @return the list of valid fluid handlers available.
      */
     public static List<IFluidHandler> findProviders(final Vec3d consumerPos, final IItemHandler inventory) {
-        return AbstractProvider.findProviders(consumerPos, inventory, Items::isFluidProvider, ItemProviderFluid::getFluidHandlerCapability);
+        return AbstractProvider.findProviders(consumerPos, inventory, Items::isFluidProvider, ItemProviderFluid::getFluidHandlerCapability, ItemProviderFluid::getFluidHandlerCapability);
     }
 
     // --------------------------------------------------------------------- //
     // AbstractProvider
 
     @Override
-    protected boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side) {
+    public boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side) {
         final IFluidHandler capability = tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side);
-        if (capability == null) {
-            return false;
-        }
+        return capability != null && FluidHandlerUtils.canDrain(capability);
+    }
 
-        return FluidHandlerUtils.canDrain(capability);
+    @Override
+    public boolean isValidTarget(final Entity entity) {
+        final IFluidHandler capability = entity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+        return !(entity instanceof EntityPlayer) && !(entity instanceof IMob)
+                && capability != null && FluidHandlerUtils.canDrain(capability);
     }
 
     @Override
@@ -50,5 +58,16 @@ public final class ItemProviderFluid extends AbstractProvider {
     @Nullable
     private static IFluidHandler getFluidHandlerCapability(final ItemStack stack, final TileEntity tileEntity) {
         return tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, getSide(stack));
+    }
+
+    @Nullable
+    private static IFluidHandler getFluidHandlerCapability(final ItemStack stack, final Entity entity) {
+        IFluidHandler fluidHandler = null;
+        if (entity instanceof EntityMinecart)
+            fluidHandler = ProxyRailcraft.trainHelper.getTrainFluidHandler((EntityMinecart) entity);
+        if (fluidHandler == null && entity.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)) {
+            fluidHandler = entity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+        }
+        return fluidHandler;
     }
 }

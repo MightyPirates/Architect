@@ -2,9 +2,12 @@ package li.cil.architect.common.item;
 
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Settings;
+import li.cil.architect.util.ItemStackUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,14 +19,20 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -34,9 +43,34 @@ public abstract class AbstractProvider extends AbstractItem {
     // NBT tag names.
     private static final String TAG_DIMENSION = "dimension";
     private static final String TAG_POSITION = "position";
+    private static final String TAG_ENTITY_UUID = "entity";
     private static final String TAG_SIDE = "side";
 
     // --------------------------------------------------------------------- //
+
+    static {
+        MinecraftForge.EVENT_BUS.register(new Object() {
+            // We use this event because itemInteractionForEntity only applies to living entities, not minecarts.
+            @SubscribeEvent
+            public void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+                EntityPlayer player = event.getEntityPlayer();
+
+                Entity entity = event.getTarget();
+
+                ItemStack stack = event.getItemStack();
+                World world = player.world;
+                if (player.isSneaking() && !world.isRemote
+                        && !ItemStackUtils.isEmpty(stack) && stack.getItem() instanceof AbstractProvider
+                        && entity != null && ((AbstractProvider) stack.getItem()).isValidTarget(entity)) {
+                    final NBTTagCompound dataNbt = getDataTag(stack);
+                    dataNbt.setInteger(TAG_DIMENSION, world.provider.getDimension());
+                    dataNbt.setUniqueId(TAG_ENTITY_UUID, entity.getUniqueID());
+                    player.inventory.markDirty();
+                    event.setCanceled(true);
+                }
+            }
+        });
+    }
 
     AbstractProvider() {
         setMaxStackSize(1);
@@ -48,17 +82,29 @@ public abstract class AbstractProvider extends AbstractItem {
      * @param stack the provider to check for.
      * @return <code>true</code> if the provider is bound; <code>false</code> otherwise.
      */
-    public static boolean isBound(final ItemStack stack) {
+    public static boolean isBoundToBlock(final ItemStack stack) {
         final NBTTagCompound dataNbt = getDataTag(stack);
         return dataNbt.hasKey(TAG_DIMENSION, NBT.TAG_INT) &&
-               dataNbt.hasKey(TAG_POSITION, NBT.TAG_LONG) &&
-               dataNbt.hasKey(TAG_SIDE, NBT.TAG_BYTE);
+                dataNbt.hasKey(TAG_POSITION, NBT.TAG_LONG) &&
+                dataNbt.hasKey(TAG_SIDE, NBT.TAG_BYTE);
+    }
+
+    /**
+     * Check whether this provider is currently bound to an entity.
+     *
+     * @param stack the provider to check for.
+     * @return <code>true</code> if the provider is bound; <code>false</code> otherwise.
+     */
+    public static boolean isBoundToEntity(final ItemStack stack) {
+        final NBTTagCompound dataNbt = getDataTag(stack);
+        return dataNbt.hasKey(TAG_DIMENSION, NBT.TAG_INT) &&
+                dataNbt.hasUniqueId(TAG_ENTITY_UUID);
     }
 
     /**
      * Get the dimension the position the provider is bound to is in.
      * <p>
-     * Behavior is undefined if {@link #isBound(ItemStack)} returns <code>false</code>.
+     * Behavior is undefined if {@link #isBoundToBlock(ItemStack)} returns <code>false</code>.
      *
      * @param stack the provider to get the dimension for.
      * @return the dimension of the position the provider is bound to.
@@ -71,7 +117,7 @@ public abstract class AbstractProvider extends AbstractItem {
     /**
      * Get the position the provider is bound to.
      * <p>
-     * Behavior is undefined if {@link #isBound(ItemStack)} returns <code>false</code>.
+     * Behavior is undefined if {@link #isBoundToBlock(ItemStack)} returns <code>false</code>.
      *
      * @param stack the provider to get the position for.
      * @return the position the provider is bound to.
@@ -82,9 +128,35 @@ public abstract class AbstractProvider extends AbstractItem {
     }
 
     /**
+     * Get the entity the provider is bound to.
+     * <p>
+     * Behavior is undefined if {@link #isBoundToBlock(ItemStack)} returns <code>false</code>.
+     *
+     * @param stack the provider to get the position for.
+     * @return the position the provider is bound to.
+     */
+    @Nullable
+    public static Entity getEntity(final ItemStack stack, World world) {
+        final NBTTagCompound dataNbt = getDataTag(stack);
+        if (dataNbt.hasUniqueId(TAG_ENTITY_UUID)) {
+            UUID entityId = dataNbt.getUniqueId(TAG_ENTITY_UUID);
+            if (world instanceof WorldServer) {
+                //noinspection ConstantConditions
+                return ((WorldServer) world).getEntityFromUuid(entityId);
+            } else {
+                for (Entity entity : world.getLoadedEntityList()) {
+                    if (entity.getPersistentID().equals(entityId))
+                        return entity;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get the side of the block the provider is bound to.
      * <p>
-     * Behavior is undefined if {@link #isBound(ItemStack)} returns <code>false</code>.
+     * Behavior is undefined if {@link #isBoundToBlock(ItemStack)} returns <code>false</code>.
      *
      * @param stack the provider to get the bound-to side for.
      * @return the side the provider is bound to.
@@ -96,7 +168,9 @@ public abstract class AbstractProvider extends AbstractItem {
 
     // --------------------------------------------------------------------- //
 
-    abstract protected boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side);
+    abstract public boolean isValidTarget(final TileEntity tileEntity, final EnumFacing side);
+
+    abstract public boolean isValidTarget(final Entity entity);
 
     abstract protected String getTooltip();
 
@@ -110,13 +184,13 @@ public abstract class AbstractProvider extends AbstractItem {
      * @param capabilityGetter extracts a capability from a tile entity.
      * @return the list of valid capabilities available.
      */
-    static <T> List<T> findProviders(final Vec3d consumerPos, final IItemHandler inventory, final Predicate<ItemStack> providerFilter, BiFunction<ItemStack, TileEntity, T> capabilityGetter) {
+    static <T> List<T> findProviders(final Vec3d consumerPos, final IItemHandler inventory, final Predicate<ItemStack> providerFilter, BiFunction<ItemStack, TileEntity, T> capabilityGetter, BiFunction<ItemStack, Entity, T> entityCapabilityGetter) {
         final List<T> result = new ArrayList<>();
 
         final float rangeSquared = Settings.maxProviderRadius * Settings.maxProviderRadius;
         for (int slot = 0; slot < inventory.getSlots(); slot++) {
             final ItemStack stack = inventory.getStackInSlot(slot);
-            if (!providerFilter.test(stack) || !isBound(stack)) {
+            if (!providerFilter.test(stack) || !(isBoundToBlock(stack) || isBoundToEntity(stack))) {
                 continue;
             }
 
@@ -126,20 +200,35 @@ public abstract class AbstractProvider extends AbstractItem {
                 continue;
             }
 
-            final BlockPos pos = getPosition(stack);
+            BlockPos pos;
+            T capability = null;
+
+            Entity entity = getEntity(stack, (WorldServer) world);
+            if (entity != null) {
+                pos = entity.getPosition();
+            } else {
+                pos = getPosition(stack);
+            }
+
             if (consumerPos.squareDistanceTo(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > rangeSquared) {
                 continue;
             }
-            if (!world.isBlockLoaded(pos)) {
-                continue;
+
+            if (entity != null) {
+                capability = entityCapabilityGetter.apply(stack, entity);
+            } else {
+                if (!world.isBlockLoaded(pos)) {
+                    continue;
+                }
+
+                final TileEntity tileEntity = world.getTileEntity(pos);
+                if (tileEntity == null) {
+                    continue;
+                }
+
+                capability = capabilityGetter.apply(stack, tileEntity);
             }
 
-            final TileEntity tileEntity = world.getTileEntity(pos);
-            if (tileEntity == null) {
-                continue;
-            }
-
-            final T capability = capabilityGetter.apply(stack, tileEntity);
             if (capability == null) {
                 continue;
             }
@@ -160,9 +249,14 @@ public abstract class AbstractProvider extends AbstractItem {
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
         tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
 
-        if (isBound(stack)) {
+        if (isBoundToBlock(stack)) {
             final BlockPos pos = getPosition(stack);
             tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_TARGET, pos.getX(), pos.getY(), pos.getZ()));
+        } else if (isBoundToEntity(stack)) {
+            Entity entity = getEntity(stack, player.world);
+            if (entity != null) {
+                tooltip.add(String.format("Bound to %s", entity.getDisplayName().getFormattedText()));
+            }
         }
     }
 
@@ -189,11 +283,19 @@ public abstract class AbstractProvider extends AbstractItem {
                 final NBTTagCompound dataNbt = getDataTag(stack);
                 dataNbt.removeTag(TAG_DIMENSION);
                 dataNbt.removeTag(TAG_POSITION);
+                dataNbt.removeTag(TAG_ENTITY_UUID + "Most");
+                dataNbt.removeTag(TAG_ENTITY_UUID + "Least");
                 dataNbt.removeTag(TAG_SIDE);
                 player.inventory.markDirty();
             }
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
         return new ActionResult<>(EnumActionResult.PASS, stack);
+    }
+
+    @Override
+    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand) {
+        // This is required to prevent onItemRightClick being called when interacting with entities.
+        return true;
     }
 }
