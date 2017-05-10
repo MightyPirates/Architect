@@ -81,10 +81,10 @@ public enum SketchRenderer {
         final float dt = computeScaleOffset();
 
         if (!data.isEmpty()) {
-            GlStateManager.color(0.2f, 0.4f, 0.9f, 0.15f);
+            GlStateManager.color(0.2f, 0.4f, 0.9f, 0.5f);
             renderBlocks(data.getBlocks(), dt);
 
-            GlStateManager.color(0.4f, 0.7f, 0.9f, 1f);
+            GlStateManager.color(0.4f, 0.7f, 0.4f, 0.3f);
             renderCubeGrid(potentialBounds);
         }
 
