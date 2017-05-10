@@ -65,3 +65,4 @@ config.architect.maxProviderRadius=Maximum Provider Radius
 config.architect.maxChunkOperationsPerTick=Maximum Chunk Operations/t
 config.architect.maxWorldOperationsPerTick=Maximum World Operations/t
 config.architect.use_energy=Use Energy
+config.architect.exhaustionPerBlock=Exhaustion Per Block

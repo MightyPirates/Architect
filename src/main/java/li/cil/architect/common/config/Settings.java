@@ -35,6 +35,10 @@ public final class Settings {
     @Config.Comment("Whether to use energy instead of exhausting the player (increasing their hunger). Note that this will require an energy storage implementing the Forge power capability to be present in the player's inventory.")
     public static boolean useEnergy = false;
 
+    @Config.LangKey(Constants.CONFIG_EXHAUSTION_PER_BLOCK)
+    @Config.Comment("Amount of exhaustion to add to the player per block placed. Not applicable if use energy is true.")
+    public static double exhaustionPerBlock = 0.005;
+
     // --------------------------------------------------------------------- //
 
     private Settings() {
