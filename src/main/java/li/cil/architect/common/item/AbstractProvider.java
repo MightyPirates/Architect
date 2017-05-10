@@ -52,16 +52,30 @@ public abstract class AbstractProvider extends AbstractItem {
         MinecraftForge.EVENT_BUS.register(new Object() {
             // We use this event because itemInteractionForEntity only applies to living entities, not minecarts.
             @SubscribeEvent
-            public void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-                EntityPlayer player = event.getEntityPlayer();
+            public void onEntityInteract(final PlayerInteractEvent.EntityInteract event) {
+                final EntityPlayer player = event.getEntityPlayer();
+                if (!player.isSneaking()) {
+                    return;
+                }
 
-                Entity entity = event.getTarget();
+                final World world = player.world;
+                if (world.isRemote) {
+                    return;
+                }
 
-                ItemStack stack = event.getItemStack();
-                World world = player.world;
-                if (player.isSneaking() && !world.isRemote
-                        && !ItemStackUtils.isEmpty(stack) && stack.getItem() instanceof AbstractProvider
-                        && entity != null && ((AbstractProvider) stack.getItem()).isValidTarget(entity)) {
+                final Entity entity = event.getTarget();
+                if (entity == null) {
+                    return;
+                }
+
+                final ItemStack stack = event.getItemStack();
+                if (ItemStackUtils.isEmpty(stack)) {
+                    return;
+                }
+
+                final boolean isValidTarget = stack.getItem() instanceof AbstractProvider &&
+                                              ((AbstractProvider) stack.getItem()).isValidTarget(entity);
+                if (isValidTarget) {
                     final NBTTagCompound dataNbt = getDataTag(stack);
                     dataNbt.setInteger(TAG_DIMENSION, world.provider.getDimension());
                     dataNbt.setUniqueId(TAG_ENTITY_UUID, entity.getUniqueID());
@@ -85,8 +99,8 @@ public abstract class AbstractProvider extends AbstractItem {
     public static boolean isBoundToBlock(final ItemStack stack) {
         final NBTTagCompound dataNbt = getDataTag(stack);
         return dataNbt.hasKey(TAG_DIMENSION, NBT.TAG_INT) &&
-                dataNbt.hasKey(TAG_POSITION, NBT.TAG_LONG) &&
-                dataNbt.hasKey(TAG_SIDE, NBT.TAG_BYTE);
+               dataNbt.hasKey(TAG_POSITION, NBT.TAG_LONG) &&
+               dataNbt.hasKey(TAG_SIDE, NBT.TAG_BYTE);
     }
 
     /**
@@ -98,7 +112,7 @@ public abstract class AbstractProvider extends AbstractItem {
     public static boolean isBoundToEntity(final ItemStack stack) {
         final NBTTagCompound dataNbt = getDataTag(stack);
         return dataNbt.hasKey(TAG_DIMENSION, NBT.TAG_INT) &&
-                dataNbt.hasUniqueId(TAG_ENTITY_UUID);
+               dataNbt.hasUniqueId(TAG_ENTITY_UUID);
     }
 
     /**
@@ -133,20 +147,22 @@ public abstract class AbstractProvider extends AbstractItem {
      * Behavior is undefined if {@link #isBoundToBlock(ItemStack)} returns <code>false</code>.
      *
      * @param stack the provider to get the position for.
+     * @param world the world to try to get the entity in.
      * @return the position the provider is bound to.
      */
     @Nullable
-    public static Entity getEntity(final ItemStack stack, World world) {
+    public static Entity getEntity(final ItemStack stack, final World world) {
         final NBTTagCompound dataNbt = getDataTag(stack);
         if (dataNbt.hasUniqueId(TAG_ENTITY_UUID)) {
-            UUID entityId = dataNbt.getUniqueId(TAG_ENTITY_UUID);
+            final UUID entityId = dataNbt.getUniqueId(TAG_ENTITY_UUID);
             if (world instanceof WorldServer) {
                 //noinspection ConstantConditions
                 return ((WorldServer) world).getEntityFromUuid(entityId);
             } else {
-                for (Entity entity : world.getLoadedEntityList()) {
-                    if (entity.getPersistentID().equals(entityId))
+                for (final Entity entity : world.getLoadedEntityList()) {
+                    if (entity.getPersistentID().equals(entityId)) {
                         return entity;
+                    }
                 }
             }
         }
@@ -184,7 +200,7 @@ public abstract class AbstractProvider extends AbstractItem {
      * @param capabilityGetter extracts a capability from a tile entity.
      * @return the list of valid capabilities available.
      */
-    static <T> List<T> findProviders(final Vec3d consumerPos, final IItemHandler inventory, final Predicate<ItemStack> providerFilter, BiFunction<ItemStack, TileEntity, T> capabilityGetter, BiFunction<ItemStack, Entity, T> entityCapabilityGetter) {
+    static <T> List<T> findProviders(final Vec3d consumerPos, final IItemHandler inventory, final Predicate<ItemStack> providerFilter, final BiFunction<ItemStack, TileEntity, T> capabilityGetter, final BiFunction<ItemStack, Entity, T> entityCapabilityGetter) {
         final List<T> result = new ArrayList<>();
 
         final float rangeSquared = Settings.maxProviderRadius * Settings.maxProviderRadius;
@@ -200,10 +216,10 @@ public abstract class AbstractProvider extends AbstractItem {
                 continue;
             }
 
-            BlockPos pos;
-            T capability = null;
+            final BlockPos pos;
+            final T capability;
 
-            Entity entity = getEntity(stack, (WorldServer) world);
+            final Entity entity = getEntity(stack, world);
             if (entity != null) {
                 pos = entity.getPosition();
             } else {
@@ -253,7 +269,7 @@ public abstract class AbstractProvider extends AbstractItem {
             final BlockPos pos = getPosition(stack);
             tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_TARGET, pos.getX(), pos.getY(), pos.getZ()));
         } else if (isBoundToEntity(stack)) {
-            Entity entity = getEntity(stack, player.world);
+            final Entity entity = getEntity(stack, player.world);
             if (entity != null) {
                 tooltip.add(String.format("Bound to %s", entity.getDisplayName().getFormattedText()));
             }
@@ -294,7 +310,7 @@ public abstract class AbstractProvider extends AbstractItem {
     }
 
     @Override
-    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand) {
+    public boolean itemInteractionForEntity(final ItemStack stack, final EntityPlayer playerIn, final EntityLivingBase target, final EnumHand hand) {
         // This is required to prevent onItemRightClick being called when interacting with entities.
         return true;
     }

@@ -83,7 +83,7 @@ public enum ProviderRenderer {
             }
         } else if (AbstractProvider.isBoundToEntity(stack)) {
             if (AbstractProvider.getDimension(stack) == player.getEntityWorld().provider.getDimension()) {
-                Entity entity = AbstractProvider.getEntity(stack, mc.world);
+                final Entity entity = AbstractProvider.getEntity(stack, mc.world);
                 if (entity != null && player.getDistanceSqToEntity(entity) <= 64 * 64) {
 
                     GlStateManager.color(0.2f, 0.9f, 0.4f, 0.4f);

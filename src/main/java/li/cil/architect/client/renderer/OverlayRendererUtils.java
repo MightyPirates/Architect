@@ -200,7 +200,7 @@ final class OverlayRendererUtils {
         GlStateManager.popMatrix();
     }
 
-    static void renderEntitySelector(Entity entity, float dt) {
+    static void renderEntitySelector(final Entity entity, final float dt) {
         final float offset = (float) (entity.getEntityId()) % TWO_PI;
         final float sin = MathHelper.sin(offset + dt);
         final float scale = SCALE_STRENGTH * sin;
@@ -214,7 +214,7 @@ final class OverlayRendererUtils {
         GlStateManager.popMatrix();
     }
 
-    static void renderEntitySelectorWire(Entity entity, float dt) {
+    static void renderEntitySelectorWire(final Entity entity, final float dt) {
         final float offset = (float) (entity.getEntityId()) % TWO_PI;
         final float sin = MathHelper.sin(offset + dt);
         final float scale = SCALE_STRENGTH * sin;
@@ -228,7 +228,7 @@ final class OverlayRendererUtils {
         GlStateManager.popMatrix();
     }
 
-    private static AxisAlignedBB getEntityBoundingBox(Entity entity, float scale) {
+    private static AxisAlignedBB getEntityBoundingBox(final Entity entity, final float scale) {
         AxisAlignedBB boundingBox = entity.getEntityBoundingBox();
         boundingBox = boundingBox.offset(
                 -boundingBox.minX - (boundingBox.maxX - boundingBox.minX) / 2.0,
