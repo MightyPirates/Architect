@@ -10,11 +10,13 @@ import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.config.Settings;
 import li.cil.architect.common.jobs.JobManager;
 import li.cil.architect.util.AxisAlignedBBUtils;
+import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -28,12 +30,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -185,12 +182,12 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
      * @param pos the position in the cell to get the bounds for.
      * @return the bounds of the cell.
      */
-    public AxisAlignedBB getCellBounds(final BlockPos pos) {
+    public AxisAlignedBB getCellBounds(EntityPlayer player, final BlockPos pos) {
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
         if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
             return new AxisAlignedBB(pos); // Corrupted data.
         }
-        final BlockPos origin = snapToGrid(pos, size);
+        final BlockPos origin = snapToGrid(player, pos, size);
         return bounds.offset(origin);
     }
 
@@ -201,12 +198,12 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
      * @param pos the position in the cell defining the origin position.
      * @return the list of positions in the cell.
      */
-    public Stream<BlockPos> getBlocks(final BlockPos pos) {
+    public Stream<BlockPos> getBlocks(EntityPlayer player, final BlockPos pos) {
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
         if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
             return Stream.empty(); // Corrupted data.
         }
-        final BlockPos origin = snapToGrid(pos, size);
+        final BlockPos origin = snapToGrid(player, pos, size);
         return StreamSupport.stream(new BlockPosSpliterator(this, origin), false);
     }
 
@@ -297,7 +294,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     /**
      * Create the jobs required to realize this blueprint in the world.
      * <p>
-     * The positions are defined the same way as in {@link #getBlocks(BlockPos)}.
+     * The positions are defined the same way as in {@link #getBlocks(EntityPlayer, BlockPos)}.
      *
      * @param player       the player placing the blueprint.
      * @param allowPartial whether to allow partial placement.
@@ -308,7 +305,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
             return; // Corrupted data.
         }
-        final BlockPos origin = snapToGrid(pos, size);
+        final BlockPos origin = snapToGrid(player, pos, size);
         JobManager.INSTANCE.addJobBatch(player, allowPartial, StreamSupport.stream(new JobAddSpliterator(this, origin), false));
     }
 
@@ -344,7 +341,7 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
         rotation = Rotation.NONE;
 
         if (!nbt.hasKey(TAG_BLOCK_DATA, NBT.TAG_LIST) ||
-            !nbt.hasKey(TAG_BLOCK_POSITIONS, NBT.TAG_BYTE_ARRAY)) {
+                !nbt.hasKey(TAG_BLOCK_POSITIONS, NBT.TAG_BYTE_ARRAY)) {
             return;
         }
 
@@ -377,9 +374,24 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
 
     // --------------------------------------------------------------------- //
 
-    private BlockPos snapToGrid(final BlockPos pos, final Vec3i grid) {
+    private BlockPos snapToGrid(EntityPlayer player, final BlockPos pos, final Vec3i grid) {
         if (!Settings.enablePlacementGrid) {
-            return pos.subtract(new BlockPos(bounds.getCenter()));
+            final EnumFacing sideHit = PlayerUtils.getSideHit(player);
+            final BlockPos center = AxisAlignedBBUtils.getCenter(bounds);
+            BlockPos offset = center;
+            if (sideHit != null) {
+                offset = offset.add(
+                        -center.getX() * sideHit.getFrontOffsetX(),
+                        -center.getY() * sideHit.getFrontOffsetY(),
+                        -center.getZ() * sideHit.getFrontOffsetZ());
+                if (sideHit.getAxisDirection() == EnumFacing.AxisDirection.NEGATIVE && isSideEven(sideHit)) {
+                    offset = offset.add(
+                            sideHit.getFrontOffsetX(),
+                            sideHit.getFrontOffsetY(),
+                            sideHit.getFrontOffsetZ());
+                }
+            }
+            return pos.subtract(offset);
         }
         final BlockPos adjusted = pos.subtract(shift);
         return new BlockPos(
@@ -387,6 +399,19 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
                 MathHelper.floor(adjusted.getY() / (float) grid.getY()) * grid.getY(),
                 MathHelper.floor(adjusted.getZ() / (float) grid.getZ()) * grid.getZ()
         ).add(shift);
+    }
+
+    private boolean isSideEven(EnumFacing side) {
+        switch (side.getAxis()) {
+            case X:
+                return bounds.maxX % 2 == 0;
+            case Y:
+                return bounds.maxY % 2 == 0;
+            case Z:
+                return bounds.maxZ % 2 == 0;
+            default:
+                return false;
+        }
     }
 
     private static BlockPos rotatePosClockwise(final BlockPos pos, final AxisAlignedBB bounds) {

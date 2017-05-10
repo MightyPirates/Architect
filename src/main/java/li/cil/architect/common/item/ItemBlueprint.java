@@ -105,7 +105,7 @@ public final class ItemBlueprint extends AbstractItem {
         if (player.isSneaking()) {
             player.openGui(Architect.instance, GuiId.BLUEPRINT.ordinal(), world, 0, 0, 0);
         } else if (world.isRemote) {
-            handleInput(hand, PlayerUtils.getLookAtPos(player));
+            handleInput(hand, player);
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
@@ -113,7 +113,7 @@ public final class ItemBlueprint extends AbstractItem {
     @Override
     public EnumActionResult onItemUse(final ItemStack stack, final EntityPlayer player, final World world, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
         if (world.isRemote) {
-            handleInput(hand, pos);
+            handleInput(hand, player);
         }
         return EnumActionResult.SUCCESS;
     }
@@ -162,11 +162,11 @@ public final class ItemBlueprint extends AbstractItem {
         }
     }
 
-    private void handleInput(final EnumHand hand, final BlockPos pos) {
+    private void handleInput(final EnumHand hand, final EntityPlayer player) {
         if (isUseDisabled()) {
             return;
         }
-
-        Network.INSTANCE.getWrapper().sendToServer(new MessageBlueprintPlace(hand, pos, Settings.allowPlacePartial));
+        BlockPos pos = PlayerUtils.getRaytrace(player);
+        Network.INSTANCE.getWrapper().sendToServer(new MessageBlueprintPlace(hand, pos, PlayerUtils.getAimDistance(), Settings.allowPlacePartial));
     }
 }

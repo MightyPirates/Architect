@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -62,25 +61,19 @@ public enum BlueprintRenderer {
             return;
         }
 
-        final BlockPos hitPos;
-        final RayTraceResult hit = mc.objectMouseOver;
-        if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
-            hitPos = hit.getBlockPos();
-        } else {
-            hitPos = PlayerUtils.getLookAtPos(player);
-        }
+        final BlockPos hitPos = PlayerUtils.getRaytrace(player);
 
         final float dt = computeScaleOffset();
-        final AxisAlignedBB cellBounds = data.getCellBounds(hitPos);
+        final AxisAlignedBB cellBounds = data.getCellBounds(player, hitPos);
 
         doPositionPrologue(event);
         doOverlayPrologue();
 
         RenderUtils.setColor(0x33000000 | ItemBlueprint.getColor(stack).getMapColor().colorValue);
-        renderValidBlocks(world, data.getBlocks(hitPos), dt);
+        renderValidBlocks(world, data.getBlocks(player, hitPos), dt);
 
         GlStateManager.color(0.9f, 0.2f, 0.2f, 0.5f);
-        renderInvalidBlocks(world, data.getBlocks(hitPos), dt);
+        renderInvalidBlocks(world, data.getBlocks(player, hitPos), dt);
 
         GlStateManager.color(0.2f, 0.9f, 0.4f, 0.6f);
         renderCellBounds(cellBounds);

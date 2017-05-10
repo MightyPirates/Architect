@@ -4,7 +4,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.common.ForgeHooks;
+
+import javax.annotation.Nullable;
 
 public final class PlayerUtils {
     private static final int MIN_AIM_DISTANCE = 4;
@@ -21,10 +25,48 @@ public final class PlayerUtils {
         freeAimDistance = MathHelper.clamp(freeAimDistance + delta, MIN_AIM_DISTANCE, MAX_AIM_DISTANCE);
     }
 
+    public static void setAimDistance(final float distance) {
+        freeAimDistance = MathHelper.clamp(distance, MIN_AIM_DISTANCE, MAX_AIM_DISTANCE);
+    }
+
+    public static float getAimDistance(){
+        return freeAimDistance;
+    }
+
     public static BlockPos getLookAtPos(final EntityPlayer player) {
         final Vec3d lookVec = player.getLookVec();
         final Vec3d eyePos = new Vec3d(player.posX, player.posY + player.getEyeHeight(), player.posZ);
         return new BlockPos(eyePos.add(lookVec.scale(freeAimDistance)));
+    }
+
+    public static BlockPos getRaytrace(final EntityPlayer player) {
+        final RayTraceResult hit = rayTracePlayerLook(player);
+        if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
+            boolean replaceable = player.world.getBlockState(hit.getBlockPos()).getBlock().isReplaceable(player.world, hit.getBlockPos());
+            if (replaceable) {
+                return hit.getBlockPos();
+            }
+            return hit.getBlockPos().offset(hit.sideHit);
+        }
+        return PlayerUtils.getLookAtPos(player);
+    }
+
+    @Nullable
+    public static EnumFacing getSideHit(EntityPlayer player) {
+        final RayTraceResult hit = rayTracePlayerLook(player);
+        if (hit != null && hit.typeOfHit == RayTraceResult.Type.BLOCK) {
+            boolean replaceable = player.world.getBlockState(hit.getBlockPos()).getBlock().isReplaceable(player.world, hit.getBlockPos());
+            if (replaceable) {
+                return EnumFacing.UP;
+            }
+            return hit.sideHit;
+        }
+        return null;
+    }
+
+    @Nullable
+    public static RayTraceResult rayTracePlayerLook(EntityPlayer player) {
+        return ForgeHooks.rayTraceEyes(player, freeAimDistance - 2);
     }
 
     public static EnumFacing getPrimaryFacing(final EntityPlayer player) {
