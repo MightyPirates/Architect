@@ -17,6 +17,8 @@ tooltip.architect.blueprint.costs.line=§7- %sx %s
 tooltip.architect.blueprint.costs.unknown=§7Unknown costs.
 tooltip.architect.provider.item=§8Keep in inventory to use items from a bound-to inventory when placing blueprints.
 tooltip.architect.provider.fluid=§8Keep in inventory to use fluids from a bound-to tank when placing blueprints.
+tooltip.architect.provider.block=§7Bound to block %sm away.
+tooltip.architect.provider.entity=§7Bound to %s§r§7, %sm away.
 tooltip.architect.provider.target=§7Bound to (%s, %s, %s).
 
 key.architect.rotateBlueprint=Rotate Blueprint
