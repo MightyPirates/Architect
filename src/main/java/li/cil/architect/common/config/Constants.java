@@ -49,6 +49,8 @@ public final class Constants {
     public static final String TOOLTIP_BLUEPRINT_COSTS_UNKNOWN = "tooltip.architect.blueprint.costs.unknown";
     public static final String TOOLTIP_PROVIDER_ITEM = "tooltip.architect.provider.item";
     public static final String TOOLTIP_PROVIDER_FLUID = "tooltip.architect.provider.fluid";
+    public static final String TOOLTIP_PROVIDER_BLOCK = "tooltip.architect.provider.block";
+    public static final String TOOLTIP_PROVIDER_ENTITY = "tooltip.architect.provider.entity";
     public static final String TOOLTIP_PROVIDER_TARGET = "tooltip.architect.provider.target";
 
     // --------------------------------------------------------------------- //

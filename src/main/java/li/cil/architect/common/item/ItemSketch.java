@@ -87,8 +87,8 @@ public final class ItemSketch extends AbstractItem {
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(final ItemStack stack, final EntityPlayer playerIn, final List<String> tooltip, final boolean advanced) {
-        super.addInformation(stack, playerIn, tooltip, advanced);
+    public void addInformation(final ItemStack stack, final EntityPlayer player, final List<String> tooltip, final boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
 
         final SketchData data = getData(stack);
@@ -100,7 +100,7 @@ public final class ItemSketch extends AbstractItem {
             assert bounds != null;
 
             final Vec3d center = bounds.getCenter();
-            final int distance = MathHelper.ceil(playerIn.getDistance(center.xCoord, center.yCoord, center.zCoord));
+            final int distance = MathHelper.ceil(player.getDistance(center.xCoord, center.yCoord, center.zCoord));
             final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
             tooltip.add(I18n.format(Constants.TOOLTIP_SKETCH_DATA, size.getX(), size.getY(), size.getZ(), distance));
 

@@ -16,6 +16,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -76,6 +77,8 @@ public abstract class AbstractProvider extends AbstractItem {
                                               ((AbstractProvider) stack.getItem()).isValidTarget(entity);
                 if (isValidTarget) {
                     final NBTTagCompound dataNbt = getDataTag(stack);
+                    dataNbt.removeTag(TAG_POSITION);
+                    dataNbt.removeTag(TAG_SIDE);
                     dataNbt.setInteger(TAG_DIMENSION, world.provider.getDimension());
                     dataNbt.setUniqueId(TAG_ENTITY_UUID, entity.getUniqueID());
                     player.inventory.markDirty();
@@ -266,11 +269,17 @@ public abstract class AbstractProvider extends AbstractItem {
 
         if (isBoundToBlock(stack)) {
             final BlockPos pos = getPosition(stack);
-            tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_TARGET, pos.getX(), pos.getY(), pos.getZ()));
+            final int distance = MathHelper.ceil(player.getDistanceSqToCenter(pos));
+            tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_BLOCK, distance));
+
+            if (advanced) {
+                tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_TARGET, pos.getX(), pos.getY(), pos.getZ()));
+            }
         } else if (isBoundToEntity(stack)) {
             final Entity entity = getEntity(stack, player.world);
             if (entity != null) {
-                tooltip.add(String.format("Bound to %s", entity.getDisplayName().getFormattedText()));
+                final int distance = MathHelper.ceil(player.getDistanceToEntity(entity));
+                tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_ENTITY, entity.getDisplayName().getFormattedText(), distance));
             }
         }
     }
@@ -282,6 +291,8 @@ public abstract class AbstractProvider extends AbstractItem {
             if (player.isSneaking() && !world.isRemote) {
                 final ItemStack stack = player.getHeldItem(hand);
                 final NBTTagCompound dataNbt = getDataTag(stack);
+                dataNbt.removeTag(TAG_ENTITY_UUID + "Most");
+                dataNbt.removeTag(TAG_ENTITY_UUID + "Least");
                 dataNbt.setInteger(TAG_DIMENSION, world.provider.getDimension());
                 dataNbt.setLong(TAG_POSITION, pos.toLong());
                 dataNbt.setByte(TAG_SIDE, (byte) side.getIndex());
@@ -300,9 +311,9 @@ public abstract class AbstractProvider extends AbstractItem {
                 final NBTTagCompound dataNbt = getDataTag(stack);
                 dataNbt.removeTag(TAG_DIMENSION);
                 dataNbt.removeTag(TAG_POSITION);
+                dataNbt.removeTag(TAG_SIDE);
                 dataNbt.removeTag(TAG_ENTITY_UUID + "Most");
                 dataNbt.removeTag(TAG_ENTITY_UUID + "Least");
-                dataNbt.removeTag(TAG_SIDE);
                 player.inventory.markDirty();
             }
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
