@@ -104,7 +104,7 @@ public final class ItemSketch extends AbstractItem {
             final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
             tooltip.add(I18n.format(Constants.TOOLTIP_SKETCH_DATA, size.getX(), size.getY(), size.getZ(), distance));
 
-            if (advanced) {
+            if (advanced && !player.hasReducedDebug()) {
                 tooltip.add(I18n.format(Constants.TOOLTIP_SKETCH_BOUNDS, (int) bounds.minX, (int) bounds.minY, (int) bounds.minZ, (int) bounds.maxX, (int) bounds.maxY, (int) bounds.maxZ));
             }
         } else {

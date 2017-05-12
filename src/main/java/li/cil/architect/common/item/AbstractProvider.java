@@ -272,7 +272,7 @@ public abstract class AbstractProvider extends AbstractItem {
             final int distance = MathHelper.ceil(player.getDistanceSqToCenter(pos));
             tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_BLOCK, distance));
 
-            if (advanced) {
+            if (advanced && !player.hasReducedDebug()) {
                 tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_TARGET, pos.getX(), pos.getY(), pos.getZ()));
             }
         } else if (isBoundToEntity(stack)) {
