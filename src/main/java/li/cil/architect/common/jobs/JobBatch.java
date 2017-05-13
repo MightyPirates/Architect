@@ -15,16 +15,15 @@ import li.cil.architect.common.item.ItemProviderItem;
 import li.cil.architect.util.FluidHandlerUtils;
 import li.cil.architect.util.ItemHandlerUtils;
 import li.cil.architect.util.ItemStackUtils;
+import li.cil.architect.util.PlayerUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.FoodStats;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -259,22 +258,8 @@ class JobBatch implements JobManager.JobConsumer {
         if (Settings.useEnergy) {
             return consumeEnergy(blockCount);
         } else if (!player.capabilities.disableDamage && !world.isRemote) {
-            // Exhaustion is normally capped at 40, this allows us to bypass that cap by removing hunger directly
-            // Exhaustion has a 4:1 ratio with hunger.
-            final float exhaustion = (float) (Settings.exhaustionPerBlock * blockCount);
-            final EnumDifficulty enumdifficulty = world.getDifficulty();
-            final FoodStats foodStats = player.getFoodStats();
-            final float foodSaturationLevel = foodStats.getSaturationLevel();
-            float hungerCost = exhaustion * 0.25f;
-            if (foodSaturationLevel >= hungerCost) {
-                foodStats.setFoodSaturationLevel(Math.max(foodSaturationLevel - hungerCost, 0f));
-            } else if (foodSaturationLevel < hungerCost) {
-                hungerCost -= foodSaturationLevel;
-                foodStats.setFoodSaturationLevel(0f);
-                if (enumdifficulty != EnumDifficulty.PEACEFUL) {
-                    foodStats.setFoodLevel(Math.max(foodStats.getFoodLevel() - (int) hungerCost, 0));
-                }
-            }
+            increaseExhaustion(blockCount);
+
         }
 
         return true;
@@ -322,6 +307,11 @@ class JobBatch implements JobManager.JobConsumer {
         }
 
         return true;
+    }
+
+    private void increaseExhaustion(final int blockCount) {
+        final float exhaustion = (float) (Settings.exhaustionPerBlock * blockCount);
+        PlayerUtils.addExhaustion(player, exhaustion);
     }
 
     // --------------------------------------------------------------------- //

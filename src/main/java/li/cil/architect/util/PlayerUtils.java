@@ -2,10 +2,12 @@ package li.cil.architect.util;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.FoodStats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraftforge.common.ForgeHooks;
 
 import javax.annotation.Nullable;
@@ -92,6 +94,22 @@ public final class PlayerUtils {
                 return EnumFacing.SOUTH;
             } else {
                 return EnumFacing.NORTH;
+            }
+        }
+    }
+
+    public static void addExhaustion(final EntityPlayer player, final float exhaustion) {
+        // Exhaustion is normally capped at 40, this allows us to bypass that
+        // cap by lowering food level directly.
+        final FoodStats foodStats = player.getFoodStats();
+        final float foodSaturationLevel = foodStats.getSaturationLevel();
+        final float foodLevelCost = exhaustion * 0.25f; // Exhaustion has a 4:1 ratio with food level.
+        if (foodSaturationLevel >= foodLevelCost) {
+            foodStats.foodSaturationLevel = foodSaturationLevel - foodLevelCost;
+        } else {
+            foodStats.foodSaturationLevel = 0;
+            if (player.getEntityWorld().getDifficulty() != EnumDifficulty.PEACEFUL) {
+                foodStats.setFoodLevel(Math.max(foodStats.getFoodLevel() - (int) (foodLevelCost - foodSaturationLevel), 0));
             }
         }
     }
