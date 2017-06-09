@@ -14,10 +14,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
+import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
+import java.util.Objects;
 
 final class GuiBlueprint extends GuiScreen {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(API.MOD_ID, "textures/gui/blueprint.png");
@@ -32,6 +35,8 @@ final class GuiBlueprint extends GuiScreen {
 
     private GuiTextField textField;
     private GuiButtonColor color;
+
+    private GuiButton selectedButton;
 
     GuiBlueprint(final EntityPlayer player, final ItemStack blueprint) {
         this.player = player;
@@ -64,7 +69,42 @@ final class GuiBlueprint extends GuiScreen {
     @Override
     protected void actionPerformed(final GuiButton button) throws IOException {
         super.actionPerformed(button);
-        color.cycleColor();
+        if (button instanceof GuiButtonColor) {
+            ((GuiButtonColor) button).actionPerformed(0);
+        }
+    }
+
+    @Override
+    protected void mouseClicked(final int mouseX, final int mouseY, final int mouseButton) throws IOException {
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+        if (mouseButton == 1) {
+            for (int i = 0; i < buttonList.size(); ++i) {
+                final GuiButton button = buttonList.get(i);
+
+                if (button.mousePressed(mc, mouseX, mouseY)) {
+                    final ActionPerformedEvent.Pre event = new ActionPerformedEvent.Pre(this, button, buttonList);
+                    if (MinecraftForge.EVENT_BUS.post(event)) {
+                        break;
+                    }
+                    selectedButton = event.getButton();
+                    selectedButton.playPressSound(mc.getSoundHandler());
+                    if (selectedButton instanceof GuiButtonColor) {
+                        ((GuiButtonColor) selectedButton).actionPerformed(mouseButton);
+                    }
+                    if (Objects.equals(this, mc.currentScreen)) {
+                        MinecraftForge.EVENT_BUS.post(new ActionPerformedEvent.Post(this, selectedButton, buttonList));
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void mouseReleased(final int mouseX, final int mouseY, final int mouseButton) {
+        if (selectedButton != null && mouseButton == 1) {
+            selectedButton.mouseReleased(mouseX, mouseY);
+            selectedButton = null;
+        }
     }
 
     @Override
@@ -136,8 +176,16 @@ final class GuiBlueprint extends GuiScreen {
             this.color = color;
         }
 
-        void cycleColor() {
-            color = EnumDyeColor.byMetadata((color.getMetadata() + 1) % 16);
+        void cycleColor(final int delta) {
+            color = EnumDyeColor.byMetadata((color.getMetadata() + delta + 16) % 16);
+        }
+
+        void actionPerformed(final int mouseButton) {
+            if (mouseButton == 0) {
+                cycleColor(1);
+            } else if (mouseButton == 1) {
+                cycleColor(-1);
+            }
         }
 
         @Override
