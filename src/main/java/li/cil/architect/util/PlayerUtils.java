@@ -73,24 +73,24 @@ public final class PlayerUtils {
 
     public static EnumFacing getPrimaryFacing(final EntityPlayer player) {
         final Vec3d lookVec = player.getLookVec();
-        final double absX = Math.abs(lookVec.xCoord);
-        final double absY = Math.abs(lookVec.yCoord);
-        final double absZ = Math.abs(lookVec.zCoord);
+        final double absX = Math.abs(lookVec.x);
+        final double absY = Math.abs(lookVec.y);
+        final double absZ = Math.abs(lookVec.z);
 
         if (absX > absY && absX > absZ) {
-            if (lookVec.xCoord > 0) {
+            if (lookVec.x > 0) {
                 return EnumFacing.EAST;
             } else {
                 return EnumFacing.WEST;
             }
         } else if (absY > absZ) {
-            if (lookVec.yCoord > 0) {
+            if (lookVec.y > 0) {
                 return EnumFacing.UP;
             } else {
                 return EnumFacing.DOWN;
             }
         } else {
-            if (lookVec.zCoord > 0) {
+            if (lookVec.z > 0) {
                 return EnumFacing.SOUTH;
             } else {
                 return EnumFacing.NORTH;

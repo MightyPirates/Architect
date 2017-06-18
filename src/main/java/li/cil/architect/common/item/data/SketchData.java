@@ -87,7 +87,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
      * <code>false</code> otherwise.
      */
     public boolean isValid(final BlockPos pos) {
-        return getPotentialBounds().intersectsWith(new AxisAlignedBB(pos));
+        return getPotentialBounds().intersects(new AxisAlignedBB(pos));
     }
 
     /**
@@ -108,7 +108,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
 
         final int max = Constants.MAX_BLUEPRINT_SIZE;
         final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
-        return bounds.expand(max - size.getX(), max - size.getY(), max - size.getZ());
+        return bounds.grow(max - size.getX(), max - size.getY(), max - size.getZ());
     }
 
     /**
@@ -130,7 +130,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
      */
     public AxisAlignedBB getPotentialBounds(final BlockPos including) {
         final AxisAlignedBB extraBounds = new AxisAlignedBB(including);
-        if (!getPotentialBounds().intersectsWith(extraBounds)) {
+        if (!getPotentialBounds().intersects(extraBounds)) {
             throw new IllegalArgumentException();
         }
 
@@ -146,7 +146,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         final int sx = (int) (mainBounds.maxX - mainBounds.minX);
         final int sy = (int) (mainBounds.maxY - mainBounds.minY);
         final int sz = (int) (mainBounds.maxZ - mainBounds.minZ);
-        return mainBounds.expand(max - sx, max - sy, max - sz);
+        return mainBounds.grow(max - sx, max - sy, max - sz);
     }
 
     /**
@@ -164,7 +164,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         assert origin != null;
         assert bounds != null;
 
-        if (!bounds.intersectsWith(new AxisAlignedBB(pos))) {
+        if (!bounds.intersects(new AxisAlignedBB(pos))) {
             return false;
         }
 
@@ -223,7 +223,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
         final BlockPos relPos = pos.subtract(origin);
 
         // If position falls within current bounds we can just set it.
-        if (bounds.intersectsWith(posBounds)) {
+        if (bounds.intersects(posBounds)) {
             blocks.set(toIndex(relPos));
             return true;
         }
@@ -260,7 +260,7 @@ public final class SketchData extends AbstractPatternData implements INBTSeriali
 
         // Check if coordinate is even contained in this sketch.
         final AxisAlignedBB posBounds = new AxisAlignedBB(pos);
-        if (!bounds.intersectsWith(posBounds)) {
+        if (!bounds.intersects(posBounds)) {
             return false;
         }
 

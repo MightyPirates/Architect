@@ -11,6 +11,7 @@ import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
@@ -87,9 +88,12 @@ public final class ItemSketch extends AbstractItem {
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(final ItemStack stack, final EntityPlayer player, final List<String> tooltip, final boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+    public void addInformation(final ItemStack stack, @Nullable final World world, final List<String> tooltip, final ITooltipFlag flag) {
+        super.addInformation(stack, world, tooltip, flag);
+
+        final Minecraft mc = Minecraft.getMinecraft();
+        final EntityPlayer player = mc.player;
+        final FontRenderer fontRenderer = mc.fontRenderer;
 
         final SketchData data = getData(stack);
         if (!data.isEmpty()) {
@@ -100,11 +104,11 @@ public final class ItemSketch extends AbstractItem {
             assert bounds != null;
 
             final Vec3d center = bounds.getCenter();
-            final int distance = MathHelper.ceil(player.getDistance(center.xCoord, center.yCoord, center.zCoord));
+            final int distance = MathHelper.ceil(player.getDistance(center.x, center.y, center.z));
             final Vec3i size = AxisAlignedBBUtils.getBlockSize(bounds);
             tooltip.add(I18n.format(Constants.TOOLTIP_SKETCH_DATA, size.getX(), size.getY(), size.getZ(), distance));
 
-            if (advanced && !player.hasReducedDebug()) {
+            if (flag.isAdvanced() && !player.hasReducedDebug()) {
                 tooltip.add(I18n.format(Constants.TOOLTIP_SKETCH_BOUNDS, (int) bounds.minX, (int) bounds.minY, (int) bounds.minZ, (int) bounds.maxX, (int) bounds.maxY, (int) bounds.maxZ));
             }
         } else {
@@ -147,7 +151,7 @@ public final class ItemSketch extends AbstractItem {
         for (int i = 0; i < 10; i++) {
             final Vec3d lookAt = lookAtBase.addVector(itemRand.nextGaussian(), itemRand.nextGaussian(), itemRand.nextGaussian());
             final Vec3d speed = speedBase.addVector(itemRand.nextGaussian(), itemRand.nextGaussian(), itemRand.nextGaussian());
-            player.getEntityWorld().spawnParticle(EnumParticleTypes.PORTAL, lookAt.xCoord, lookAt.yCoord, lookAt.zCoord, speed.xCoord, speed.yCoord, speed.zCoord);
+            player.getEntityWorld().spawnParticle(EnumParticleTypes.PORTAL, lookAt.x, lookAt.y, lookAt.z, speed.x, speed.y, speed.z);
         }
     }
 

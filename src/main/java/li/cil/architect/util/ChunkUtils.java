@@ -5,8 +5,8 @@ import net.minecraft.util.math.ChunkPos;
 
 public final class ChunkUtils {
     public static long chunkPosToLong(final ChunkPos chunkPos) {
-        final long x = chunkPos.chunkXPos & 0xFFFFFFFFL;
-        final long z = chunkPos.chunkZPos & 0xFFFFFFFFL;
+        final long x = chunkPos.x & 0xFFFFFFFFL;
+        final long z = chunkPos.z & 0xFFFFFFFFL;
         return (x << 32) | z;
     }
 

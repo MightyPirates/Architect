@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
@@ -28,6 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -80,9 +82,11 @@ public final class ItemBlueprint extends AbstractItem {
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(final ItemStack stack, final EntityPlayer playerIn, final List<String> tooltip, final boolean advanced) {
-        super.addInformation(stack, playerIn, tooltip, advanced);
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+    public void addInformation(final ItemStack stack, @Nullable final World world, final List<String> tooltip, final ITooltipFlag flag) {
+        super.addInformation(stack, world, tooltip, flag);
+
+        final Minecraft mc = Minecraft.getMinecraft();
+        final FontRenderer fontRenderer = mc.fontRenderer;
 
         final BlueprintData data = getData(stack);
         final String info = I18n.format(Constants.TOOLTIP_BLUEPRINT);
@@ -92,7 +96,7 @@ public final class ItemBlueprint extends AbstractItem {
             return;
         }
 
-        final KeyBinding keyBind = Minecraft.getMinecraft().gameSettings.keyBindSneak;
+        final KeyBinding keyBind = mc.gameSettings.keyBindSneak;
         if (Keyboard.isKeyDown(keyBind.getKeyCode())) {
             addCosts(stack, tooltip, data);
         } else {

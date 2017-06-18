@@ -54,9 +54,6 @@ public class ProxyCommon {
     }
 
     public void onInit(final FMLInitializationEvent event) {
-        // Hardcoded recipes!
-        Items.addRecipes();
-
         // Register network handler.
         Network.INSTANCE.init();
 

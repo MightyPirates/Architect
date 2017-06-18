@@ -189,10 +189,10 @@ final class GuiBlueprint extends GuiScreen {
         }
 
         @Override
-        public void drawButton(final Minecraft mc, final int mouseX, final int mouseY) {
-            super.drawButton(mc, mouseX, mouseY);
+        public void drawButton(final Minecraft mc, final int mouseX, final int mouseY, final float partialTicks) {
+            super.drawButton(mc, mouseX, mouseY, partialTicks);
             if (this.visible && color != null) {
-                drawRect(xPosition + 4, yPosition + 4, xPosition + width - 4, yPosition + height - 4, 0xFF000000 | color.getMapColor().colorValue);
+                drawRect(x + 4, y + 4, x + width - 4, y + height - 4, 0xFF000000 | color.getColorValue());
                 GlStateManager.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
                 final int borderColor;
                 if (this.hovered) {
@@ -200,7 +200,7 @@ final class GuiBlueprint extends GuiScreen {
                 } else {
                     borderColor = 0xFF999999;
                 }
-                drawRect(xPosition + 4, yPosition + 4, xPosition + width - 4, yPosition + height - 4, borderColor);
+                drawRect(x + 4, y + 4, x + width - 4, y + height - 4, borderColor);
                 GlStateManager.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
             }
         }

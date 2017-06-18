@@ -7,15 +7,10 @@ import li.cil.architect.common.item.ItemProviderFluid;
 import li.cil.architect.common.item.ItemProviderItem;
 import li.cil.architect.common.item.ItemSketch;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.util.EnumHand;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 
-import java.util.Collections;
 import java.util.function.Predicate;
 
 /**
@@ -68,41 +63,6 @@ public final class Items {
         blueprint = proxy.registerItem(Constants.NAME_ITEM_BLUEPRINT, ItemBlueprint::new);
         providerItem = proxy.registerItem(Constants.NAME_ITEM_PROVIDER_ITEM, ItemProviderItem::new);
         providerFluid = proxy.registerItem(Constants.NAME_ITEM_PROVIDER_FLUID, ItemProviderFluid::new);
-    }
-
-    public static void addRecipes() {
-        GameRegistry.addRecipe(new ShapedOreRecipe(
-                new ItemStack(sketch, 1),
-                "LEL",
-                "PPS",
-                "LLL",
-                'E', "enderpearl",
-                'P', "paper",
-                'L', "leather",
-                'S', "string"));
-        GameRegistry.addRecipe(new ShapelessRecipes(
-                new ItemStack(sketch, 1),
-                Collections.singletonList(new ItemStack(blueprint))));
-        GameRegistry.addRecipe(new ShapedOreRecipe(
-                new ItemStack(providerItem),
-                "IEI",
-                "QHQ",
-                "ITI",
-                'I', "ingotIron",
-                'E', "enderpearl",
-                'Q', "gemQuartz",
-                'T', Blocks.TRAPDOOR,
-                'H', Blocks.HOPPER));
-        GameRegistry.addRecipe(new ShapedOreRecipe(
-                new ItemStack(providerFluid),
-                "IEI",
-                "QPQ",
-                "IBI",
-                'I', "ingotIron",
-                'E', "enderpearl",
-                'Q', "gemQuartz",
-                'B', net.minecraft.init.Items.BUCKET,
-                'P', Blocks.PISTON));
     }
 
     // --------------------------------------------------------------------- //

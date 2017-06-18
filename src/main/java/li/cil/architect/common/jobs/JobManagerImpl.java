@@ -13,7 +13,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldSavedData;
+import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
@@ -164,10 +164,10 @@ public final class JobManagerImpl extends WorldSavedData {
     }
 
     private boolean isSortIndexSatisfied(final int sortIndex, final ChunkPos chunkPos) {
-        return isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos - 1, chunkPos.chunkZPos))) &&
-               isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos + 1, chunkPos.chunkZPos))) &&
-               isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos, chunkPos.chunkZPos - 1))) &&
-               isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.chunkXPos, chunkPos.chunkZPos + 1)));
+        return isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.x - 1, chunkPos.z))) &&
+               isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.x + 1, chunkPos.z))) &&
+               isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.x, chunkPos.z - 1))) &&
+               isSortIndexSatisfied(sortIndex, ChunkUtils.chunkPosToLong(new ChunkPos(chunkPos.x, chunkPos.z + 1)));
     }
 
     private boolean isSortIndexSatisfied(final int sortIndex, final long key) {

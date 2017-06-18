@@ -8,9 +8,9 @@ import li.cil.architect.common.item.data.SketchData;
 import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -132,14 +132,14 @@ public enum SketchRenderer {
     private static void renderBlockSelection(final EntityPlayer player, final BlockPos pos, final AxisAlignedBB potentialBounds) {
         final AxisAlignedBB bounds = new AxisAlignedBB(pos);
         if (player.isSneaking()) {
-            if (potentialBounds.intersectsWith(bounds)) {
+            if (potentialBounds.intersects(bounds)) {
                 GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
             } else {
                 GlStateManager.color(0.9f, 0.4f, 0.2f, 0.5f);
             }
             renderCubeWire(pos, MIN - SELECTION_GROWTH, MAX + SELECTION_GROWTH);
         } else {
-            if (potentialBounds.intersectsWith(bounds) && ConverterAPI.canSerialize(player.getEntityWorld(), pos)) {
+            if (potentialBounds.intersects(bounds) && ConverterAPI.canSerialize(player.getEntityWorld(), pos)) {
                 GlStateManager.color(0.2f, 0.9f, 0.4f, 0.5f);
             } else {
                 GlStateManager.color(0.9f, 0.4f, 0.2f, 0.5f);
@@ -170,7 +170,7 @@ public enum SketchRenderer {
 
     private static void renderBlocks(final Stream<BlockPos> blocks, final float dt) {
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         blocks.forEach(pos -> drawCube(pos, buffer, dt));

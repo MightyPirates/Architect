@@ -3,9 +3,9 @@ package li.cil.architect.client.renderer;
 import li.cil.architect.common.init.Items;
 import li.cil.architect.common.item.AbstractProvider;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -99,7 +99,7 @@ public enum ProviderRenderer {
         GlStateManager.disableCull();
 
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         final AxisAlignedBB bounds = new AxisAlignedBB(pos);

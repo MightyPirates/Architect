@@ -1,5 +1,6 @@
 package li.cil.architect.common.config;
 
+import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -441,7 +442,7 @@ public final class Jasons {
 
     private static void save(final Object value, final File path, final Gson gson) {
         try {
-            FileUtils.writeStringToFile(path, gson.toJson(value));
+            FileUtils.writeStringToFile(path, gson.toJson(value), Charsets.UTF_8);
         } catch (final IOException e) {
             Architect.getLog().warn("Failed writing " + path.toString() + ".", e);
         }

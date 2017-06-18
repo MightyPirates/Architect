@@ -3,9 +3,9 @@ package li.cil.architect.client.renderer;
 import li.cil.architect.common.config.Settings;
 import li.cil.architect.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -70,7 +70,7 @@ final class OverlayRendererUtils {
 
     static void renderCube(final BlockPos pos, final float min, final float max) {
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         drawCube(pos.getX() + min, pos.getY() + min, pos.getZ() + min, pos.getX() + max, pos.getY() + max, pos.getZ() + max, buffer);
@@ -80,7 +80,7 @@ final class OverlayRendererUtils {
 
     static void renderCube(final AxisAlignedBB bounds) {
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         drawCube(bounds.minX, bounds.minY, bounds.minZ, bounds.maxX, bounds.maxY, bounds.maxZ, buffer);
@@ -92,7 +92,7 @@ final class OverlayRendererUtils {
         doWirePrologue();
 
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         drawCube(pos.getX() + min, pos.getY() + min, pos.getZ() + min, pos.getX() + max, pos.getY() + max, pos.getZ() + max, buffer);
@@ -106,7 +106,7 @@ final class OverlayRendererUtils {
         doWirePrologue();
 
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         drawCube(bounds.minX, bounds.minY, bounds.minZ, bounds.maxX, bounds.maxY, bounds.maxZ, buffer);
@@ -124,7 +124,7 @@ final class OverlayRendererUtils {
         }
 
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         drawCubeGrid((int) bounds.minX, (int) bounds.minY, (int) bounds.minZ, (int) bounds.maxX, (int) bounds.maxY, (int) bounds.maxZ, buffer);
@@ -140,7 +140,7 @@ final class OverlayRendererUtils {
 
     static void renderCubePulsing(final BlockPos hitPos, final float dt) {
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         drawCube(hitPos, buffer, dt);
@@ -188,7 +188,7 @@ final class OverlayRendererUtils {
         GlStateManager.scale(25, 25, 25);
 
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
 
         drawArrow3D(buffer);
@@ -234,10 +234,10 @@ final class OverlayRendererUtils {
                 -boundingBox.minX - (boundingBox.maxX - boundingBox.minX) / 2.0,
                 -boundingBox.minY,
                 -boundingBox.minZ - (boundingBox.maxZ - boundingBox.minZ) / 2.0);
-        return boundingBox.expandXyz(scale);
+        return boundingBox.grow(scale);
     }
 
-    static void drawCube(final BlockPos pos, final VertexBuffer buffer, final float dt) {
+    static void drawCube(final BlockPos pos, final BufferBuilder buffer, final float dt) {
         final float offset = (pos.getX() + pos.getY() + pos.getZ()) % TWO_PI;
         final float scale = SCALE_STRENGTH * MathHelper.sin(offset + dt);
         final float min = MIN - scale;
@@ -245,7 +245,7 @@ final class OverlayRendererUtils {
         drawCube(pos.getX() + min, pos.getY() + min, pos.getZ() + min, pos.getX() + max, pos.getY() + max, pos.getZ() + max, buffer);
     }
 
-    private static void drawCube(final double minX, final double minY, final double minZ, final double maxX, final double maxY, final double maxZ, final VertexBuffer buffer) {
+    private static void drawCube(final double minX, final double minY, final double minZ, final double maxX, final double maxY, final double maxZ, final BufferBuilder buffer) {
         drawPlaneNegX(minX, minY, maxY, minZ, maxZ, buffer);
         drawPlanePosX(maxX, minY, maxY, minZ, maxZ, buffer);
         drawPlaneNegY(minY, minX, maxX, minZ, maxZ, buffer);
@@ -254,7 +254,7 @@ final class OverlayRendererUtils {
         drawPlanePosZ(maxZ, minX, maxX, minY, maxY, buffer);
     }
 
-    private static void drawCubeGrid(final int minX, final int minY, final int minZ, final int maxX, final int maxY, final int maxZ, final VertexBuffer buffer) {
+    private static void drawCubeGrid(final int minX, final int minY, final int minZ, final int maxX, final int maxY, final int maxZ, final BufferBuilder buffer) {
         drawCube(minX, minY, minZ, maxX, maxY, maxZ, buffer);
 
         // FWIW, this would be much nicer, because it'd use a *lot* fewer polys,
@@ -311,49 +311,49 @@ final class OverlayRendererUtils {
         }
     }
 
-    static void drawPlaneNegX(final double x, final double minY, final double maxY, final double minZ, final double maxZ, final VertexBuffer buffer) {
+    static void drawPlaneNegX(final double x, final double minY, final double maxY, final double minZ, final double maxZ, final BufferBuilder buffer) {
         buffer.pos(x, minY, minZ).endVertex();
         buffer.pos(x, minY, maxZ).endVertex();
         buffer.pos(x, maxY, maxZ).endVertex();
         buffer.pos(x, maxY, minZ).endVertex();
     }
 
-    static void drawPlanePosX(final double x, final double minY, final double maxY, final double minZ, final double maxZ, final VertexBuffer buffer) {
+    static void drawPlanePosX(final double x, final double minY, final double maxY, final double minZ, final double maxZ, final BufferBuilder buffer) {
         buffer.pos(x, minY, minZ).endVertex();
         buffer.pos(x, maxY, minZ).endVertex();
         buffer.pos(x, maxY, maxZ).endVertex();
         buffer.pos(x, minY, maxZ).endVertex();
     }
 
-    static void drawPlaneNegY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
+    static void drawPlaneNegY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final BufferBuilder buffer) {
         buffer.pos(minX, y, minZ).endVertex();
         buffer.pos(maxX, y, minZ).endVertex();
         buffer.pos(maxX, y, maxZ).endVertex();
         buffer.pos(minX, y, maxZ).endVertex();
     }
 
-    static void drawPlanePosY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final VertexBuffer buffer) {
+    static void drawPlanePosY(final double y, final double minX, final double maxX, final double minZ, final double maxZ, final BufferBuilder buffer) {
         buffer.pos(minX, y, minZ).endVertex();
         buffer.pos(minX, y, maxZ).endVertex();
         buffer.pos(maxX, y, maxZ).endVertex();
         buffer.pos(maxX, y, minZ).endVertex();
     }
 
-    static void drawPlaneNegZ(final double z, final double minX, final double maxX, final double minY, final double maxY, final VertexBuffer buffer) {
+    static void drawPlaneNegZ(final double z, final double minX, final double maxX, final double minY, final double maxY, final BufferBuilder buffer) {
         buffer.pos(minX, minY, z).endVertex();
         buffer.pos(minX, maxY, z).endVertex();
         buffer.pos(maxX, maxY, z).endVertex();
         buffer.pos(maxX, minY, z).endVertex();
     }
 
-    static void drawPlanePosZ(final double z, final double minX, final double maxX, final double minY, final double maxY, final VertexBuffer buffer) {
+    static void drawPlanePosZ(final double z, final double minX, final double maxX, final double minY, final double maxY, final BufferBuilder buffer) {
         buffer.pos(minX, minY, z).endVertex();
         buffer.pos(maxX, minY, z).endVertex();
         buffer.pos(maxX, maxY, z).endVertex();
         buffer.pos(minX, maxY, z).endVertex();
     }
 
-    static void drawArrow(final VertexBuffer buffer) {
+    static void drawArrow(final BufferBuilder buffer) {
         buffer.pos(0, 0, 0.5).endVertex();
         buffer.pos(0.5, 0, 1).endVertex();
         buffer.pos(1, 0, 0.5).endVertex();
@@ -365,7 +365,7 @@ final class OverlayRendererUtils {
         buffer.pos(0.75, 0, 0).endVertex();
     }
 
-    private static void drawArrow3D(final VertexBuffer buffer) {
+    private static void drawArrow3D(final BufferBuilder buffer) {
         final float trunkSize = 0.3f;
         final float trunkLength = 0.75f;
         final float tipLength = 0.75f;

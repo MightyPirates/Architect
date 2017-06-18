@@ -15,7 +15,7 @@ public enum ItemColorBlueprint implements IItemColor {
                 return 0xFFFFFFF;
             case 1: {
                 final EnumDyeColor color = ItemBlueprint.getColor(stack);
-                return color == null ? 0x00000000 : (0xFF000000 | color.getMapColor().colorValue);
+                return color == null ? 0x00000000 : (0xFF000000 | color.getColorValue());
             }
             default:
                 return 0xFFFF00FF;

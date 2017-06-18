@@ -8,9 +8,9 @@ import li.cil.architect.util.RenderUtils;
 import li.cil.architect.util.WorldUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -68,7 +68,7 @@ public enum BlueprintRenderer {
         doPositionPrologue(event);
         doOverlayPrologue();
 
-        RenderUtils.setColor(0x33000000 | ItemBlueprint.getColor(stack).getMapColor().colorValue);
+        RenderUtils.setColor(0x33000000 | ItemBlueprint.getColor(stack).getColorValue());
         renderValidBlocks(world, data.getBlocks(player, hitPos), dt);
 
         GlStateManager.color(0.9f, 0.2f, 0.2f, 0.5f);
@@ -105,7 +105,7 @@ public enum BlueprintRenderer {
 
     private static void renderValidBlocks(final World world, final Stream<BlockPos> blocks, final float dt) {
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         blocks.forEach(pos -> {
@@ -119,7 +119,7 @@ public enum BlueprintRenderer {
 
     private static void renderInvalidBlocks(final World world, final Stream<BlockPos> blocks, final float dt) {
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
         blocks.forEach(pos -> {
@@ -148,7 +148,7 @@ public enum BlueprintRenderer {
         GlStateManager.translate(-0.5, 0, -0.5);
 
         final Tessellator t = Tessellator.getInstance();
-        final VertexBuffer buffer = t.getBuffer();
+        final BufferBuilder buffer = t.getBuffer();
         buffer.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION);
 
         drawArrow(buffer);

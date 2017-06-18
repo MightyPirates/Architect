@@ -5,6 +5,7 @@ import li.cil.architect.common.config.Settings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -261,10 +262,14 @@ public abstract class AbstractProvider extends AbstractItem {
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(final ItemStack stack, final EntityPlayer player, final List<String> tooltip, final boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
+    public void addInformation(final ItemStack stack, @Nullable final World world, final List<String> tooltip, final ITooltipFlag flag) {
+        super.addInformation(stack, world, tooltip, flag);
+
+        final Minecraft mc = Minecraft.getMinecraft();
+        final EntityPlayer player = mc.player;
+        final FontRenderer fontRenderer = mc.fontRenderer;
+
         final String info = I18n.format(getTooltip());
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         tooltip.addAll(fontRenderer.listFormattedStringToWidth(info, Constants.MAX_TOOLTIP_WIDTH));
 
         if (isBoundToBlock(stack)) {
@@ -272,11 +277,11 @@ public abstract class AbstractProvider extends AbstractItem {
             final int distance = MathHelper.ceil(player.getDistanceSqToCenter(pos));
             tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_BLOCK, distance));
 
-            if (advanced && !player.hasReducedDebug()) {
+            if (flag.isAdvanced() && !player.hasReducedDebug()) {
                 tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_TARGET, pos.getX(), pos.getY(), pos.getZ()));
             }
-        } else if (isBoundToEntity(stack)) {
-            final Entity entity = getEntity(stack, player.world);
+        } else if (isBoundToEntity(stack) && world != null) {
+            final Entity entity = getEntity(stack, world);
             if (entity != null) {
                 final int distance = MathHelper.ceil(player.getDistanceToEntity(entity));
                 tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_ENTITY, entity.getDisplayName().getFormattedText(), distance));
