@@ -13,6 +13,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -92,7 +93,7 @@ public final class Items {
                 setRegistryName(name));
     }
 
-    private static boolean isItem(final ItemStack stack, final Item item) {
+    private static boolean isItem(final ItemStack stack, @Nullable final Item item) {
         return !stack.isEmpty() && stack.getItem() == item;
     }
 
