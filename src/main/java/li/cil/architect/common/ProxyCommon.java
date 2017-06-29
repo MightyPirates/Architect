@@ -23,31 +23,30 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * Takes care of common setup.
  */
+@Mod.EventBusSubscriber
 public class ProxyCommon {
     public void onPreInit(final FMLPreInitializationEvent event) {
         // Initialize API.
         API.creativeTab = new CreativeTab();
 
         API.converterAPI = new ConverterAPIImpl();
-
-        // Register blocks and items.
-        Items.register(this);
 
         // Mod integration.
         Integration.preInit(event);
@@ -134,13 +133,9 @@ public class ProxyCommon {
 
     // --------------------------------------------------------------------- //
 
-    public Item registerItem(final String name, final Supplier<Item> constructor) {
-        final Item item = constructor.get().
-                setUnlocalizedName(API.MOD_ID + "." + name).
-                setCreativeTab(API.creativeTab).
-                setRegistryName(name);
-        GameRegistry.register(item);
-        return item;
+    @SubscribeEvent
+    public static void handleRegisterItemsEvent(final RegistryEvent.Register<Item> event) {
+        Items.register(event.getRegistry());
     }
 
     // --------------------------------------------------------------------- //

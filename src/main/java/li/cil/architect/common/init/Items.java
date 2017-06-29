@@ -1,6 +1,6 @@
 package li.cil.architect.common.init;
 
-import li.cil.architect.common.ProxyCommon;
+import li.cil.architect.api.API;
 import li.cil.architect.common.config.Constants;
 import li.cil.architect.common.item.ItemBlueprint;
 import li.cil.architect.common.item.ItemProviderFluid;
@@ -10,17 +10,36 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.registries.IForgeRegistry;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Predicate;
+
+import static net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 
 /**
  * Manages setup, registration and lookup of items.
  */
+@ObjectHolder(API.MOD_ID)
 public final class Items {
-    public static Item sketch;
-    public static Item blueprint;
-    public static Item providerItem;
-    public static Item providerFluid;
+    @ObjectHolder(Constants.NAME_ITEM_SKETCH)
+    public static final Item sketch = null;
+    @ObjectHolder(Constants.NAME_ITEM_BLUEPRINT)
+    public static final Item blueprint = null;
+    @ObjectHolder(Constants.NAME_ITEM_PROVIDER_ITEM)
+    public static final Item providerItem = null;
+    @ObjectHolder(Constants.NAME_ITEM_PROVIDER_FLUID)
+    public static final Item providerFluid = null;
+
+    public static List<Item> getAllItems() {
+        return Arrays.asList(
+                sketch,
+                blueprint,
+                providerItem,
+                providerFluid
+        );
+    }
 
     // --------------------------------------------------------------------- //
 
@@ -58,14 +77,21 @@ public final class Items {
 
     // --------------------------------------------------------------------- //
 
-    public static void register(final ProxyCommon proxy) {
-        sketch = proxy.registerItem(Constants.NAME_ITEM_SKETCH, ItemSketch::new);
-        blueprint = proxy.registerItem(Constants.NAME_ITEM_BLUEPRINT, ItemBlueprint::new);
-        providerItem = proxy.registerItem(Constants.NAME_ITEM_PROVIDER_ITEM, ItemProviderItem::new);
-        providerFluid = proxy.registerItem(Constants.NAME_ITEM_PROVIDER_FLUID, ItemProviderFluid::new);
+    public static void register(final IForgeRegistry<Item> registry) {
+        registerItem(registry, new ItemSketch(), Constants.NAME_ITEM_SKETCH);
+        registerItem(registry, new ItemBlueprint(), Constants.NAME_ITEM_BLUEPRINT);
+        registerItem(registry, new ItemProviderItem(), Constants.NAME_ITEM_PROVIDER_ITEM);
+        registerItem(registry, new ItemProviderFluid(), Constants.NAME_ITEM_PROVIDER_FLUID);
     }
 
     // --------------------------------------------------------------------- //
+
+    private static void registerItem(final IForgeRegistry<Item> registry, final Item item, final String name) {
+        registry.register(item.
+                setUnlocalizedName(API.MOD_ID + "." + name).
+                setCreativeTab(API.creativeTab).
+                setRegistryName(name));
+    }
 
     private static boolean isItem(final ItemStack stack, final Item item) {
         return !stack.isEmpty() && stack.getItem() == item;
