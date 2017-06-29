@@ -10,26 +10,25 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-
 /**
  * Manages setup, registration and lookup of items.
  */
-@ObjectHolder(API.MOD_ID)
+@GameRegistry.ObjectHolder(API.MOD_ID)
 public final class Items {
-    @ObjectHolder(Constants.NAME_ITEM_SKETCH)
+    @GameRegistry.ObjectHolder(Constants.NAME_ITEM_SKETCH)
     public static final Item sketch = null;
-    @ObjectHolder(Constants.NAME_ITEM_BLUEPRINT)
+    @GameRegistry.ObjectHolder(Constants.NAME_ITEM_BLUEPRINT)
     public static final Item blueprint = null;
-    @ObjectHolder(Constants.NAME_ITEM_PROVIDER_ITEM)
+    @GameRegistry.ObjectHolder(Constants.NAME_ITEM_PROVIDER_ITEM)
     public static final Item providerItem = null;
-    @ObjectHolder(Constants.NAME_ITEM_PROVIDER_FLUID)
+    @GameRegistry.ObjectHolder(Constants.NAME_ITEM_PROVIDER_FLUID)
     public static final Item providerFluid = null;
 
     public static List<Item> getAllItems() {
