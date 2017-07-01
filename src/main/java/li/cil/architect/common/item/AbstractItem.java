@@ -13,21 +13,6 @@ abstract class AbstractItem extends Item {
     private static final String TAG_DATA = API.MOD_ID + ":data";
 
     // --------------------------------------------------------------------- //
-    // Used for items that can be converted into other items by using them, to
-    // avoid accidentally using the new item right after the conversion finishes.
-
-    private static final int USE_DELAY_AFTER_CONVERSION = 500;
-    private static long disableUseBefore;
-
-    static boolean isUseDisabled() {
-        return System.currentTimeMillis() < disableUseBefore;
-    }
-
-    static void disableUseAfterConversion() {
-        AbstractItem.disableUseBefore = System.currentTimeMillis() + USE_DELAY_AFTER_CONVERSION;
-    }
-
-    // --------------------------------------------------------------------- //
 
     static NBTTagCompound getDataTag(final ItemStack stack) {
         NBTTagCompound stackNbt = stack.getTagCompound();
