@@ -46,6 +46,8 @@ public final class Constants {
     public static final String TOOLTIP_BLUEPRINT_COSTS_TITLE = "tooltip.architect.blueprint.costs.title";
     public static final String TOOLTIP_BLUEPRINT_COSTS_TITLE_PAGED = "tooltip.architect.blueprint.costs.title.paged";
     public static final String TOOLTIP_BLUEPRINT_COSTS_LINE = "tooltip.architect.blueprint.costs.line";
+    public static final String TOOLTIP_BLUEPRINT_COSTS_ENERGY = "tooltip.architect.blueprint.costs.energy";
+    public static final String TOOLTIP_BLUEPRINT_COSTS_EXHAUSTION = "tooltip.architect.blueprint.costs.exhaustion";
     public static final String TOOLTIP_BLUEPRINT_COSTS_UNKNOWN = "tooltip.architect.blueprint.costs.unknown";
     public static final String TOOLTIP_PROVIDER_ITEM = "tooltip.architect.provider.item";
     public static final String TOOLTIP_PROVIDER_FLUID = "tooltip.architect.provider.fluid";
