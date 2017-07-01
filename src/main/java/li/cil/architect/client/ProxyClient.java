@@ -58,6 +58,8 @@ public final class ProxyClient extends ProxyCommon {
         Minecraft.getMinecraft().getItemColors().registerItemColorHandler(ItemColorBlueprint.INSTANCE, Items.blueprint);
     }
 
+    // --------------------------------------------------------------------- //
+
     @SubscribeEvent
     public static void handleModelRegistryEvent(final ModelRegistryEvent event) {
         for (final Item item : Items.getAllItems()) {
