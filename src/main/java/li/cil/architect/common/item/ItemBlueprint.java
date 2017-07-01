@@ -172,9 +172,6 @@ public final class ItemBlueprint extends AbstractItem {
     }
 
     private void handleInput(final EnumHand hand, final EntityPlayer player) {
-        if (isUseDisabled()) {
-            return;
-        }
         final BlockPos pos = PlayerUtils.getRaytrace(player);
         Network.INSTANCE.getWrapper().sendToServer(new MessageBlueprintPlace(hand, pos, PlayerUtils.getAimDistance(), Settings.allowPlacePartial));
     }

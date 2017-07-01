@@ -183,7 +183,10 @@ public final class ItemSketch extends AbstractItem {
         final ItemStack result = new ItemStack(Items.blueprint);
         ItemBlueprint.setData(result, builder.getData(origin));
         ItemBlueprint.setColor(result, EnumDyeColor.byMetadata(world.rand.nextInt(16)));
-        disableUseAfterConversion();
+        if (entity instanceof EntityPlayer) {
+            ((EntityPlayer) entity).getCooldownTracker().setCooldown(this, 10);
+            ((EntityPlayer) entity).getCooldownTracker().setCooldown(Items.blueprint, 10);
+        }
         return result;
     }
 
@@ -214,10 +217,6 @@ public final class ItemSketch extends AbstractItem {
     }
 
     private void handleInput(final EntityPlayer player, final EnumHand hand, final BlockPos pos, final boolean canToggleSingle) {
-        if (isUseDisabled()) {
-            return;
-        }
-
         final World world = player.getEntityWorld();
         final ItemStack stack = player.getHeldItem(hand);
         if (hasRangeSelection(stack)) {
