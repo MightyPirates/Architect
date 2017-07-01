@@ -294,7 +294,6 @@ class JobBatch implements JobManager.JobConsumer {
 
         // If we can't satisfy the energy usage, let the player know.
         if (energyReceived < energyRequired) {
-            player.sendMessage(new TextComponentTranslation(Constants.MESSAGE_PLACEMENT_NOT_ENOUGH_ENERGY));
             return false;
         }
 
