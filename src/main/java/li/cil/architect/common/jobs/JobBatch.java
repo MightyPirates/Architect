@@ -219,7 +219,7 @@ class JobBatch implements JobManager.JobConsumer {
         // need to do it this way because otherwise (if we just simulated
         // extraction) converters could consume the same resource multiple
         // times.
-        final MaterialSourceImpl simulationSource = new MaterialSourceImpl(false, ItemHandlerUtils.copy(materialSource.getItemHandler()), FluidHandlerUtils.copy(materialSource.getFluidHandler()));
+        final MaterialSourceImpl simulationSource = new MaterialSourceImpl(materialSource.isCreative(), ItemHandlerUtils.copy(materialSource.getItemHandler()), FluidHandlerUtils.copy(materialSource.getFluidHandler()));
         return jobs.forEachValue(list -> {
             for (final Iterator<BatchedJob> iterator = list.iterator(); iterator.hasNext(); ) {
                 final BatchedJob job = iterator.next();
