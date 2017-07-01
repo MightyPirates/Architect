@@ -160,6 +160,15 @@ public final class ItemBlueprint extends AbstractItem {
         for (int i = offset, end = Math.min(tooltipCosts.size(), offset + COSTS_PER_PAGE); i < end; i++) {
             tooltip.add(tooltipCosts.get(i));
         }
+
+        final int blockCount = data.count();
+        if (Settings.useEnergy) {
+            final int energyRequired = Constants.ENERGY_PER_BLOCK * blockCount;
+            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_ENERGY, energyRequired));
+        } else {
+            final float exhaustion = (float) (Settings.exhaustionPerBlock * blockCount);
+            tooltip.add(I18n.format(Constants.TOOLTIP_BLUEPRINT_COSTS_EXHAUSTION, exhaustion));
+        }
     }
 
     private void handleInput(final EnumHand hand, final EntityPlayer player) {

@@ -79,6 +79,15 @@ public final class BlueprintData extends AbstractPatternData implements INBTSeri
     }
 
     /**
+     * Get the number of blocks set in this blueprint.
+     *
+     * @return the number of set blocks.
+     */
+    public int count() {
+        return blockPositions.cardinality();
+    }
+
+    /**
      * Adjust the current shift of this blueprint by the specified amount.
      * <p>
      * This will automatically wrap the shift if it exceeds the blueprint's
