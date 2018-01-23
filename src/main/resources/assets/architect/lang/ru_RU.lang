@@ -1,0 +1,74 @@
+itemGroup.architect=Architect
+
+item.architect.sketch.name=Эскиз
+item.architect.blueprint.name=Чертеж
+item.architect.provider_item.name=Поставщик предметов
+item.architect.provider_fluid.name=Поставщик жидкостей
+
+tooltip.architect.sketch.data=§7Размер: (%s, %s, %s), %sм отсюда
+tooltip.architect.sketch.bounds=§8Точки: (%s, %s, %s) до (%s, %s, %s)
+tooltip.architect.sketch.convert=§8Используйте более 1 секунды, что бы конвертировать эскиз в чертеж.
+tooltip.architect.sketch.empty=§8ПКМ по блоку, чтобы добавить его в экскиз.
+tooltip.architect.blueprint=§8Шифт+ПКМ, чтобы переименовать и изменить цвет закладки.
+tooltip.architect.blueprint.costs.hint=§8Удерживай [§7%s§8], чтобы показать расходы.
+tooltip.architect.blueprint.costs.title=§7Расходы
+tooltip.architect.blueprint.costs.title.paged=§7Расходы (%s/%s)
+tooltip.architect.blueprint.costs.line=§7- %sx %s
+tooltip.architect.blueprint.costs.energy=§7Энергия: %s
+tooltip.architect.blueprint.costs.exhaustion=§7Вытягивание: %s
+tooltip.architect.blueprint.costs.unknown=§7Расходы неизвестны.
+tooltip.architect.provider.item=§8Держите в инвентаре, чтобы использовать предметы из привязанного инвентаря при размещении чертежей.
+tooltip.architect.provider.fluid=§8Держите в инвентаре, чтобы использовать жидкости из привязанного резервуара при размещении чертежей.
+tooltip.architect.provider.block=§7Привязано к блоку в %sм отсюда.
+tooltip.architect.provider.entity=§7Привязано к %s§r§7, %sм отсюда.
+tooltip.architect.provider.target=§7Привязано к (%s, %s, %s).
+
+key.architect.rotateBlueprint=Повернуть чертеж
+key.architect.toggleGrid=Переключить привязку сетки
+key.architect.toggleAllowPartial=Переключить частичное размещение
+
+commands.architect.usage=Основная команда для всех команд в Architect mod. Используй tab-автозавершение, чтобы увидеть другие под-команды.
+commands.architect.blacklist.usage=Введите, пока смотрите на блок,чтобы добавить или удалить его из блэклиста.
+commands.architect.blacklist.added=Блок %s добавлен в блэклист.
+commands.architect.blacklist.removed=Блок %s удален из блэклиста.
+commands.architect.whitelist.usage=Введите, пока смотрите на блок, чтобы добавить или удалить его из вайтлиста.
+commands.architect.whitelist.added=Блок %s добавлен в вайтлист.
+commands.architect.whitelist.removed=Блок %s удален из вайтлиста.
+commands.architect.attached.usage=Введите, пока смотрите на блок, чтобы добавить или удалить его из списка закрепленных блоков.
+commands.architect.attached.added=Блок %s добавлен в список закрепленных блоков.
+commands.architect.attached.removed=Блок %s удален из списка закрепленных блоков.
+commands.architect.mapToBlock.usage=Введите, пока смотрите на блок, чтобы изменить привязку блока.
+commands.architect.mapToBlock.mapping=Блок %s привязан к блоку %s.
+commands.architect.mapToBlock.nomapping=Блок %s более ни к чему не привязан.
+commands.architect.mapToBlock.added=Блок %s теперь привязан к блоку %s.
+commands.architect.mapToBlock.removed=Убрана привязка для блока %s.
+commands.architect.mapToItem.usage=Введите, пока смотрите на блок, чтобы изменить привязанный к нему предмет.
+commands.architect.mapToItem.mapping=Блок %s теперь привязан к предмету %s.
+commands.architect.mapToItem.nomapping=Блок %s более не привязан ни к какому предмету.
+commands.architect.mapToItem.added=Блок %s теперь привязан к предмету %s.
+commands.architect.mapToItem.removed=Удалена привязка к блоку %s.
+commands.architect.copy.success=Чертеж скопирован в буфер обмена.
+commands.architect.paste.invalid=§cНеправильные данные в буфере обмена; ошибка вставки чертежа.
+commands.architect.paste.success=Чертеж вставлен из буфера обмена
+commands.architect.nbt.no_tile_entity=Не предмет.
+commands.architect.reload.success=Настройки конвертера перезагружены.
+commands.architect.reload.errors=§cНекоторые настройки не могут быть перезагружены, в связи со следующими ошибками:
+commands.architect.reload.error=%s: %s
+
+message.architect.grid_snapping.enabled=§aПрилипание к сетке включено.
+message.architect.grid_snapping.disabled=§cПрилипание к сетку выключено.
+message.architect.partial_placement.enabled=§aЧастичное размещение включено.
+message.architect.partial_placement.disabled=§cЧастичное размещение выключено.
+message.architect.placement.canceled=Некоторые блоки не были установлены из-за нехватки прав.
+message.architect.placement.not_enough_energy=Ошибка установки: недостаточно энергии.
+message.architect.placement.missing_materials=Ошибка установки: не хватает материалов.
+
+config.architect.enablePlacementGrid=Включить сетку установки
+config.architect.allowPlacePartial=Разрешить частичную установку
+config.architect.maxProviderRadius=Максимальный радиус поставщика
+config.architect.maxChunkOperationsPerTick=Максимум операций/тик на чанк
+config.architect.maxWorldOperationsPerTick=Максимум операций/тик на мир
+config.architect.use_energy=Использовать энергию
+config.architect.exhaustionPerBlock=Вытягивание за блок
+config.architect.sketchBlockAlpha=Очертить Alpha блока
+config.architect.sketchGridXRay=Начертить X-Ray сетку
