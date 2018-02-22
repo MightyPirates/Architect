@@ -54,6 +54,7 @@ commands.architect.nbt.no_tile_entity=Not a tile entity.
 commands.architect.reload.success=Converter settings reloaded.
 commands.architect.reload.errors=§cSome settings could not be reloaded due to errors:
 commands.architect.reload.error=%s: %s
+commands.architect.save.success=Successfully saved blueprint.
 
 message.architect.grid_snapping.enabled=§aGrid snapping enabled.
 message.architect.grid_snapping.disabled=§cGrid snapping disabled.

@@ -94,6 +94,7 @@ public final class Constants {
     public static final String COMMAND_RELOAD_SUCCESS = "commands.architect.reload.success";
     public static final String COMMAND_RELOAD_ERRORS = "commands.architect.reload.errors";
     public static final String COMMAND_RELOAD_ERROR = "commands.architect.reload.error";
+    public static final String COMMAND_SAVE_SUCCES = "commands.architect.save.success";
 
     // --------------------------------------------------------------------- //
     // Messages
