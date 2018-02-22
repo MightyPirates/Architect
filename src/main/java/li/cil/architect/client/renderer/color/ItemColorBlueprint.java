@@ -6,19 +6,19 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 
 public enum ItemColorBlueprint implements IItemColor {
-    INSTANCE;
+	INSTANCE;
 
-    @Override
-    public int getColorFromItemstack(final ItemStack stack, final int tintIndex) {
-        switch (tintIndex) {
-            case 0:
-                return 0xFFFFFFF;
-            case 1: {
-                final EnumDyeColor color = ItemBlueprint.getColor(stack);
-                return color == null ? 0x00000000 : (0xFF000000 | color.getColorValue());
-            }
-            default:
-                return 0xFFFF00FF;
-        }
-    }
+	@Override
+	public int colorMultiplier(ItemStack stack, int tintIndex) {
+		switch (tintIndex) {
+		case 0:
+			return 0xFFFFFFF;
+		case 1: {
+			final EnumDyeColor color = ItemBlueprint.getColor(stack);
+			return color == null ? 0x00000000 : (0xFF000000 | color.getColorValue());
+		}
+		default:
+			return 0xFFFF00FF;
+		}
+	}
 }

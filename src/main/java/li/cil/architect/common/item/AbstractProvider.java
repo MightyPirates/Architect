@@ -283,7 +283,7 @@ public abstract class AbstractProvider extends AbstractItem {
         } else if (isBoundToEntity(stack) && world != null) {
             final Entity entity = getEntity(stack, world);
             if (entity != null) {
-                final int distance = MathHelper.ceil(player.getDistanceToEntity(entity));
+                final int distance = MathHelper.ceil(player.getDistance(entity));
                 tooltip.add(I18n.format(Constants.TOOLTIP_PROVIDER_ENTITY, entity.getDisplayName().getFormattedText(), distance));
             }
         }

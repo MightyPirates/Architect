@@ -26,6 +26,8 @@ public class CommandArchitect extends AbstractCommand {
         addSubCommand(new SubCommandReload());
         addSubCommand(new SubCommandCopy());
         addSubCommand(new SubCommandPaste());
+        addSubCommand(new SubCommandSave());
+        addSubCommand(new SubCommandLoad());
     }
 
     private void addSubCommand(final CommandBase command) {
